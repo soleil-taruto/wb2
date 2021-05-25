@@ -11,7 +11,17 @@ namespace Charlotte.Tests
 	{
 		public void Test01()
 		{
-			// none
+			Test01_a("AABBCCABCCBACCBBAA", "ABC");
+			Test01_a("54321", "12345");
+			Test01_a("", "");
+		}
+
+		private void Test01_a(string src, string expect)
+		{
+			string ans = new string(src.ToArray().Distinct((a, b) => (int)a - (int)b).ToArray());
+
+			if (ans != expect)
+				throw null; // BUG !!!
 		}
 	}
 }

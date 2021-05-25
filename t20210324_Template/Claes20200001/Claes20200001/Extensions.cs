@@ -42,12 +42,5 @@ namespace Charlotte
 				}
 			}
 		}
-
-#if false
-		public static IEnumerable<T> Distinct<T>(this IEnumerable<T> src, Comparison<T> comp)
-		{
-			return src.OrderBy(comp).OrderedDistinct((a, b) => comp(a, b) == 0);
-		}
-#endif
 	}
 }

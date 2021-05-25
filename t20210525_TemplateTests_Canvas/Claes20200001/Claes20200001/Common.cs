@@ -68,5 +68,10 @@ namespace Charlotte
 		}
 
 		#endregion
+
+		public static double GetDistance(D2Point pt)
+		{
+			return Math.Sqrt(pt.X * pt.X + pt.Y * pt.Y);
+		}
 	}
 }
