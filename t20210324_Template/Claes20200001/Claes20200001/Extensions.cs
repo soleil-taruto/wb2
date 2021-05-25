@@ -17,29 +17,9 @@ namespace Charlotte
 
 		public static IEnumerable<T> OrderBy<T>(this IEnumerable<T> src, Comparison<T> comp)
 		{
-#if true
-			{
-				List<T> list = src.ToList();
-				list.Sort(comp);
-				src = list;
-			}
-#else // src自体をソートしても良い場合
-			if (src is T[])
-			{
-				Array.Sort((T[])src, comp);
-			}
-			else if (src is List<T>)
-			{
-				((List<T>)src).Sort(comp);
-			}
-			else
-			{
-				List<T> list = src.ToList();
-				list.Sort(comp);
-				src = list;
-			}
-#endif
-			return src;
+			List<T> list = src.ToList();
+			list.Sort(comp);
+			return list;
 		}
 
 		public static IEnumerable<T> OrderedDistinct<T>(this IEnumerable<T> src, Func<T, T, bool> match)
@@ -62,5 +42,12 @@ namespace Charlotte
 				}
 			}
 		}
+
+#if false
+		public static IEnumerable<T> Distinct<T>(this IEnumerable<T> src, Comparison<T> comp)
+		{
+			return src.OrderBy(comp).OrderedDistinct((a, b) => comp(a, b) == 0);
+		}
+#endif
 	}
 }

@@ -1604,18 +1604,12 @@ namespace Charlotte.Commons
 			public static long ToTimeStamp(DateTime dateTime)
 			{
 				return
-					10000000000L * dateTime
-						.Year + // KeepComment:@^_ConfuserElsa // NoRename:@^_ConfuserElsa
-					100000000L * dateTime
-						.Month + // KeepComment:@^_ConfuserElsa // NoRename:@^_ConfuserElsa
-					1000000L * dateTime
-						.Day + // KeepComment:@^_ConfuserElsa // NoRename:@^_ConfuserElsa
-					10000L * dateTime
-						.Hour + // KeepComment:@^_ConfuserElsa // NoRename:@^_ConfuserElsa
-					100L * dateTime
-						.Minute + // KeepComment:@^_ConfuserElsa // NoRename:@^_ConfuserElsa
-					dateTime
-						.Second; // KeepComment:@^_ConfuserElsa // NoRename:@^_ConfuserElsa
+					10000000000L * dateTime.Year +
+					100000000L * dateTime.Month +
+					1000000L * dateTime.Day +
+					10000L * dateTime.Hour +
+					100L * dateTime.Minute +
+					dateTime.Second;
 			}
 		}
 
