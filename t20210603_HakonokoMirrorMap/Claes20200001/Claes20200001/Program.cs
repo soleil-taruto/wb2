@@ -97,7 +97,7 @@ namespace Charlotte
 				.ToArray();
 
 			MirrorMap(@"C:\Dev\Elsa3\e20210501_Hakonoko\dat\res\Map\0007.bmp", -1);
-			//MirrorMap(@"C:\Dev\Elsa3\e20210501_Hakonoko\dat\res\Map\0009.bmp", 110); // 止め
+			//MirrorMap(@"C:\Dev\Elsa3\e20210501_Hakonoko\dat\res\Map\0009.bmp", 110); // 不実施
 		}
 
 		private void MirrorMap(string file, int mirH)
@@ -119,7 +119,7 @@ namespace Charlotte
 
 			byte[] fileData = Common.WriteBmpFile(bmp, w, h);
 
-#if true
+#if !true
 			File.WriteAllBytes(file, fileData);
 #else // test
 			File.WriteAllBytes(Common.NextOutputPath() + ".bmp", fileData);
