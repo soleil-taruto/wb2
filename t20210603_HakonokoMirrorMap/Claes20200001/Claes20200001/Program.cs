@@ -96,63 +96,50 @@ namespace Charlotte
 				})
 				.ToArray();
 
-			MirrorMap(@"C:\Dev\Elsa3\e20210501_Hakonoko\dat\res\Map\0007.bmp", -1);
-			//MirrorMap(@"C:\Dev\Elsa3\e20210501_Hakonoko\dat\res\Map\0009.bmp", 110); // 不実施
+			MirrorMap(
+				@"C:\Dev\Elsa3\e20210501_Hakonoko\dat\res\Map\0007.bmp_original.bmp",
+				@"C:\Dev\Elsa3\e20210501_Hakonoko\dat\res\Map\0007.bmp"
+				);
 		}
 
-		private void MirrorMap(string file, int mirH)
+		private void MirrorMap(string rFile, string wFile)
 		{
+			byte[] fileData = File.ReadAllBytes(rFile);
+
 			int w;
 			int h;
+			I3Color[,] bmp = Common.ReadBmpFile(fileData, out w, out h);
 
-			I3Color[,] bmp = Common.ReadBmpFile(File.ReadAllBytes(file), out w, out h);
+			MirrorMap(bmp, w, h);
 
-			int mirT = 0;
-			int mirL = 0;
-			int mirW = w;
-			//int mirH = h;
+			fileData = Common.WriteBmpFile(bmp, w, h);
 
-			if (mirH == -1)
-				mirH = h;
-
-			MirrorMap(bmp, new I4Rect(mirT, mirL, mirW, mirH));
-
-			byte[] fileData = Common.WriteBmpFile(bmp, w, h);
-
-#if !true
-			File.WriteAllBytes(file, fileData);
-#else // test
-			File.WriteAllBytes(Common.NextOutputPath() + ".bmp", fileData);
-#endif
+			File.WriteAllBytes(wFile, fileData);
 		}
 
-		private void MirrorMap(I3Color[,] bmp, I4Rect mirRect)
+		private void MirrorMap(I3Color[,] bmp, int w, int h)
 		{
-			for (int x = 0; x < mirRect.W / 2; x++)
+			int w_half = w / 2;
+
+			for (int x = 0; x < w_half; x++)
 			{
-				for (int y = 0; y < mirRect.H; y++)
+				for (int y = 0; y < h; y++)
 				{
 					SCommon.Swap(
-						ref bmp[
-							mirRect.L + x,
-							mirRect.T + y
-							],
-						ref bmp[
-							mirRect.L + mirRect.W - 1 - x,
-							mirRect.T + y
-							]
+						ref bmp[x, y],
+						ref bmp[w - 1 - x, y]
 						);
 				}
 			}
-			for (int x = 0; x < mirRect.W; x++)
+			for (int x = 0; x < w; x++)
 			{
-				for (int y = 0; y < mirRect.H; y++)
+				for (int y = 0; y < h; y++)
 				{
-					int index = SCommon.IndexOf(ReplaceColorPairs, pair => pair.From.IsSame(bmp[x, y]));
+					ReplaceColorPairInfo pair = ReplaceColorPairs.FirstOrDefault(v => v.From.IsSame(bmp[x, y]));
 
-					if (index != -1)
+					if (pair != null)
 					{
-						bmp[x, y] = ReplaceColorPairs[index].To;
+						bmp[x, y] = pair.To;
 					}
 				}
 			}
