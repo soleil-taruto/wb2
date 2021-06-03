@@ -47,5 +47,13 @@ namespace Charlotte.Commons
 		{
 			return Color.FromArgb(this.R, this.G, this.B);
 		}
+
+		public bool IsSame(I3Color other)
+		{
+			return
+				this.R == other.R &&
+				this.G == other.G &&
+				this.B == other.B;
+		}
 	}
 }
