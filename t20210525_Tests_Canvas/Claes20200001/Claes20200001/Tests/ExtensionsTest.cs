@@ -22,17 +22,17 @@ namespace Charlotte.Tests
 			Test01_a("AABBCCABCCBACCBBAA", "ABC");
 		}
 
-		private void Test01_a(string src, string expect)
+		private void Test01_a(string src, string assume)
 		{
 			string ans = new string(src.ToArray().DistinctOrderBy((a, b) => (int)a - (int)b).ToArray());
 
-			if (ans != expect)
+			if (ans != assume)
 				throw null; // BUG !!!
 		}
 
 		public void Test02()
 		{
-			ProcMain.WriteLog("Test02 start");
+			ProcMain.WriteLog("Test02 Start");
 
 			Test02_Main(0, 1);
 			Test02_Param(
@@ -46,12 +46,12 @@ namespace Charlotte.Tests
 				new[] { 10, 100, 1000, 10000 }
 				);
 
-			ProcMain.WriteLog("Test02 done");
+			ProcMain.WriteLog("Test02 OK!");
 		}
 
 		private void Test02_Param(int testCount, int[] arrLengthMaxs, int[] valueLimitMaxs)
 		{
-			ProcMain.WriteLog("Test02_a: " + testCount);
+			ProcMain.WriteLog("testCount: " + testCount);
 
 			for (int testcnt = 0; testcnt < testCount; testcnt++)
 			{
@@ -66,22 +66,25 @@ namespace Charlotte.Tests
 					}
 				}
 			}
-			ProcMain.WriteLog("Test02_a done");
+			ProcMain.WriteLog("done");
 		}
 
 		private void Test02_Main(int arrLength, int valueLimit)
 		{
 			int[] src = Enumerable.Range(1, arrLength).Select(dummy => SCommon.CRandom.GetInt(valueLimit)).ToArray();
 			int[] ans = src.DistinctOrderBy(SCommon.Comp).ToArray();
-			int[] expect = Test02_GetExpect(src);
+			int[] assume = Test02_GetAssumeValue(src);
 
-			if (SCommon.Comp(ans, expect, SCommon.Comp) != 0) // ? 不一致
+			if (SCommon.Comp(ans, assume, SCommon.Comp) != 0) // ? 不一致
 				throw null; // BUG !!!
 		}
 
-		private int[] Test02_GetExpect(int[] src)
+		private int[] Test02_GetAssumeValue(int[] src)
 		{
-			bool[] valueExists = new bool[(src.Length == 0 ? 0 : src.Max()) + 1];
+			if (src.Length == 0)
+				return new int[0];
+
+			bool[] valueExists = new bool[src.Max() + 1];
 
 			foreach (int value in src)
 				valueExists[value] = true;
