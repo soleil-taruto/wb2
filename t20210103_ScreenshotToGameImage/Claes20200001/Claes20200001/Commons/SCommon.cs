@@ -259,7 +259,7 @@ namespace Charlotte.Commons
 					yield return element;
 		}
 
-		public static IEnumerable<T> Sort<T>(IEnumerable<T> src, Comparison<T> comp)
+		public static IEnumerable<T> OrderBy<T>(IEnumerable<T> src, Comparison<T> comp)
 		{
 			T[] arr = src.ToArray();
 			Array.Sort(arr, comp);
