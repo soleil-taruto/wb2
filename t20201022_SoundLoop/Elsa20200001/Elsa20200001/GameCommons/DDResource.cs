@@ -174,7 +174,7 @@ namespace Charlotte.GameCommons
 			// ソート
 			// makeDDResourceFile はファイルリストを sortJLinesICase している。
 			// ここでソートする必要は無いが、戻り値に統一性を持たせるため(毎回ファイルの並びが違うということのないように)ソートしておく。
-			files = SCommon.Sort(files, SCommon.CompIgnoreCase);
+			files = SCommon.OrderBy(files, SCommon.CompIgnoreCase);
 
 			return files;
 		}
