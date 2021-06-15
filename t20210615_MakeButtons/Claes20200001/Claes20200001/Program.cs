@@ -51,7 +51,8 @@ namespace Charlotte
 			// -- choose one --
 
 			//MakeButtons_20200001_RSSAGame();
-			MakeButtons_20200002_SSAGame();
+			//MakeButtons_20200002_SSAGame();
+			MakeButtons_20210001_TVAGame();
 
 			// --
 		}
@@ -70,6 +71,17 @@ namespace Charlotte
 		private void MakeButtons_20200002_SSAGame()
 		{
 			I4Color color = new I4Color(233, 255, 33, 255);
+
+			MakeButtons(2400, color, "ゲームスタート", 60);
+			MakeButtons(2400, color, "コンテニュー", 180);
+			MakeButtons(2400, color, "おまけ", 550);
+			MakeButtons(2400, color, "設定", 675);
+			MakeButtons(2400, color, "終了", 675);
+		}
+
+		private void MakeButtons_20210001_TVAGame()
+		{
+			I4Color color = new I4Color(50, 200, 50, 255);
 
 			MakeButtons(2400, color, "ゲームスタート", 60);
 			MakeButtons(2400, color, "コンテニュー", 180);
