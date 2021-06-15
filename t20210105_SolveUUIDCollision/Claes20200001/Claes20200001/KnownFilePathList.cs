@@ -26,19 +26,25 @@ namespace Charlotte
 			return this.KnownFilePaths.Any(knownFilePath => SCommon.EqualsIgnoreCase(knownFilePath, uuid));
 		}
 
-		private const string KNOWN_FILE_PATH_LIST_FILE = @"C:\appdata\SUC-KnownFilePathList.txt"; // zantei ?
+		private static string KNOWN_FILE_PATH_LIST_FILE
+		{
+			get
+			{
+				return string.Format(@"C:\tmp\KnownFilePathList_{0}.txt", ProcMain.APP_IDENT);
+			}
+		}
 
 		public void Load()
 		{
 			if (File.Exists(KNOWN_FILE_PATH_LIST_FILE))
-				this.KnownFilePaths = File.ReadAllLines(KNOWN_FILE_PATH_LIST_FILE, Encoding.ASCII).ToList();
+				this.KnownFilePaths = File.ReadAllLines(KNOWN_FILE_PATH_LIST_FILE, Encoding.UTF8).ToList();
 			else
 				this.KnownFilePaths.Clear();
 		}
 
 		public void Save()
 		{
-			File.WriteAllLines(KNOWN_FILE_PATH_LIST_FILE, this.KnownFilePaths, Encoding.ASCII);
+			File.WriteAllLines(KNOWN_FILE_PATH_LIST_FILE, this.KnownFilePaths, Encoding.UTF8);
 		}
 	}
 }
