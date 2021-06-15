@@ -50,18 +50,19 @@ namespace Charlotte
 		{
 			// -- choose one --
 
-			MakeButtons_20200001_DoremyRockman();
-			//MakeButtons_20200002_SSAGame();
+			//MakeButtons_20200001_RSSAGame();
+			MakeButtons_20200002_SSAGame();
 
 			// --
 		}
 
-		private void MakeButtons_20200001_DoremyRockman()
+		private void MakeButtons_20200001_RSSAGame()
 		{
 			I4Color color = new I4Color(255, 64, 64, 255);
 
 			MakeButtons(2400, color, "ゲームスタート", 60);
 			MakeButtons(2400, color, "コンテニュー", 180);
+			MakeButtons(2400, color, "おまけ", 550);
 			MakeButtons(2400, color, "設定", 675);
 			MakeButtons(2400, color, "終了", 675);
 		}
@@ -72,6 +73,7 @@ namespace Charlotte
 
 			MakeButtons(2400, color, "ゲームスタート", 60);
 			MakeButtons(2400, color, "コンテニュー", 180);
+			MakeButtons(2400, color, "おまけ", 550);
 			MakeButtons(2400, color, "設定", 675);
 			MakeButtons(2400, color, "終了", 675);
 		}
