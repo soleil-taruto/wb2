@@ -81,23 +81,33 @@ namespace Charlotte
 
 		private void MakeButtons_20210001_TVAGame()
 		{
-			I4Color color = new I4Color(50, 200, 50, 255);
+			I4Color frameColor = new I4Color(50, 200, 50, 255);
+			I4Color backColor = new I4Color(0, 0, 0, 128);
+			I4Color textColor = new I4Color(255, 255, 255, 255);
 
-			MakeButtons(2400, color, "ゲームスタート", 60);
-			MakeButtons(2400, color, "コンテニュー", 180);
-			MakeButtons(2400, color, "おまけ", 550);
-			MakeButtons(2400, color, "設定", 675);
-			MakeButtons(2400, color, "終了", 675);
+			MakeButtons(2400, frameColor, backColor, textColor, "ゲームスタート", 60);
+			MakeButtons(2400, frameColor, backColor, textColor, "コンテニュー", 180);
+			MakeButtons(2400, frameColor, backColor, textColor, "おまけ", 550);
+			MakeButtons(2400, frameColor, backColor, textColor, "設定", 675);
+			MakeButtons(2400, frameColor, backColor, textColor, "終了", 675);
 		}
 
 		private void MakeButtons(int w, I4Color frameColor, string text, int text_x)
+		{
+			I4Color backColor = new I4Color(255, 255, 255, 0);
+			I4Color textColor = new I4Color(255, 255, 255, 255);
+
+			MakeButtons(w, frameColor, backColor, textColor, text, text_x);
+		}
+
+		private void MakeButtons(int w, I4Color frameColor, I4Color backColor, I4Color textColor, string text, int text_x)
 		{
 			//int w = 2400;
 			int h = 480;
 			int frame = 60;
 
-			I4Color backColor = new I4Color(255, 255, 255, 0);
-			I4Color textColor = new I4Color(255, 255, 255, 255);
+			//I4Color backColor = new I4Color(255, 255, 255, 0);
+			//I4Color textColor = new I4Color(255, 255, 255, 255);
 
 			Canvas canvas = new Canvas(w, h);
 
