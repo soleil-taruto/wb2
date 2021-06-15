@@ -106,12 +106,13 @@ namespace Charlotte
 			int h = 480;
 			int frame = 60;
 
+			I4Color outerColor = new I4Color(255, 255, 255, 0);
 			//I4Color backColor = new I4Color(255, 255, 255, 0);
 			//I4Color textColor = new I4Color(255, 255, 255, 255);
 
 			Canvas canvas = new Canvas(w, h);
 
-			canvas.Fill(backColor);
+			canvas.Fill(outerColor);
 			canvas.DrawCircle(new D2Point(0 + h / 2, h / 2), h / 2, frameColor);
 			canvas.DrawCircle(new D2Point(w - h / 2, h / 2), h / 2, frameColor);
 			canvas.FillRect(new I4Rect(h / 2, frame * 0, w - h, h - frame * 0), frameColor);
