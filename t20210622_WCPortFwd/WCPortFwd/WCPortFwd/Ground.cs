@@ -9,11 +9,11 @@ using System.Runtime.InteropServices;
 
 namespace WCPortFwd
 {
-	public class Gnd
+	public class Ground
 	{
-		private Gnd()
+		private Ground()
 		{ }
-		public static Gnd I = new Gnd();
+		public static Ground I = new Ground();
 
 		public readonly string ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 		public readonly string alpha = "abcdefghijklmnopqrstuvwxyz";
@@ -66,7 +66,7 @@ namespace WCPortFwd
 			{
 				List<string> lines = new List<string>();
 
-				foreach (ForwardInfo fi in Gnd.I.ForwardInfoList)
+				foreach (ForwardInfo fi in Ground.I.ForwardInfoList)
 				{
 					lines.Add(string.Join(
 						",",
@@ -106,7 +106,7 @@ namespace WCPortFwd
 
 		public bool 停止チェック()
 		{
-			using (Gnd.I.MainWin.TimerOff.LocalIncrement())
+			using (Ground.I.MainWin.TimerOff.LocalIncrement())
 			{
 				if (this.Started)
 				{
@@ -139,7 +139,7 @@ namespace WCPortFwd
 
 		public bool ポートの重複有り()
 		{
-			foreach (ForwardInfo fi in Gnd.I.ForwardInfoList)
+			foreach (ForwardInfo fi in Ground.I.ForwardInfoList)
 				if (fi != this && this.RecvPortNo == fi.RecvPortNo && fi.Started)
 					return true;
 
@@ -169,9 +169,9 @@ namespace WCPortFwd
 
 		public bool IsExist停止中()
 		{
-			for (int index = 0; index < Gnd.I.ForwardInfoList.Count; index++)
+			for (int index = 0; index < Ground.I.ForwardInfoList.Count; index++)
 			{
-				if (Gnd.I.ForwardInfoList[index].Is停止中())
+				if (Ground.I.ForwardInfoList[index].Is停止中())
 				{
 					return true;
 				}
@@ -198,15 +198,15 @@ namespace WCPortFwd
 			if (errLv != 0)
 			//if (errLv != 0 && errLv != NTSTATUS_CTRL_C)
 			{
-				if (errLv == ERRLV_HANDLED_ERROR) // ? たぶんハンドルされたエラー
+				if (errLv == ERRLV_HANDLED_ERROR || this.RawKey != "" && errLv == 1) // ? ハンドルされたエラー
 				{
 					this.Started = false;
 					this.Modified = true;
 				}
 				else
 				{
-					Gnd.I.表示されないエラー停止の回数++;
-					Gnd.I.MainWin.SetSubStatusLabel("(未知のエラーコードを " + Gnd.I.表示されないエラー停止の回数 + " 回検知しました, 最後のエラーコードは " + errLv + " です)");
+					Ground.I.表示されないエラー停止の回数++;
+					Ground.I.MainWin.SetSubStatusLabel("(未知のエラーコードを " + Ground.I.表示されないエラー停止の回数 + " 回検知しました, 最後のエラーコードは " + errLv + " です)");
 				}
 			}
 			this.Proc = null;
@@ -214,6 +214,45 @@ namespace WCPortFwd
 
 		public void 開始()
 		{
+			if (this.RawKey != "")
+			{
+				try
+				{
+					string key;
+
+					if (Tools.IsHex128(this.RawKey))
+					{
+						string file = this.GetCrypTunnelKeyFile(this.RecvPortNo);
+						File.WriteAllText(file, this.RawKey, Encoding.ASCII);
+						key = file;
+					}
+					else
+						key = "*" + this.RawKey;
+
+					ProcessStartInfo psi = new ProcessStartInfo();
+
+					psi.FileName = this.GetCrypTunnelExecFile();
+					psi.Arguments =
+						this.RecvPortNo +
+						" " + this.ForwardDomain +
+						" " + this.ForwardPortNo +
+						" /C " + this.ConnectMax +
+						(this.DecMode ? " /R" : "") +
+						" /BSL 50000 " + key;
+					psi.CreateNoWindow = true;
+					psi.UseShellExecute = false;
+
+					this.Proc = Process.Start(psi);
+					this.StartTimeRecvPortNo = this.RecvPortNo;
+				}
+				catch
+				{
+					this.Proc = null;
+				}
+
+				return;
+			}
+
 			try
 			{
 				ProcessStartInfo psi = new ProcessStartInfo();
@@ -243,9 +282,30 @@ namespace WCPortFwd
 		{
 			try
 			{
+				ProcessStartInfo psi = new ProcessStartInfo();
+
+				psi.FileName = this.GetCrypTunnelExecFile();
+				psi.Arguments = this.StartTimeRecvPortNo + " a 1 /S";
+				psi.CreateNoWindow = true;
+				psi.UseShellExecute = false;
+
+				Process.Start(psi);
+			}
+			catch
+			{ }
+
+			try
+			{
+				File.Delete(this.GetCrypTunnelKeyFile(this.StartTimeRecvPortNo));
+			}
+			catch
+			{ }
+
+			try
+			{
 #if true
 				EventSet.Perform("cerulean.charlotte CryptPortForward server termination PORT " + this.StartTimeRecvPortNo);
-#else // プロセス起動版 -> シャットダウン非対応
+#else // プロセス起動版 -> シャットダウン非対応 -- SessionEnding 追加 @ 2021.6
 				ProcessStartInfo psi = new ProcessStartInfo();
 
 				psi.FileName = this.GetExecFile();
@@ -258,6 +318,32 @@ namespace WCPortFwd
 			}
 			catch
 			{ }
+		}
+
+		public static void ゴミ掃除()
+		{
+			try
+			{
+				foreach (string file in Directory.GetFiles(".", GetCrypTunnelKeyFileWildCard()))
+					File.Delete(file);
+			}
+			catch
+			{ }
+		}
+
+		private string GetCrypTunnelExecFile()
+		{
+			return "crypTunnel.exe";
+		}
+
+		private string GetCrypTunnelKeyFile(int portNo)
+		{
+			return "crypTunnel.exe_" + portNo.ToString("D5") + ".tmp";
+		}
+
+		private static string GetCrypTunnelKeyFileWildCard()
+		{
+			return "crypTunnel.exe_*.tmp";
 		}
 
 		private string ExecFile;

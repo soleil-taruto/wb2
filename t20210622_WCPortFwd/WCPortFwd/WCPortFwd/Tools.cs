@@ -143,7 +143,7 @@ namespace WCPortFwd
 				StringBuilder sBuff = new StringBuilder();
 
 				foreach (char chr in domain)
-					if ((Gnd.I.ALPHA + Gnd.I.alpha + Gnd.I.DIGIT + "-.").IndexOf(chr) != -1)
+					if ((Ground.I.ALPHA + Ground.I.alpha + Ground.I.DIGIT + "-.").IndexOf(chr) != -1)
 						sBuff.Append(chr);
 
 				domain = "" + sBuff;
@@ -170,7 +170,7 @@ namespace WCPortFwd
 				StringBuilder sBuff = new StringBuilder();
 
 				foreach (char chr in passphrase)
-					if ((Gnd.I.ALPHA + Gnd.I.alpha + Gnd.I.DIGIT + USABLE_PUNCT).IndexOf(chr) != -1 || (Tools.Is全角(chr) && chr != '　'))
+					if ((Ground.I.ALPHA + Ground.I.alpha + Ground.I.DIGIT + USABLE_PUNCT).IndexOf(chr) != -1 || (Tools.Is全角(chr) && chr != '　'))
 						sBuff.Append(chr);
 
 				passphrase = "" + sBuff;
@@ -203,7 +203,7 @@ namespace WCPortFwd
 				return false;
 
 			foreach (char chr in str)
-				if ((Gnd.I.DIGIT + Gnd.I.ALPHA.Substring(0, 6) + Gnd.I.alpha.Substring(0, 6)).IndexOf(chr) == -1)
+				if ((Ground.I.DIGIT + Ground.I.ALPHA.Substring(0, 6) + Ground.I.alpha.Substring(0, 6)).IndexOf(chr) == -1)
 					return false;
 
 			return true;
@@ -242,8 +242,8 @@ namespace WCPortFwd
 				byte byteval = bytes[startPos + i];
 				int intval = (int)byteval;
 
-				buff.Append(Gnd.I.hex_digit[intval / 16]);
-				buff.Append(Gnd.I.hex_digit[intval % 16]);
+				buff.Append(Ground.I.hex_digit[intval / 16]);
+				buff.Append(Ground.I.hex_digit[intval % 16]);
 			}
 			return buff.ToString();
 		}

@@ -42,7 +42,7 @@ namespace WCPortFwd
 
 		private void 何かを待つWin_Load(object sender, EventArgs e)
 		{
-			this.Icon = Gnd.I.MainWin.Icon;
+			this.Icon = Ground.I.MainWin.Icon;
 		}
 
 		private bool TimerOn;

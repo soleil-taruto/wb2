@@ -24,7 +24,7 @@ namespace WCPortFwd
 
 		private void EditWin_Load(object sender, EventArgs e)
 		{
-			this.Icon = Gnd.I.MainWin.Icon;
+			this.Icon = Ground.I.MainWin.Icon;
 			this.LoadInfo();
 		}
 
@@ -74,7 +74,7 @@ namespace WCPortFwd
 				this.FI.RawKey = Tools.PassphraseFltr(this.RawKey.Text);
 
 				if (this.FI.RawKey == "")
-					this.FI.RawKey = Gnd.I.DEFAULT_RAWKEY;
+					this.FI.RawKey = Ground.I.DEFAULT_RAWKEY;
 			}
 		}
 

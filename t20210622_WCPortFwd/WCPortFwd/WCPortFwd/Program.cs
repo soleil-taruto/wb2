@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using Microsoft.Win32;
 
 namespace WCPortFwd
 {
@@ -16,11 +17,14 @@ namespace WCPortFwd
 		{
 			Application.ThreadException += new ThreadExceptionEventHandler(Application_ThreadException);
 			AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
+			SystemEvents.SessionEnding += new SessionEndingEventHandler(SessionEnding);
 
 			Mutex mtx = new Mutex(false, "cerulean.charlotte W_CryptPortForward Process mutex");
 
 			if (mtx.WaitOne(0) && GlobalProcMtx.Create("{bb5a56eb-e9c2-47f1-aceb-f52556133761}", APP_TITLE))
 			{
+				ForwardInfo.ゴミ掃除();
+
 				// orig >
 
 				Application.EnableVisualStyles();
@@ -30,6 +34,7 @@ namespace WCPortFwd
 				// < orig
 
 				// シャットダウンした場合 MainWin の FormClosed は実行されるが、ここへは到達しないようだ...
+				// -- SessionEnding 追加 @ 2021.6
 
 				// ここではフォームを開けない...
 
@@ -75,6 +80,11 @@ namespace WCPortFwd
 			{ }
 
 			Environment.Exit(2);
+		}
+
+		private static void SessionEnding(object sender, SessionEndingEventArgs e)
+		{
+			Environment.Exit(3);
 		}
 	}
 }

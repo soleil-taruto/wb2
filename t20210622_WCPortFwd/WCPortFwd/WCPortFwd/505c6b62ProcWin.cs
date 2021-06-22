@@ -37,9 +37,9 @@ namespace WCPortFwd
 
 		private void 停止ProcWin_Load(object sender, EventArgs e)
 		{
-			this.Icon = Gnd.I.MainWin.Icon;
+			this.Icon = Ground.I.MainWin.Icon;
 
-			foreach (ForwardInfo fi in Gnd.I.ForwardInfoList)
+			foreach (ForwardInfo fi in Ground.I.ForwardInfoList)
 				if (fi.Proc != null)
 					fi.停止してね();
 
@@ -60,7 +60,7 @@ namespace WCPortFwd
 				this.何もするな_Time--;
 				return;
 			}
-			foreach (ForwardInfo fi in Gnd.I.ForwardInfoList)
+			foreach (ForwardInfo fi in Ground.I.ForwardInfoList)
 			{
 				fi.停止();
 
@@ -83,11 +83,11 @@ namespace WCPortFwd
 		{
 			if (noDlg)
 			{
-				foreach (ForwardInfo fi in Gnd.I.ForwardInfoList)
+				foreach (ForwardInfo fi in Ground.I.ForwardInfoList)
 					if (fi.Proc != null)
 						fi.停止してね();
 
-				foreach (ForwardInfo fi in Gnd.I.ForwardInfoList)
+				foreach (ForwardInfo fi in Ground.I.ForwardInfoList)
 				{
 					for (; ; )
 					{

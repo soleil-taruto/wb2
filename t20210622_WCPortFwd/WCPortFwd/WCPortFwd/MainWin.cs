@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.IO;
 
 namespace WCPortFwd
 {
@@ -34,11 +35,11 @@ namespace WCPortFwd
 				this.FirstPosT = pScr_t + (pScr_h - this.Size.Height) / 2;
 			}
 
-			this.StatusLabel.Text = Gnd.I.STATUSLABEL_BLANK;
-			this.SubStatusLabel.Text = Gnd.I.STATUSLABEL_BLANK;
+			this.StatusLabel.Text = Ground.I.STATUSLABEL_BLANK;
+			this.SubStatusLabel.Text = Ground.I.STATUSLABEL_BLANK;
 
-			Gnd.I.MainWin = this;
-			Gnd.I.LoadForwardInfoList();
+			Ground.I.MainWin = this;
+			Ground.I.LoadForwardInfoList();
 		}
 
 		private void MainWin_Load(object sender, EventArgs e)
@@ -77,9 +78,9 @@ namespace WCPortFwd
 			if (this.TimerOff.IsZero() == false)
 				return;
 
-			if (1 <= Gnd.I.シャットダウン_Count)
+			if (1 <= Ground.I.シャットダウン_Count)
 			{
-				Gnd.I.シャットダウン_Count--;
+				Ground.I.シャットダウン_Count--;
 				return;
 			}
 			using (this.TimerOff.LocalIncrement())
@@ -114,12 +115,12 @@ namespace WCPortFwd
 				}
 				else
 				{
-					int cycle = Math.Max(10, Gnd.I.ForwardInfoList.Count);
+					int cycle = Math.Max(10, Ground.I.ForwardInfoList.Count);
 					int index = (int)(this.TimerCount % (ulong)cycle);
 
-					if (index < Gnd.I.ForwardInfoList.Count)
+					if (index < Ground.I.ForwardInfoList.Count)
 					{
-						ForwardInfo fi = Gnd.I.ForwardInfoList[index];
+						ForwardInfo fi = Ground.I.ForwardInfoList[index];
 
 						fi.巡回Proc();
 
@@ -156,7 +157,7 @@ namespace WCPortFwd
 			{
 				case WM_QUERYENDSESSION:
 				case WM_ENDSESSION:
-					Gnd.I.シャットダウン_Count = 200; // 20[sec]
+					Ground.I.シャットダウン_Count = 200; // 20[sec]
 					break;
 			}
 			base.WndProc(ref m);
@@ -167,7 +168,7 @@ namespace WCPortFwd
 			this.TimerOff.Increment();
 			this.TaskTrayIcon.Visible = false;
 
-			Gnd.I.SaveForwardInfoList();
+			Ground.I.SaveForwardInfoList();
 		}
 
 		private bool TTIOA_Passed = false;
@@ -253,15 +254,15 @@ namespace WCPortFwd
 						this.MSAddColumn("暗号モード");
 						this.MSAddColumn("鍵");
 					}
-					if (Gnd.I.ForwardInfoList.Count < ms.RowCount)
+					if (Ground.I.ForwardInfoList.Count < ms.RowCount)
 					{
-						ms.RowCount = Gnd.I.ForwardInfoList.Count;
+						ms.RowCount = Ground.I.ForwardInfoList.Count;
 					}
-					ms.RowCount = Gnd.I.ForwardInfoList.Count;
+					ms.RowCount = Ground.I.ForwardInfoList.Count;
 
-					for (int rowidx = 0; rowidx < Gnd.I.ForwardInfoList.Count; rowidx++)
+					for (int rowidx = 0; rowidx < Ground.I.ForwardInfoList.Count; rowidx++)
 					{
-						ForwardInfo fi = Gnd.I.ForwardInfoList[rowidx];
+						ForwardInfo fi = Ground.I.ForwardInfoList[rowidx];
 						//ms.Rows.Add();
 						DataGridViewRow r = ms.Rows[rowidx];
 
@@ -299,7 +300,7 @@ namespace WCPortFwd
 			}
 			finally
 			{
-				this.StatusLabel.Text = Gnd.I.STATUSLABEL_BLANK;
+				this.StatusLabel.Text = Ground.I.STATUSLABEL_BLANK;
 			}
 		}
 		private void MSAddColumn(string title)
@@ -354,7 +355,7 @@ namespace WCPortFwd
 				if (rowidx == -1)
 					return;
 
-				ForwardInfo fi = Gnd.I.ForwardInfoList[rowidx];
+				ForwardInfo fi = Ground.I.ForwardInfoList[rowidx];
 
 				if (fi.Started == false && fi.ポートの重複有り())
 				{
@@ -372,7 +373,7 @@ namespace WCPortFwd
 						return;
 #endif
 
-					foreach (ForwardInfo sFI in Gnd.I.ForwardInfoList)
+					foreach (ForwardInfo sFI in Ground.I.ForwardInfoList)
 						if (sFI.RecvPortNo == fi.RecvPortNo)
 							sFI.Started = false;
 #else
@@ -399,7 +400,7 @@ namespace WCPortFwd
 		{
 			using (this.TimerOff.LocalIncrement())
 			{
-				if (Gnd.I.MS_ROW_MAX <= Gnd.I.ForwardInfoList.Count)
+				if (Ground.I.MS_ROW_MAX <= Ground.I.ForwardInfoList.Count)
 				{
 					MessageBox.Show(
 						"これ以上新しい項目は追加できません。",
@@ -411,7 +412,7 @@ namespace WCPortFwd
 					return;
 				}
 
-				Gnd.I.ForwardInfoList.Add(new ForwardInfo());
+				Ground.I.ForwardInfoList.Add(new ForwardInfo());
 				this.UpdateUi();
 				this.MSSelectRow(-1, true);
 			}
@@ -426,10 +427,10 @@ namespace WCPortFwd
 				if (rowidx == -1)
 					return;
 
-				if (Gnd.I.ForwardInfoList[rowidx].停止チェック() == false)
+				if (Ground.I.ForwardInfoList[rowidx].停止チェック() == false)
 					return;
 
-				Gnd.I.ForwardInfoList.RemoveAt(rowidx);
+				Ground.I.ForwardInfoList.RemoveAt(rowidx);
 				this.UpdateUi();
 				this.MSSelectRow(rowidx, false);
 			}
@@ -444,7 +445,7 @@ namespace WCPortFwd
 				if (rowidx == -1)
 					return;
 
-				ForwardInfo fi = Gnd.I.ForwardInfoList[rowidx];
+				ForwardInfo fi = Ground.I.ForwardInfoList[rowidx];
 				bool startFIStarted = fi.Started;
 
 				using (Form f = new EditWin(fi))
@@ -467,7 +468,7 @@ namespace WCPortFwd
 				if (rowidx < 1)
 					return;
 
-				Tools.Swap(Gnd.I.ForwardInfoList, rowidx - 1, rowidx);
+				Tools.Swap(Ground.I.ForwardInfoList, rowidx - 1, rowidx);
 				this.UpdateUi();
 				this.MSSelectRow(rowidx - 1, false);
 			}
@@ -479,10 +480,10 @@ namespace WCPortFwd
 			{
 				int rowidx = this.GetMSSelectRowIndex();
 
-				if (rowidx == -1 || Gnd.I.ForwardInfoList.Count - 1 <= rowidx)
+				if (rowidx == -1 || Ground.I.ForwardInfoList.Count - 1 <= rowidx)
 					return;
 
-				Tools.Swap(Gnd.I.ForwardInfoList, rowidx, rowidx + 1);
+				Tools.Swap(Ground.I.ForwardInfoList, rowidx, rowidx + 1);
 				this.UpdateUi();
 				this.MSSelectRow(rowidx + 1, false);
 			}
