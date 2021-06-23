@@ -227,7 +227,7 @@ namespace WCPortFwd
 						key = file;
 					}
 					else
-						key = "*" + this.RawKey;
+						key = "*" + this.RawKey + "_"; // ...[x99] が作用しないように適当なサフィックスを付ける。
 
 					ProcessStartInfo psi = new ProcessStartInfo();
 
