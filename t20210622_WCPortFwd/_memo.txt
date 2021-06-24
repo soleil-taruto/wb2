@@ -1,0 +1,17 @@
+﻿----
+2021.6.24
+
+長さの制限：
+-- ホスト名：300
+-- パスフレーズ：1000
+
+コマンドラインは長くて 1300 + a 文字になる。
+-> 特に問題無い。
+
+- - -
+
+crypTunnel.exe 側でホスト名長に制限を掛けている。(255文字)
+https://github.com/stackprobe/Factory/blob/master/Labo/Socket/tunnel/libs/Tunnel.c#L91
+
+-> 255文字より長いホスト名は crypTunnel 側でエラーになる。
+---- Error / An error has occurred @ Tunnel.c (91) TunnelMain
