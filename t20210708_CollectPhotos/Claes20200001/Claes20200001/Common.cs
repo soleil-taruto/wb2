@@ -73,5 +73,42 @@ namespace Charlotte
 		{
 			return Math.Sqrt(pt.X * pt.X + pt.Y * pt.Y);
 		}
+
+		/// <summary>
+		/// サイズを(アスペクト比を維持して)矩形領域いっぱいに広げる。
+		/// </summary>
+		/// <param name="size">サイズ</param>
+		/// <param name="rect">矩形領域</param>
+		/// <param name="interior">矩形領域の内側に張り付く場合の出力先</param>
+		/// <param name="exterior">矩形領域の外側に張り付く場合の出力先</param>
+		public static void AdjustRect(D2Size size, D4Rect rect, out D4Rect interior, out D4Rect exterior)
+		{
+			double w_h = (rect.H * size.W) / size.H; // 高さを基準にした幅
+			double h_w = (rect.W * size.H) / size.W; // 幅を基準にした高さ
+
+			D4Rect rect1;
+			D4Rect rect2;
+
+			rect1.L = rect.L + (rect.W - w_h) / 2.0;
+			rect1.T = rect.T;
+			rect1.W = w_h;
+			rect1.H = rect.H;
+
+			rect2.L = rect.L;
+			rect2.T = rect.T + (rect.H - h_w) / 2.0;
+			rect2.W = rect.W;
+			rect2.H = h_w;
+
+			if (w_h < rect.W)
+			{
+				interior = rect1;
+				exterior = rect2;
+			}
+			else
+			{
+				interior = rect2;
+				exterior = rect1;
+			}
+		}
 	}
 }
