@@ -67,17 +67,15 @@ namespace Charlotte
 
 		private void ProcPhotoFile(string file)
 		{
-			if (!SCommon.EndsWithIgnoreCase(file, ".jpg")) // ? 対象外
+			if (!IsTargetPhotoFile(file)) // ? 対象外
 				return;
 
-			string localName = Path.GetFileNameWithoutExtension(file);
-			bool renamedFlag = false;
+			string fileNew = null;
 
-			if (!Regex.IsMatch(localName, "^[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}-[0-9]{2}_[0-9]{3}$"))
+			if (!IsAlreadyRenamedPhotoFile(file))
 			{
 				FileInfo fileInfo = new FileInfo(file);
 				SCommon.SimpleDateTime fileTime = new SCommon.SimpleDateTime(fileInfo.LastWriteTime);
-				string fileNew;
 
 				for (int count = 0; ; count++)
 				{
@@ -99,15 +97,10 @@ namespace Charlotte
 				}
 
 				Console.WriteLine("< " + file); // cout
-				Console.WriteLine("> " + fileNew); // cout
-
-				File.Move(file, fileNew);
-
-				file = fileNew;
-				renamedFlag = true;
+				Console.WriteLine("N " + fileNew); // cout
 			}
 
-			if (renamedFlag || ForceCheckPhotoSizeFlag)
+			if (fileNew != null || ForceCheckPhotoSizeFlag)
 			{
 				Console.WriteLine("# " + file); // cout
 
@@ -115,14 +108,14 @@ namespace Charlotte
 
 				// 幅・高さ共にターゲットサイズより大きい -> 少なくとも何方かはターゲットサイズ以下にする。
 				if (
-					Consts.TARGET_PHOTO_W < canvas.W &&
-					Consts.TARGET_PHOTO_H < canvas.H
+					Consts.DEST_PHOTO_W < canvas.W &&
+					Consts.DEST_PHOTO_H < canvas.H
 					)
 				{
 					D4Rect interior;
 					D4Rect exterior;
 
-					Common.AdjustRect(new D2Size(canvas.W, canvas.H), new D4Rect(0, 0, Consts.TARGET_PHOTO_W, Consts.TARGET_PHOTO_H), out interior, out exterior);
+					Common.AdjustRect(new D2Size(canvas.W, canvas.H), new D4Rect(0, 0, Consts.DEST_PHOTO_W, Consts.DEST_PHOTO_H), out interior, out exterior);
 
 					int dest_w = SCommon.ToInt(exterior.W);
 					int dest_h = SCommon.ToInt(exterior.H);
@@ -135,7 +128,28 @@ namespace Charlotte
 				}
 			}
 
+			if (fileNew != null)
+			{
+				Console.WriteLine("< " + file); // cout
+				Console.WriteLine("> " + fileNew); // cout
+
+				File.Move(file, fileNew);
+
+				//file = fileNew;
+			}
+
 			GC.Collect();
+		}
+
+		private bool IsTargetPhotoFile(string file)
+		{
+			string ext = Path.GetExtension(file);
+			return Consts.SRC_PHOTO_EXTS.Any(srcPhotoExt => SCommon.EqualsIgnoreCase(srcPhotoExt, ext));
+		}
+
+		private bool IsAlreadyRenamedPhotoFile(string file)
+		{
+			return Regex.IsMatch(Path.GetFileName(file), "^[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}-[0-9]{2}_[0-9]{3}.jpg$", RegexOptions.IgnoreCase);
 		}
 	}
 }

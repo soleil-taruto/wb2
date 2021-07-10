@@ -7,7 +7,15 @@ namespace Charlotte
 {
 	public static class Consts
 	{
-		public const int TARGET_PHOTO_W = 1350;
-		public const int TARGET_PHOTO_H = 1350;
+		public const string[] SRC_PHOTO_EXTS = new string[]
+		{
+			".bmp",
+			".jpg",
+			".jpeg",
+			".png",
+		};
+
+		public const int DEST_PHOTO_W = 1350;
+		public const int DEST_PHOTO_H = 1350;
 	}
 }
