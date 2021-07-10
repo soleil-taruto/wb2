@@ -62,12 +62,14 @@ namespace Charlotte
 			string[] files = Directory.GetFiles(dir);
 
 			foreach (string file in files)
-				if (SCommon.EndsWithIgnoreCase(file, ".jpg"))
-					ProcPhotoFile(file);
+				ProcPhotoFile(file);
 		}
 
 		private void ProcPhotoFile(string file)
 		{
+			if (!SCommon.EndsWithIgnoreCase(file, ".jpg")) // ? 対象外
+				return;
+
 			string localName = Path.GetFileNameWithoutExtension(file);
 			bool renamedFlag = false;
 
@@ -105,7 +107,7 @@ namespace Charlotte
 				renamedFlag = true;
 			}
 
-			if(renamedFlag || ForceCheckPhotoSizeFlag)
+			if (renamedFlag || ForceCheckPhotoSizeFlag)
 			{
 				Console.WriteLine("# " + file); // cout
 
