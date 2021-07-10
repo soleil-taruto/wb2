@@ -7,7 +7,7 @@ namespace Charlotte
 {
 	public static class Consts
 	{
-		public const string[] SRC_PHOTO_EXTS = new string[]
+		public static string[] SRC_PHOTO_EXTS = new string[]
 		{
 			".bmp",
 			".jpg",
