@@ -48,7 +48,44 @@ namespace Charlotte
 
 		private void Main4()
 		{
-			// none
+			// -- choose one --
+
+			Test01();
+			//Test02();
+
+			// --
+		}
+
+		private void Test01()
+		{
+			string file = Common.NextOutputPath() + ".txt";
+
+			using (StreamWriter writer = new StreamWriter(file, false, Encoding.UTF8))
+			{
+				for (int y = 1; y <= 3000; y++)
+				{
+					for (int m = 1; m <= 12; m++)
+					{
+						for (int d = 1; d <= 31; d++)
+						{
+							SimpleDate date = new SimpleDate(y, m, d);
+							writer.WriteLine(date + " ==> " + date.GetWareki());
+						}
+					}
+				}
+			}
+		}
+
+		private void Test02()
+		{
+			for (; ; )
+			{
+				int y = SCommon.CRandom.GetRange(1, 9999);
+				int m = SCommon.CRandom.GetRange(1, 12);
+				int d = SCommon.CRandom.GetRange(1, 31);
+				SimpleDate date = new SimpleDate(y, m, d);
+				Console.WriteLine(date + " ==> " + date.GetWareki());
+			}
 		}
 	}
 }
