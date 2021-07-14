@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Drawing;
+using Microsoft.VisualBasic;
 using Charlotte.Commons;
 
 namespace Charlotte
@@ -72,6 +73,12 @@ namespace Charlotte
 		public static double GetDistance(D2Point pt)
 		{
 			return Math.Sqrt(pt.X * pt.X + pt.Y * pt.Y);
+		}
+
+		public static string HankakuToZenkaku(string str)
+		{
+			str = Strings.StrConv(str, VbStrConv.Wide, 0x411);
+			return str;
 		}
 	}
 }

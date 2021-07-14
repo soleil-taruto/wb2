@@ -50,8 +50,9 @@ namespace Charlotte
 		{
 			// -- choose one --
 
-			Test01();
+			//Test01();
 			//Test02();
+			Test03();
 
 			// --
 		}
@@ -85,6 +86,26 @@ namespace Charlotte
 				int d = SCommon.CRandom.GetRange(1, 31);
 				SimpleDate date = new SimpleDate(y, m, d);
 				Console.WriteLine(date + " ==> " + date.GetWareki());
+			}
+		}
+
+		private void Test03()
+		{
+			string file = Common.NextOutputPath() + ".txt";
+
+			using (StreamWriter writer = new StreamWriter(file, false, Encoding.UTF8))
+			{
+				for (int y = 1; y <= 3000; y++)
+				{
+					for (int m = 1; m <= 12; m++)
+					{
+						for (int d = 1; d <= 31; d++)
+						{
+							SimpleDate date = new SimpleDate(y, m, d);
+							writer.WriteLine(Common.HankakuToZenkaku(date + " ⇒ " + date.GetWareki()));
+						}
+					}
+				}
 			}
 		}
 	}
