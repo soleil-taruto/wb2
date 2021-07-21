@@ -15,6 +15,8 @@ namespace Charlotte.Tests
 			Test_SCommon_LinesToText();
 			Test_SCommon_IndexOf();
 			Test_SCommon_IndexOfIgnoreCase();
+			Test_SCommon_Join_BLBA();
+			Test_SCommon_SplittableJoin();
 			Test_CsvFileWriter_WriteCells();
 			Test_CsvFileWriter_WriteRow();
 			Test_CsvFileWriter_WriteRows();
@@ -36,6 +38,16 @@ namespace Charlotte.Tests
 		}
 
 		private void Test_SCommon_IndexOfIgnoreCase()
+		{
+			throw new NotImplementedException();
+		}
+
+		private void Test_SCommon_Join_BLBA()
+		{
+			throw new NotImplementedException();
+		}
+
+		private void Test_SCommon_SplittableJoin()
 		{
 			throw new NotImplementedException();
 		}
