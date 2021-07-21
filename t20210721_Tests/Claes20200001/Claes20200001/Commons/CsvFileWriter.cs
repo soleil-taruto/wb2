@@ -64,7 +64,7 @@ namespace Charlotte.Commons
 			this.RowBegin = true;
 		}
 
-		public void WriteCells(string[] cells)
+		public void WriteCells(IList<string> cells)
 		{
 			foreach (string cell in cells)
 			{
@@ -72,7 +72,7 @@ namespace Charlotte.Commons
 			}
 		}
 
-		public void WriteRow(string[] row)
+		public void WriteRow(IList<string> row)
 		{
 			foreach (string cell in row)
 			{
@@ -81,9 +81,9 @@ namespace Charlotte.Commons
 			this.EndRow();
 		}
 
-		public void WriteRows(string[][] rows)
+		public void WriteRows(IList<IList<string>> rows)
 		{
-			foreach (string[] row in rows)
+			foreach (IList<string> row in rows)
 			{
 				this.WriteRow(row);
 			}
