@@ -24,7 +24,36 @@ namespace Charlotte.Tests
 
 		private void Test_SCommon_Serializer_Join()
 		{
-			throw new NotImplementedException();
+			Action<string[]> a = src =>
+			{
+				string dest = SCommon.Serializer.I.Join(src);
+				Console.WriteLine(dest);
+
+				string[] src2 = SCommon.Serializer.I.Split(dest);
+
+				if (SCommon.Comp(src, src2, SCommon.Comp) != 0)
+					throw null;
+			};
+
+			Action<string> a2 = line =>
+			{
+				a(line.Split(':'));
+			};
+
+			a(new string[0]);
+			a2("");
+			a2("A");
+			a2("AB");
+			a2("ABC");
+			a2("ABCD");
+			a2("ABCDE");
+			a2("A:BCDE");
+			a2("A:B:CDE");
+			a2("A:B:C:DE");
+			a2("A:B:C:D:E");
+			a2(":");
+			a2("::");
+			a2(":::");
 		}
 
 		private void Test_SCommon_LinesToText()
