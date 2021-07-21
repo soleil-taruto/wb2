@@ -135,7 +135,7 @@ namespace Charlotte.Commons
 		/// </summary>
 		/// <param name="src">バイト列の引数配列</param>
 		/// <returns>連結したバイト列</returns>
-		public static byte[] Join(byte[][] src)
+		public static byte[] Join(IList<byte[]> src)
 		{
 			int offset = 0;
 
@@ -161,7 +161,7 @@ namespace Charlotte.Commons
 		/// </summary>
 		/// <param name="src">バイト列の引数配列</param>
 		/// <returns>連結したバイト列</returns>
-		public static byte[] SplittableJoin(byte[][] src)
+		public static byte[] SplittableJoin(IList<byte[]> src)
 		{
 			int offset = 0;
 
