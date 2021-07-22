@@ -20,184 +20,177 @@ namespace Charlotte.Tests
 			Test_CsvFileWriter_WriteCells();
 			Test_CsvFileWriter_WriteRow();
 			Test_CsvFileWriter_WriteRows();
+
+			// ----
+
+			Console.WriteLine("OK!");
+			Common.Pause();
 		}
 
-		private static string[] TEST_VECTORS = new string[]
+		private static class TestVector
 		{
-			"",
-			"A",
-			"AB",
-			"ABC",
-			":",
-			"::",
-			":::",
-			"A:B",
-			"A:B:C",
-			"Aa:::",
-			":Bb::",
-			"::Cc:",
-			":::Dd",
-			"Aa:::",
-			"Aa:Bb::",
-			"Aa::Cc:",
-			"Aa:::Dd",
-			":Bb::",
-			":Bb:Cc:",
-			":Bb::Dd",
-			"::Cc:",
-			"::Cc:Dd",
-			"Aa:Bb:Cc:",
-			"Aa:Bb::Dd",
-			"Aa::Cc:Dd",
-			":Bb:Cc:Dd",
-			"Aa:Bb:Cc:Dd",
-		};
+			private static char[] ALLOW_CHARS = "12345ABCDEabcde".ToCharArray();
+			private const int STRING_LEN_MAX = 10;
+			private const int STRING_COUNT_MAX = 10;
+			private const int STRING_LIST_COUNT_MAX = 10;
 
-		private static string[] TEST_VECTORS_02 = ":A:B:C:D:Aa:Bb:Cc:Dd".Split(':');
+			public static char GetChar()
+			{
+				return SCommon.CRandom.ChooseOne(ALLOW_CHARS);
+			}
+
+			public static string GetString()
+			{
+				return new string(Enumerable.Range(0, SCommon.CRandom.GetInt(STRING_LEN_MAX)).Select(dummy => GetChar()).ToArray());
+			}
+
+			public static string[] GetStrings()
+			{
+				return Enumerable.Range(0, SCommon.CRandom.GetInt(STRING_COUNT_MAX)).Select(dummy => GetString()).ToArray();
+			}
+
+			public static string[][] GetStringTable()
+			{
+				return Enumerable.Range(0, SCommon.CRandom.GetInt(STRING_LIST_COUNT_MAX)).Select(dummy => GetStrings()).ToArray();
+			}
+
+			public const int TEST_COUNT = 1000;
+		}
 
 		private void Test_SCommon_Serializer_Join()
 		{
-			Action<string[]> a = src =>
+			for (int count = 0; count < TestVector.TEST_COUNT; count++)
 			{
+				string[] src = TestVector.GetStrings();
 				string dest = SCommon.Serializer.I.Join(src);
-				Console.WriteLine(dest);
-
 				string[] src2 = SCommon.Serializer.I.Split(dest);
 
 				if (SCommon.Comp(src, src2, SCommon.Comp) != 0)
 					throw null;
-			};
-
-			Action<string> a2 = line =>
-			{
-				a(line.Split(':'));
-			};
-
-			a(new string[0]);
-
-			foreach (string tv in TEST_VECTORS)
-				a2(tv);
+			}
 		}
 
 		private void Test_SCommon_LinesToText()
 		{
-			Action<string[]> a = src =>
+			for (int count = 0; count < TestVector.TEST_COUNT; count++)
 			{
+				string[] src = TestVector.GetStrings();
 				string dest = SCommon.LinesToText(src);
-				Console.WriteLine(dest);
-
 				string[] src2 = SCommon.TextToLines(dest);
 
 				if (SCommon.Comp(src, src2, SCommon.Comp) != 0)
 					throw null;
-			};
-
-			Action<string> a2 = line =>
-			{
-				a(line.Split(':'));
-			};
-
-			a(new string[0]);
-
-			foreach (string tv in TEST_VECTORS)
-				a2(tv);
+			}
 		}
 
 		private void Test_SCommon_IndexOf()
 		{
-			Action<string[], string> a = (src, token) =>
+			Func<string[], string, int> testFunc = (tokens, token) =>
 			{
-				int index = SCommon.IndexOf(src, token);
-				Console.WriteLine(index);
+				for (int index = 0; index < tokens.Length; index++)
+					if (tokens[index] == token)
+						return index;
+
+				return -1;
 			};
 
-			Action<string, string> a2 = (line, token) =>
+			for (int count = 0; count < TestVector.TEST_COUNT; count++)
 			{
-				a(line.Split(':'), token);
-			};
+				string[] tokens = TestVector.GetStrings();
+				string token = TestVector.GetString();
 
-			foreach (string tv2 in TEST_VECTORS_02)
-			{
-				a(new string[0], tv2);
+				int ans = SCommon.IndexOf(tokens, token);
+				int ans2 = testFunc(tokens, token);
 
-				foreach (string tv in TEST_VECTORS)
-					a2(tv, tv2);
+				if (ans != ans2)
+					throw null;
 			}
 		}
 
 		private void Test_SCommon_IndexOfIgnoreCase()
 		{
-			Action<string[], string> a = (src, token) =>
+			Func<string[], string, int> testFunc = (tokens, token) =>
 			{
-				int index = SCommon.IndexOfIgnoreCase(src, token);
-				Console.WriteLine(index);
+				for (int index = 0; index < tokens.Length; index++)
+					if (tokens[index].ToLower() == token.ToLower())
+						return index;
+
+				return -1;
 			};
 
-			Action<string, string> a2 = (line, token) =>
+			for (int count = 0; count < TestVector.TEST_COUNT; count++)
 			{
-				a(line.Split(':'), token);
-			};
+				string[] tokens = TestVector.GetStrings();
+				string token = TestVector.GetString();
 
-			foreach (string tv2 in TEST_VECTORS_02)
-			{
-				a(new string[0], tv2);
+				int ans = SCommon.IndexOfIgnoreCase(tokens, token);
+				int ans2 = testFunc(tokens, token);
 
-				foreach (string tv in TEST_VECTORS)
-					a2(tv, tv2);
+				if (ans != ans2)
+					throw null;
 			}
 		}
 
 		private void Test_SCommon_Join()
 		{
-			Action<string[]> a = src =>
+			Func<byte[][], byte[]> testFunc = src =>
 			{
-				byte[] dest = SCommon.Join(src.Select(token => Encoding.UTF8.GetBytes(token)).ToArray());
-				Console.WriteLine(SCommon.Hex.ToString(dest));
+				return SCommon.Hex.ToBytes(string.Join("", src.Select(v => SCommon.Hex.ToString(v))));
 			};
 
-			Action<string> a2 = line =>
+			for (int count = 0; count < TestVector.TEST_COUNT; count++)
 			{
-				a(line.Split(':'));
-			};
+				byte[][] src = TestVector.GetStrings().Select(v => Encoding.ASCII.GetBytes(v)).ToArray();
 
-			a(new string[0]);
+				byte[] ans = SCommon.Join(src);
+				byte[] ans2 = testFunc(src);
 
-			foreach (string tv in TEST_VECTORS)
-				a2(tv);
+				if (SCommon.Comp(ans, ans2, SCommon.Comp) != 0) // ? 不一致
+					throw null;
+			}
 		}
 
 		private void Test_SCommon_SplittableJoin()
 		{
-			Action<string[]> a = src =>
+			for (int count = 0; count < TestVector.TEST_COUNT; count++)
 			{
-				byte[] dest = SCommon.SplittableJoin(src.Select(token => Encoding.UTF8.GetBytes(token)).ToArray());
-				Console.WriteLine(SCommon.Hex.ToString(dest));
-			};
+				byte[][] src = TestVector.GetStrings().Select(v => Encoding.ASCII.GetBytes(v)).ToArray();
+				byte[] dest = SCommon.SplittableJoin(src);
+				byte[][] src2 = SCommon.Split(dest);
 
-			Action<string> a2 = line =>
-			{
-				a(line.Split(':'));
-			};
-
-			a(new string[0]);
-
-			foreach (string tv in TEST_VECTORS)
-				a2(tv);
+				if (SCommon.Comp(src, src2, SCommon.Comp) != 0) // ? 不一致
+					throw null;
+			}
 		}
 
 		private void Test_CsvFileWriter_WriteCells()
 		{
-			throw new NotImplementedException();
+			using (WorkingDir wd = new WorkingDir())
+			using (CsvFileWriter writer = new CsvFileWriter(wd.MakePath() + ".csv"))
+			{
+				for (int index = 0; index < TestVector.TEST_COUNT; index++)
+					writer.WriteCells(TestVector.GetStrings());
+			}
 		}
 
 		private void Test_CsvFileWriter_WriteRow()
 		{
-			throw new NotImplementedException();
+			using (WorkingDir wd = new WorkingDir())
+			using (CsvFileWriter writer = new CsvFileWriter(wd.MakePath() + ".csv"))
+			{
+				for (int index = 0; index < TestVector.TEST_COUNT; index++)
+					writer.WriteRow(TestVector.GetStrings());
+			}
 		}
 
 		private void Test_CsvFileWriter_WriteRows()
 		{
-			throw new NotImplementedException();
+			using (WorkingDir wd = new WorkingDir())
+			using (CsvFileWriter writer = new CsvFileWriter(wd.MakePath() + ".csv"))
+			{
+				for (int index = 0; index < TestVector.TEST_COUNT; index++)
+					writer.WriteRows(TestVector.GetStringTable());
+			}
 		}
 	}
 }
