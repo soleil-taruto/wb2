@@ -20,6 +20,7 @@ namespace Charlotte.Tests
 			Test_CsvFileWriter_WriteCells();
 			Test_CsvFileWriter_WriteRow();
 			Test_CsvFileWriter_WriteRows();
+			Test_SCommon_IsRange();
 
 			// ----
 
@@ -191,6 +192,21 @@ namespace Charlotte.Tests
 				for (int index = 0; index < TestVector.TEST_COUNT; index++)
 					writer.WriteRows(TestVector.GetStringTable());
 			}
+		}
+
+		private void Test_SCommon_IsRange()
+		{
+			Action<double, double, double, bool> a = (value, minval, maxval, assume) =>
+			{
+				if (SCommon.IsRange(value, minval, maxval) != assume)
+					throw null;
+			};
+
+			a(0.5, 1.0, 2.0, false);
+			a(1.0, 1.0, 2.0, true);
+			a(1.5, 1.0, 2.0, true);
+			a(2.0, 1.0, 2.0, true);
+			a(2.5, 1.0, 2.0, false);
 		}
 	}
 }

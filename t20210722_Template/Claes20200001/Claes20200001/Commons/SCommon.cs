@@ -636,6 +636,11 @@ namespace Charlotte.Commons
 			return minval <= value && value <= maxval;
 		}
 
+		public static bool IsRange(double value, double minval, double maxval)
+		{
+			return minval <= value && value <= maxval;
+		}
+
 		public static int ToInt(string str, int minval, int maxval, int defval)
 		{
 			try
