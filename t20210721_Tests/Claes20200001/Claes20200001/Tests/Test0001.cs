@@ -22,6 +22,39 @@ namespace Charlotte.Tests
 			Test_CsvFileWriter_WriteRows();
 		}
 
+		private static string[] TEST_VECTORS = new string[]
+		{
+			"",
+			"A",
+			"AB",
+			"ABC",
+			":",
+			"::",
+			":::",
+			"A:B",
+			"A:B:C",
+			"Aa:::",
+			":Bb::",
+			"::Cc:",
+			":::Dd",
+			"Aa:::",
+			"Aa:Bb::",
+			"Aa::Cc:",
+			"Aa:::Dd",
+			":Bb::",
+			":Bb:Cc:",
+			":Bb::Dd",
+			"::Cc:",
+			"::Cc:Dd",
+			"Aa:Bb:Cc:",
+			"Aa:Bb::Dd",
+			"Aa::Cc:Dd",
+			":Bb:Cc:Dd",
+			"Aa:Bb:Cc:Dd",
+		};
+
+		private static string[] TEST_VECTORS_02 = ":A:B:C:D:Aa:Bb:Cc:Dd".Split(':');
+
 		private void Test_SCommon_Serializer_Join()
 		{
 			Action<string[]> a = src =>
@@ -41,44 +74,115 @@ namespace Charlotte.Tests
 			};
 
 			a(new string[0]);
-			a2("");
-			a2("A");
-			a2("AB");
-			a2("ABC");
-			a2("ABCD");
-			a2("ABCDE");
-			a2("A:BCDE");
-			a2("A:B:CDE");
-			a2("A:B:C:DE");
-			a2("A:B:C:D:E");
-			a2(":");
-			a2("::");
-			a2(":::");
+
+			foreach (string tv in TEST_VECTORS)
+				a2(tv);
 		}
 
 		private void Test_SCommon_LinesToText()
 		{
-			throw new NotImplementedException();
+			Action<string[]> a = src =>
+			{
+				string dest = SCommon.LinesToText(src);
+				Console.WriteLine(dest);
+
+				string[] src2 = SCommon.TextToLines(dest);
+
+				if (SCommon.Comp(src, src2, SCommon.Comp) != 0)
+					throw null;
+			};
+
+			Action<string> a2 = line =>
+			{
+				a(line.Split(':'));
+			};
+
+			a(new string[0]);
+
+			foreach (string tv in TEST_VECTORS)
+				a2(tv);
 		}
 
 		private void Test_SCommon_IndexOf()
 		{
-			throw new NotImplementedException();
+			Action<string[], string> a = (src, token) =>
+			{
+				int index = SCommon.IndexOf(src, token);
+				Console.WriteLine(index);
+			};
+
+			Action<string, string> a2 = (line, token) =>
+			{
+				a(line.Split(':'), token);
+			};
+
+			foreach (string tv2 in TEST_VECTORS_02)
+			{
+				a(new string[0], tv2);
+
+				foreach (string tv in TEST_VECTORS)
+					a2(tv, tv2);
+			}
 		}
 
 		private void Test_SCommon_IndexOfIgnoreCase()
 		{
-			throw new NotImplementedException();
+			Action<string[], string> a = (src, token) =>
+			{
+				int index = SCommon.IndexOfIgnoreCase(src, token);
+				Console.WriteLine(index);
+			};
+
+			Action<string, string> a2 = (line, token) =>
+			{
+				a(line.Split(':'), token);
+			};
+
+			foreach (string tv2 in TEST_VECTORS_02)
+			{
+				a(new string[0], tv2);
+
+				foreach (string tv in TEST_VECTORS)
+					a2(tv, tv2);
+			}
 		}
 
 		private void Test_SCommon_Join()
 		{
-			throw new NotImplementedException();
+			Action<string[]> a = src =>
+			{
+				byte[] dest = SCommon.Join(src.Select(token => Encoding.UTF8.GetBytes(token)).ToArray());
+				Console.WriteLine(SCommon.Hex.ToString(dest));
+			};
+
+			Action<string> a2 = line =>
+			{
+				a(line.Split(':'));
+			};
+
+			a(new string[0]);
+
+			foreach (string tv in TEST_VECTORS)
+				a2(tv);
 		}
 
 		private void Test_SCommon_SplittableJoin()
 		{
-			throw new NotImplementedException();
+			Action<string[]> a = src =>
+			{
+				byte[] dest = SCommon.SplittableJoin(src.Select(token => Encoding.UTF8.GetBytes(token)).ToArray());
+				Console.WriteLine(SCommon.Hex.ToString(dest));
+			};
+
+			Action<string> a2 = line =>
+			{
+				a(line.Split(':'));
+			};
+
+			a(new string[0]);
+
+			foreach (string tv in TEST_VECTORS)
+				a2(tv);
 		}
 
 		private void Test_CsvFileWriter_WriteCells()
