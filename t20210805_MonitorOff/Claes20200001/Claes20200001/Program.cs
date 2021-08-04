@@ -7,6 +7,7 @@ using System.IO;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
+using System.Runtime.InteropServices;
 using Charlotte.Commons;
 using Charlotte.Tests;
 
@@ -46,9 +47,16 @@ namespace Charlotte
 			//Common.Pause();
 		}
 
+		[DllImport("User32.dll", EntryPoint = "PostMessage")]
+		public static extern Int32 PostMessage(Int32 hWnd, Int32 Msg, Int32 wParam, Int32 lParam);
+
 		private void Main4()
 		{
-			// none
+			// memo:
+			// https://neos21.net/blog/2018/06/15-01.html
+			// -- SendMessageA(-1, 274, 61808, 2)
+
+			PostMessage(-1, 274, 61808, 2);
 		}
 	}
 }
