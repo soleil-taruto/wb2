@@ -56,7 +56,7 @@
   <ItemGroup>
     <Reference Include="DxLibDotNet, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Dat\wb\e20200928_DxLib\DxLibDotNet3_20f\DxLibDotNet.dll</HintPath>
+      <HintPath>C:\Dat\DxLibDotNet\DxLibDotNet3_20f\DxLibDotNet.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -208,8 +208,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>COPY C:\Dat\wb\e20200928_DxLib\DxLibDotNet3_20f\DxLib.dll $(TargetDir).
-COPY C:\Dat\wb\e20200928_DxLib\DxLibDotNet3_20f\DxLib_x64.dll $(TargetDir).
+    <PostBuildEvent>COPY C:\Dat\DxLibDotNet\DxLibDotNet3_20f\DxLib.dll $(TargetDir).
+COPY C:\Dat\DxLibDotNet\DxLibDotNet3_20f\DxLib_x64.dll $(TargetDir).
 </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
