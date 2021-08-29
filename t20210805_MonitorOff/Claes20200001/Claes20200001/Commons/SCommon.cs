@@ -1136,6 +1136,15 @@ namespace Charlotte.Commons
 			return -1; // not found
 		}
 
+		/// <summary>
+		/// 文字列を区切り文字で分割する。
+		/// </summary>
+		/// <param name="str">文字列</param>
+		/// <param name="delimiters">区切り文字の集合</param>
+		/// <param name="meaningFlag">区切り文字(delimiters)以外を区切り文字とするか</param>
+		/// <param name="ignoreEmpty">空文字列のトークンを除去するか</param>
+		/// <param name="limit">最大トークン数, 0 == 無制限</param>
+		/// <returns>トークン配列</returns>
 		public static string[] Tokenize(string str, string delimiters, bool meaningFlag = false, bool ignoreEmpty = false, int limit = 0)
 		{
 			StringBuilder buff = new StringBuilder();
