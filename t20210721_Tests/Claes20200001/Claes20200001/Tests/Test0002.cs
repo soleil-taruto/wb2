@@ -7,35 +7,31 @@ using Charlotte.Commons;
 
 namespace Charlotte.Tests
 {
+	/// <summary>
+	/// ファイルコピー, SCommon.ReadToEnd
+	/// </summary>
 	public class Test0002
 	{
 		public void Test01()
 		{
-			Test_FileCopy();
-
-			// ----
-
-			Console.WriteLine("OK!");
-			Common.Pause();
-		}
-
-		private void Test_FileCopy()
-		{
-			Test_FileCopy_Test01(0);
-			Test_FileCopy_Test01(1);
-			Test_FileCopy_Test01(100);
-			Test_FileCopy_Test01(100000); // 100 KB
-			Test_FileCopy_Test01(100000000); // 100 MB
+			Test01a(0);
+			Test01a(1);
+			Test01a(100);
+			Test01a(100000); // 100 KB
+			Test01a(100000000); // 100 MB
 
 			for (int testCnt = 0; testCnt < 1000; testCnt++)
 			{
-				Test_FileCopy_Test01(SCommon.CRandom.GetInt(100000000)); // < 100 MB
+				Test01a(SCommon.CRandom.GetInt(100000000)); // < 100 MB
 			}
+
+			ProcMain.WriteLog("OK!");
+			Common.Pause();
 		}
 
-		private void Test_FileCopy_Test01(int testDataSize)
+		private void Test01a(int testDataSize)
 		{
-			Console.WriteLine("Test_FileCopy_Test01: " + testDataSize); // cout
+			ProcMain.WriteLog("Test01a: " + testDataSize);
 
 			byte[] testData = SCommon.CRandom.GetBytes(testDataSize);
 
@@ -55,7 +51,7 @@ namespace Charlotte.Tests
 						throw null;
 				}
 
-				Test_FileCopy_Test02(rFile, wFile);
+				Test01b(rFile, wFile);
 
 				// 検査
 				{
@@ -67,10 +63,10 @@ namespace Charlotte.Tests
 				}
 			}
 
-			Console.WriteLine("Test_FileCopy_Test01_OK"); // cout
+			ProcMain.WriteLog("Test01a_OK");
 		}
 
-		private void Test_FileCopy_Test02(string rFile, string wFile)
+		private void Test01b(string rFile, string wFile)
 		{
 			using (FileStream reader = new FileStream(rFile, FileMode.Open, FileAccess.Read))
 			using (FileStream writer = new FileStream(wFile, FileMode.Create, FileAccess.Write))
@@ -84,6 +80,20 @@ namespace Charlotte.Tests
 					);
 #endif
 			}
+		}
+
+		public void Test02()
+		{
+			DateTime stTm = DateTime.Now;
+
+			Test01a(100000000); // 100 MB
+
+
+
+			DateTime edTm = DateTime.Now;
+
+			ProcMain.WriteLog((edTm - stTm).TotalMilliseconds + " ミリ秒");
+			Common.Pause();
 		}
 	}
 }
