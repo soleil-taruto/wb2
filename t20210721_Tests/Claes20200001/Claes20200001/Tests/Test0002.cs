@@ -88,8 +88,6 @@ namespace Charlotte.Tests
 
 			Test01a(100000000); // 100 MB
 
-
-
 			DateTime edTm = DateTime.Now;
 
 			ProcMain.WriteLog((edTm - stTm).TotalMilliseconds + " ミリ秒");
