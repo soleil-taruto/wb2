@@ -579,6 +579,11 @@ namespace Charlotte.Commons
 		/// <param name="count">読み込みサイズ</param>
 		public delegate void Write_d(byte[] buff, int offset, int count);
 
+		public static int ZeroEnd(int value)
+		{
+			return value == 0 ? -1 : value;
+		}
+
 		public static void ReadToEnd(Read_d reader, Write_d writer)
 		{
 			byte[] buff = new byte[16 * 1024 * 1024];
