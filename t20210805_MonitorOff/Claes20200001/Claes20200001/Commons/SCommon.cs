@@ -581,7 +581,7 @@ namespace Charlotte.Commons
 
 		public static void ReadToEnd(Read_d reader, Write_d writer)
 		{
-			byte[] buff = new byte[16 * 1024 * 1024];
+			byte[] buff = new byte[2 * 1024 * 1024];
 
 			for (; ; )
 			{
