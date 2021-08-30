@@ -1066,7 +1066,9 @@ namespace Charlotte.Commons
 
 		public static int Comp(string a, string b)
 		{
-			return Comp(Encoding.UTF8.GetBytes(a), Encoding.UTF8.GetBytes(b)); // a.CompareTo(b) ???
+			// MEMO: a.CompareTo(b) -- 三すくみの一件以来今でも信用出来ないので使わない。
+
+			return Comp(Encoding.UTF8.GetBytes(a), Encoding.UTF8.GetBytes(b));
 		}
 
 		public static int CompIgnoreCase(string a, string b)
