@@ -568,7 +568,7 @@ namespace Charlotte.Commons
 		/// <param name="buff">読み込んだデータの書き込み先</param>
 		/// <param name="offset">書き込み開始位置</param>
 		/// <param name="count">書き込みサイズ</param>
-		/// <returns>実際に読み込んだサイズ(0～), -1 == これ以上読み込めない</returns>
+		/// <returns>実際に読み込んだサイズ(1～), ～0 == これ以上読み込めない</returns>
 		public delegate int Read_d(byte[] buff, int offset, int count);
 
 		/// <summary>
@@ -587,7 +587,7 @@ namespace Charlotte.Commons
 			{
 				int readSize = reader(buff, 0, buff.Length);
 
-				if (readSize < 0)
+				if (readSize <= 0)
 					break;
 
 				writer(buff, 0, readSize);
