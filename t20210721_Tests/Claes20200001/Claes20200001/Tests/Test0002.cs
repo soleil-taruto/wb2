@@ -75,11 +75,11 @@ namespace Charlotte.Tests
 			using (FileStream reader = new FileStream(rFile, FileMode.Open, FileAccess.Read))
 			using (FileStream writer = new FileStream(wFile, FileMode.Create, FileAccess.Write))
 			{
-#if !true
-				SCommon.ReadToEnd(reader.Read, writer.Write); // ng
+#if true
+				SCommon.ReadToEnd(reader.Read, writer.Write);
 #else // same
 				SCommon.ReadToEnd(
-					(buff, offset, count) => SCommon.ZeroEnd(reader.Read(buff, offset, count)),
+					(buff, offset, count) => reader.Read(buff, offset, count),
 					(buff, offset, count) => writer.Write(buff, offset, count)
 					);
 #endif
