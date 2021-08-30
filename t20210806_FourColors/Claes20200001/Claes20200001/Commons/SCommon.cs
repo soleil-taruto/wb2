@@ -568,7 +568,7 @@ namespace Charlotte.Commons
 		/// <param name="buff">読み込んだデータの書き込み先</param>
 		/// <param name="offset">書き込み開始位置</param>
 		/// <param name="count">書き込みサイズ</param>
-		/// <returns></returns>
+		/// <returns>実際に読み込んだサイズ(0～), -1 == これ以上読み込めない</returns>
 		public delegate int Read_d(byte[] buff, int offset, int count);
 
 		/// <summary>
@@ -1157,7 +1157,7 @@ namespace Charlotte.Commons
 		/// <param name="delimiters">区切り文字の集合</param>
 		/// <param name="meaningFlag">区切り文字(delimiters)以外を区切り文字とするか</param>
 		/// <param name="ignoreEmpty">空文字列のトークンを除去するか</param>
-		/// <param name="limit">最大トークン数, 0 == 無制限</param>
+		/// <param name="limit">最大トークン数(1～), 0 == 無制限</param>
 		/// <returns>トークン配列</returns>
 		public static string[] Tokenize(string str, string delimiters, bool meaningFlag = false, bool ignoreEmpty = false, int limit = 0)
 		{
