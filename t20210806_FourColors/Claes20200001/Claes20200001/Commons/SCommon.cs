@@ -562,7 +562,21 @@ namespace Charlotte.Commons
 			return lines;
 		}
 
+		/// <summary>
+		/// ファイル読み込みハンドルっぽいコールバック
+		/// </summary>
+		/// <param name="buff">読み込んだデータの書き込み先</param>
+		/// <param name="offset">書き込み開始位置</param>
+		/// <param name="count">書き込みサイズ</param>
+		/// <returns></returns>
 		public delegate int Read_d(byte[] buff, int offset, int count);
+
+		/// <summary>
+		/// ファイル書き込みハンドルっぽいコールバック
+		/// </summary>
+		/// <param name="buff">書き込むデータの読み込み先</param>
+		/// <param name="offset">読み込み開始位置</param>
+		/// <param name="count">読み込みサイズ</param>
 		public delegate void Write_d(byte[] buff, int offset, int count);
 
 		public static void ReadToEnd(Read_d reader, Write_d writer)
