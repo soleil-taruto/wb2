@@ -58,7 +58,7 @@ namespace Charlotte
 		private void MakeTextPanels_20210904()
 		{
 			MakeTextPanel("BRAND-NAME", 960, 180, 4, "Impact", 480, FontStyle.Regular, 100, -30);
-			MakeTextPanel("CERULEAN.CHARLOTTE", 960, 180, 4, "Bahnschrift Condensed", 380, FontStyle.Bold, -15, 140);
+			MakeTextPanel("cerulean.charlotte", 960, 180, 4, "Bahnschrift Condensed", 450, FontStyle.Bold, -70, 90);
 		}
 
 		private void MakeTextPanel(string text, int w, int h, int 描画時の倍率, string fontName, int fontSize, FontStyle fontStyle, int 描画位置_L, int 描画位置_T)
@@ -70,14 +70,61 @@ namespace Charlotte
 
 			canvas.Fill(new I4Color(0, 0, 0, 255));
 			canvas = canvas.DrawString(text, fontSize, fontName, fontStyle, new I4Color(255, 255, 255, 255), 描画位置_L, 描画位置_T);
+			canvas = LiteBokashi(canvas, (描画時の倍率 * 3) / 2);
 			canvas = canvas.Expand(w, h);
 
-			WhiteLevelToAlpha(canvas); // 出力を確認する時はここをコメントアウト
+			WhiteLevelToAlpha(canvas); // 出力を目視で確認する時はここをコメントアウト
 
 			canvas.Save(Common.NextOutputPath() + ".png");
 		}
 
-		private void WhiteLevelToAlpha(Canvas canvas)
+		private static Canvas LiteBokashi(Canvas canvas, int count)
+		{
+			for (int index = 0; index < count; index++)
+			{
+				canvas = LiteBokashiOnce(canvas);
+			}
+			return canvas;
+		}
+
+		private static Canvas LiteBokashiOnce(Canvas canvas)
+		{
+			Canvas dest = new Canvas(canvas.W, canvas.H);
+
+			for (int x = 0; x < canvas.W; x++)
+			{
+				for (int y = 0; y < canvas.H; y++)
+				{
+					int level = 0;
+
+					for (int sx = -1; sx <= 1; sx++)
+					{
+						for (int sy = -1; sy <= 1; sy++)
+						{
+							int xx = x + sx;
+							int yy = y + sy;
+
+							if (
+								0 <= xx && xx < canvas.W &&
+								0 <= yy && yy < canvas.H
+								)
+								level += canvas[xx, yy].R;
+						}
+					}
+					level = SCommon.ToInt(level / 9.0);
+
+					dest[x, y] = new I4Color(
+						level,
+						level,
+						level,
+						255
+						);
+				}
+			}
+			return dest;
+		}
+
+		private static void WhiteLevelToAlpha(Canvas canvas)
 		{
 			for (int x = 0; x < canvas.W; x++)
 			{
