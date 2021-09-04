@@ -48,7 +48,53 @@ namespace Charlotte
 
 		private void Main4()
 		{
-			// none
+			// -- choose one --
+
+			MakeTextPanels_20210904();
+
+			// --
+		}
+
+		private void MakeTextPanels_20210904()
+		{
+			MakeTextPanel("BRAND-NAME", 960, 180, 4, "Impact", 480, FontStyle.Regular, 100, -30);
+			MakeTextPanel("CERULEAN.CHARLOTTE", 960, 180, 4, "Bahnschrift Condensed", 380, FontStyle.Bold, -15, 140);
+		}
+
+		private void MakeTextPanel(string text, int w, int h, int 描画時の倍率, string fontName, int fontSize, FontStyle fontStyle, int 描画位置_L, int 描画位置_T)
+		{
+			int ew = w * 描画時の倍率;
+			int eh = h * 描画時の倍率;
+
+			Canvas canvas = new Canvas(ew, eh);
+
+			canvas.Fill(new I4Color(0, 0, 0, 255));
+			canvas = canvas.DrawString(text, fontSize, fontName, fontStyle, new I4Color(255, 255, 255, 255), 描画位置_L, 描画位置_T);
+			canvas = canvas.Expand(w, h);
+
+			WhiteLevelToAlpha(canvas); // 出力を確認する時はここをコメントアウト
+
+			canvas.Save(Common.NextOutputPath() + ".png");
+		}
+
+		private void WhiteLevelToAlpha(Canvas canvas)
+		{
+			for (int x = 0; x < canvas.W; x++)
+			{
+				for (int y = 0; y < canvas.H; y++)
+				{
+					I4Color dot = canvas[x, y];
+
+					I4Color dotNew = new I4Color(
+						255,
+						255,
+						255,
+						dot.R // 白さを透過率とする。代表_R
+						);
+
+					canvas[x, y] = dotNew;
+				}
+			}
 		}
 	}
 }

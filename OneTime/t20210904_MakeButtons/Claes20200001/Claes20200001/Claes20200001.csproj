@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Canvas.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="Commons\ArgsReader.cs" />
     <Compile Include="Commons\CsvFileReader.cs" />
