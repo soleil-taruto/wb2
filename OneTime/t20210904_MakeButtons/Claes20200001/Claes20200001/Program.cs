@@ -71,7 +71,7 @@ namespace Charlotte
 			canvas.Fill(new I4Color(0, 0, 0, 255));
 			canvas = canvas.DrawString(text, fontSize, fontName, fontStyle, new I4Color(255, 255, 255, 255), 描画位置_L, 描画位置_T);
 			canvas = LiteBokashi(canvas, (描画時の倍率 * 3) / 2);
-			canvas = canvas.Expand(w, h);
+			canvas = canvas.Expand(w, h, 描画時の倍率);
 
 			WhiteLevelToAlpha(canvas); // 出力を目視で確認する時はここをコメントアウト
 
