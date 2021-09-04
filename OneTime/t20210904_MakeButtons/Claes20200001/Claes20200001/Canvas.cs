@@ -107,15 +107,23 @@ namespace Charlotte
 			return Expand(w, h, SAMPLING);
 		}
 
+		public Canvas Expand(int w, int h, int sampling)
+		{
+			return Expand(w, h, sampling, sampling);
+		}
+
 		/// <summary>
 		/// 目的のサイズに拡大・縮小する。
 		/// 新しいキャンパスを返し、このインスタンスは変更しない。
+		/// サンプリング回数：
+		/// -- 出力先の１ドットの１辺につき何回サンプリングするか
 		/// </summary>
 		/// <param name="w">目的の幅</param>
 		/// <param name="h">目的の高さ</param>
-		/// <param name="sampling">出力先１ドット１辺のサンプリング回数</param>
+		/// <param name="xSampling">サンプリング回数(横方向)</param>
+		/// <param name="ySampling">サンプリング回数(縦方向)</param>
 		/// <returns>新しいキャンパス</returns>
-		public Canvas Expand(int w, int h, int sampling)
+		public Canvas Expand(int w, int h, int xSampling, int ySampling)
 		{
 			Canvas dest = new Canvas(w, h);
 
@@ -128,12 +136,12 @@ namespace Charlotte
 					int b = 0;
 					int a = 0;
 
-					for (int xc = 0; xc < sampling; xc++)
+					for (int xc = 0; xc < xSampling; xc++)
 					{
-						for (int yc = 0; yc < sampling; yc++)
+						for (int yc = 0; yc < ySampling; yc++)
 						{
-							double xd = x + (xc + 0.5) / sampling;
-							double yd = y + (yc + 0.5) / sampling;
+							double xd = x + (xc + 0.5) / xSampling;
+							double yd = y + (yc + 0.5) / ySampling;
 							double xs = (xd * this.W) / w;
 							double ys = (yd * this.H) / h;
 							int ixs = (int)xs;
@@ -152,7 +160,7 @@ namespace Charlotte
 						r = SCommon.ToInt(r / a);
 						g = SCommon.ToInt(g / a);
 						b = SCommon.ToInt(b / a);
-						a = SCommon.ToInt(a / (sampling * sampling));
+						a = SCommon.ToInt(a / (xSampling * ySampling));
 					}
 					dest[x, y] = new I4Color(r, g, b, a);
 				}
