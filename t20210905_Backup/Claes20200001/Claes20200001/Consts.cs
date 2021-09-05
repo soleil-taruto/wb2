@@ -49,5 +49,10 @@ namespace Charlotte
 			"$Recycle.Bin",
 			"System Volume Information",
 		};
+
+		/// <summary>
+		/// ログファイル
+		/// </summary>
+		public const string LOG_FILE = @"C:\tmp\Backup.log";
 	}
 }
