@@ -73,5 +73,48 @@ namespace Charlotte
 		{
 			return Math.Sqrt(pt.X * pt.X + pt.Y * pt.Y);
 		}
+
+		/// <summary>
+		/// マージする。
+		/// </summary>
+		/// <typeparam name="T">任意の型</typeparam>
+		/// <param name="list1">リスト1 -- ソート済みであること</param>
+		/// <param name="list2">リスト2 -- ソート済みであること</param>
+		/// <param name="comp">要素の比較メソッド</param>
+		/// <param name="only1">出力先 -- リスト1のみ存在</param>
+		/// <param name="only2">出力先 -- リスト2のみ存在</param>
+		/// <param name="both">出力先 -- 両方に存在 -- リスト1の要素を追加</param>
+		public static void Merge<T>(IList<T> list1, IList<T> list2, Comparison<T> comp, List<T> only1, List<T> only2, List<T> both)
+		{
+			int index1 = 0;
+			int index2 = 0;
+
+			while (index1 < list1.Count && index2 < list2.Count)
+			{
+				int ret = comp(list1[index1], list2[index2]);
+
+				if (ret < 0)
+				{
+					only1.Add(list1[index1++]);
+				}
+				else if (0 < ret)
+				{
+					only2.Add(list2[index2++]);
+				}
+				else
+				{
+					both.Add(list1[index1++]);
+					index2++;
+				}
+			}
+			while (index1 < list1.Count)
+			{
+				only1.Add(list1[index1++]);
+			}
+			while (index2 < list2.Count)
+			{
+				only2.Add(list2[index2++]);
+			}
+		}
 	}
 }
