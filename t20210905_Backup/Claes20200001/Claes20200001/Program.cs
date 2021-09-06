@@ -96,11 +96,11 @@ namespace Charlotte
 			foreach (string name in rOnlyNames)
 				ProcMain.WriteLog("2< " + name);
 
-			foreach (string name in wOnlyNames)
-				ProcMain.WriteLog("2> " + name);
-
 			foreach (string name in beNames)
 				ProcMain.WriteLog("BE " + name);
+
+			foreach (string name in wOnlyNames)
+				ProcMain.WriteLog("2> " + name);
 
 			if (MessageBox.Show(
 				"メーラーなど、動作中のアプリを閉じて下さい。",
@@ -138,11 +138,11 @@ namespace Charlotte
 				ProcMain.WriteLog("< " + rDir);
 				ProcMain.WriteLog("> " + wDir);
 
-				ProcMain.WriteLog("ROBOCOPY_ST");
+				ProcMain.WriteLog("ROBOCOPY_ST " + name);
 
 				Batch(string.Format(@"ROBOCOPY.EXE ""{0}"" ""{1}"" /MIR", rDir, wDir));
 
-				ProcMain.WriteLog("ROBOCOPY_ED");
+				ProcMain.WriteLog("ROBOCOPY_ED " + name);
 			}
 
 			ProcMain.WriteLog("BACKUP_ED");
