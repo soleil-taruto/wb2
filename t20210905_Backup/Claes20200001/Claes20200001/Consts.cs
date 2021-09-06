@@ -50,6 +50,10 @@ namespace Charlotte
 			"System Volume Information",
 		};
 
+		// HACK:
+		// -- 書き出し中のログファイルをコピーしてしまう。C:\tmpはコピー対象
+		// -- ストリームは毎回閉じているので動作に問題は無い。
+
 		/// <summary>
 		/// ログファイル
 		/// </summary>
