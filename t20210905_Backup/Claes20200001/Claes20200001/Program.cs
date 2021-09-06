@@ -145,6 +145,13 @@ namespace Charlotte
 				ProcMain.WriteLog("ROBOCOPY_ED " + name);
 			}
 
+			// ログファイルのフォルダを開く。
+			{
+				string dir = Path.GetDirectoryName(Consts.LOG_FILE);
+
+				SCommon.Batch(new string[] { string.Format(@"START ""{0}""", dir) });
+			}
+
 			ProcMain.WriteLog("BACKUP_ED");
 		}
 
