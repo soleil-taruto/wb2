@@ -48,14 +48,36 @@ namespace Charlotte
 
 		private void Main4()
 		{
-			File.WriteAllBytes(Consts.LOG_FILE, SCommon.EMPTY_BYTES); // ログファイルの内容クリア
+			using (WorkingDir wd = new WorkingDir())
+			{
+				ProcLogFile = wd.MakePath();
+				try
+				{
+					Main5();
+				}
+				finally
+				{
+					ProcLogFile = null;
+				}
+			}
+		}
+
+		private string ProcLogFile;
+
+		private void Main5()
+		{
+			File.WriteAllBytes(ProcLogFile, SCommon.EMPTY_BYTES);
 
 			ProcMain.WriteLog = message =>
 			{
 				string line = "[" + DateTime.Now + "] " + message;
 
 				Console.WriteLine(line);
-				File.AppendAllLines(Consts.LOG_FILE, new string[] { line }, SCommon.ENCODING_SJIS);
+
+				if (ProcLogFile != null)
+				{
+					File.AppendAllLines(ProcLogFile, new string[] { line }, SCommon.ENCODING_SJIS);
+				}
 			};
 
 			ProcMain.WriteLog("BACKUP_ST");
@@ -68,6 +90,8 @@ namespace Charlotte
 
 			if (!Directory.Exists(Consts.DEST_DIR))
 				throw new Exception("コピー先が存在しません。");
+
+			DistributeLogFile(); // テスト配布
 
 			string[] rDirs = Directory.GetDirectories(Consts.SRC_DIR);
 			string[] wDirs = Directory.GetDirectories(Consts.DEST_DIR);
@@ -146,6 +170,17 @@ namespace Charlotte
 			}
 
 			ProcMain.WriteLog("BACKUP_ED");
+
+			DistributeLogFile();
+		}
+
+		private void DistributeLogFile()
+		{
+			SCommon.DeletePath(Consts.LOG_FILE_1);
+			SCommon.DeletePath(Consts.LOG_FILE_2);
+
+			File.Copy(ProcLogFile, Consts.LOG_FILE_1);
+			File.Copy(ProcLogFile, Consts.LOG_FILE_2);
 		}
 
 		private void Batch(string command)
@@ -160,7 +195,7 @@ namespace Charlotte
 					string.Format(@"{0} > ""{1}"" 2> ""{2}""", command, outFile, errFile),
 				});
 
-				using (FileStream writer = new FileStream(Consts.LOG_FILE, FileMode.Append, FileAccess.Write))
+				using (FileStream writer = new FileStream(ProcLogFile, FileMode.Append, FileAccess.Write))
 				{
 					using (FileStream reader = new FileStream(outFile, FileMode.Open, FileAccess.Read))
 					{

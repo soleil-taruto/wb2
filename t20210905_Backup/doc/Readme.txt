@@ -15,6 +15,7 @@
 ログ出力先：
 
 	C:\tmp\Backup.log
+	P:\Backup.log
 
 
 ----

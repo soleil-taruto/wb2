@@ -50,13 +50,14 @@ namespace Charlotte
 			"System Volume Information",
 		};
 
-		// HACK:
-		// -- 書き出し中のログファイルをコピーしてしまう。C:\tmpはコピー対象
-		// -- ストリームは毎回閉じているので動作に問題は無い。
+		/// <summary>
+		/// ログファイル出力先(1)
+		/// </summary>
+		public const string LOG_FILE_1 = @"C:\tmp\Backup.log";
 
 		/// <summary>
-		/// ログファイル
+		/// ログファイル出力先(2)
 		/// </summary>
-		public const string LOG_FILE = @"C:\tmp\Backup.log";
+		public const string LOG_FILE_2 = @"P:\Backup.log";
 	}
 }
