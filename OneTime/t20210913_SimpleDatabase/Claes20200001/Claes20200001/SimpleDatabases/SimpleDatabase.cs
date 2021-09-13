@@ -34,12 +34,10 @@ namespace Charlotte.SimpleDatabases
 
 			string[] files = this.GetFiles();
 			string file;
-			bool append = true;
 
 			if (files.Length == 0)
 			{
 				file = this.GetFirstFilePath();
-				append = false;
 			}
 			else
 			{
@@ -50,13 +48,14 @@ namespace Charlotte.SimpleDatabases
 				if (this.FileSizeLimit < fileInfo.Length)
 				{
 					file = this.CreateNextFilePath(file);
-					append = false;
 				}
 			}
 
-			using (CsvFileWriter writer = new CsvFileWriter(file, append))
+			using (FileStream writer = new FileStream(file, FileMode.Append, FileAccess.Write))
 			{
-				writer.WriteRow(row);
+				SCommon.Write(writer, SCommon.SplittableJoin(
+					new byte[][] { SCommon.SplittableJoin(row.Select(cell => Encoding.UTF8.GetBytes(cell)).ToArray()) }
+					));
 			}
 		}
 
@@ -161,15 +160,17 @@ namespace Charlotte.SimpleDatabases
 
 		private static string[] RowFilter(string[] row)
 		{
-			return row.Select(cell => SCommon.ToJString(SCommon.ENCODING_SJIS.GetBytes(cell), true, true, true, true)).ToArray();
+			if (row.Any(cell => cell == null))
+				throw new ArgumentException();
+
+			return row;
 		}
 
 		private static string[][] ReadFile(string file)
 		{
-			using (CsvFileReader reader = new CsvFileReader(file))
-			{
-				return reader.ReadToEnd();
-			}
+			return SCommon.Split(File.ReadAllBytes(file)).Select(row =>
+				SCommon.Split(row).Select(cell =>
+					Encoding.UTF8.GetString(cell)).ToArray()).ToArray();
 		}
 
 		private static void WriteFile(string file, string[][] rows)
@@ -177,10 +178,10 @@ namespace Charlotte.SimpleDatabases
 			string fileNew = CreateTempFile(file + "-new-");
 			string oldFile = CreateTempFile(file + "-old-");
 
-			using (CsvFileWriter writer = new CsvFileWriter(fileNew))
-			{
-				writer.WriteRows(rows);
-			}
+			File.WriteAllBytes(fileNew, SCommon.SplittableJoin(rows.Select(row =>
+				SCommon.SplittableJoin(row.Select(cell =>
+					Encoding.UTF8.GetBytes(cell)).ToArray())).ToArray()));
+
 			File.Move(file, oldFile);
 			File.Move(fileNew, file);
 			SCommon.DeletePath(oldFile);
