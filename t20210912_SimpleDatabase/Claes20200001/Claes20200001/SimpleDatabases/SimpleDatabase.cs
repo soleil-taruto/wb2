@@ -162,7 +162,7 @@ namespace Charlotte.SimpleDatabases
 		{
 			long counter = long.Parse(Path.GetFileNameWithoutExtension(file));
 			counter++;
-			return Path.Combine(this.RootDir, (counter + 1) + ".csv");
+			return Path.Combine(this.RootDir, counter + ".csv");
 		}
 
 		private static string[] RowFilter(string[] row)
@@ -180,16 +180,16 @@ namespace Charlotte.SimpleDatabases
 
 		private static void WriteFile(string file, string[][] rows)
 		{
-			string midFile = CreateTempFile(file + "-mid-");
-			string delFile = CreateTempFile(file + "-del-");
+			string fileNew = CreateTempFile(file + "-new-");
+			string oldFile = CreateTempFile(file + "-old-");
 
-			using (CsvFileWriter writer = new CsvFileWriter(midFile))
+			using (CsvFileWriter writer = new CsvFileWriter(fileNew))
 			{
 				writer.WriteRows(rows);
 			}
-			File.Move(file, delFile);
-			File.Move(midFile, file);
-			SCommon.DeletePath(delFile);
+			File.Move(file, oldFile);
+			File.Move(fileNew, file);
+			SCommon.DeletePath(oldFile);
 		}
 
 		private static string CreateTempFile(string prefix)
