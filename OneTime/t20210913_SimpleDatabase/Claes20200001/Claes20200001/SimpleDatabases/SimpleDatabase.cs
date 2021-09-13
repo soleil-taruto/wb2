@@ -148,14 +148,14 @@ namespace Charlotte.SimpleDatabases
 
 		private string GetFirstFilePath()
 		{
-			return Path.Combine(this.RootDir, "20190101000059000.csv");
+			return Path.Combine(this.RootDir, "20190101000059000.dat");
 		}
 
 		private string CreateNextFilePath(string file)
 		{
 			long counter = long.Parse(Path.GetFileNameWithoutExtension(file));
 			counter++;
-			return Path.Combine(this.RootDir, counter + ".csv");
+			return Path.Combine(this.RootDir, counter + ".dat");
 		}
 
 		private static string[] RowFilter(string[] row)
