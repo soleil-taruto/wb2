@@ -69,7 +69,7 @@ namespace Charlotte.Tests
 				return false;
 			});
 
-			ProcMain.WriteLog("DELETED " + count);
+			ProcMain.WriteLog("REMOVED " + count);
 
 			for (int c = 0; c < count; c++)
 			{
@@ -119,6 +119,7 @@ namespace Charlotte.Tests
 				return null;
 			});
 
+			ProcMain.WriteLog("EDITED " + count);
 			ProcMain.WriteLog("Test03_ED");
 		}
 	}

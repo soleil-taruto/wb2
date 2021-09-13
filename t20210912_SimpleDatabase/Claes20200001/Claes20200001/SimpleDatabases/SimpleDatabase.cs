@@ -84,31 +84,28 @@ namespace Charlotte.SimpleDatabases
 			{
 				if (File.Exists(file)) // 読み込み中に削除される場合あり -- this.Remove() 中に this.Remove();
 				{
-					using (CsvFileReader reader = new CsvFileReader(file, SCommon.ENCODING_SJIS))
+					string[][] rows = ReadFile(file);
+					bool removed = false;
+
+					for (int index = 0; index < rows.Length; index++)
 					{
-						string[][] rows = reader.ReadToEnd();
-						bool removed = false;
-
-						for (int index = 0; index < rows.Length; index++)
+						if (match(rows[index]))
 						{
-							if (match(rows[index]))
-							{
-								rows[index] = null;
-								removed = true;
-							}
+							rows[index] = null;
+							removed = true;
 						}
-						if (removed)
-						{
-							rows = rows.Where(row => row != null).ToArray();
+					}
+					if (removed)
+					{
+						rows = rows.Where(row => row != null).ToArray();
 
-							if (rows.Length == 0)
-							{
-								SCommon.DeletePath(file);
-							}
-							else
-							{
-								WriteFile(file, rows);
-							}
+						if (rows.Length == 0)
+						{
+							SCommon.DeletePath(file);
+						}
+						else
+						{
+							WriteFile(file, rows);
 						}
 					}
 				}
@@ -123,26 +120,23 @@ namespace Charlotte.SimpleDatabases
 			{
 				if (File.Exists(file)) // 読み込み中に削除される場合あり -- this.Edit() 中に this.Remove();
 				{
-					using (CsvFileReader reader = new CsvFileReader(file, SCommon.ENCODING_SJIS))
+					string[][] rows = ReadFile(file);
+					bool edited = false;
+
+					for (int index = 0; index < rows.Length; index++)
 					{
-						string[][] rows = reader.ReadToEnd();
-						bool edited = false;
+						string[] row = editor(rows[index]);
 
-						for (int index = 0; index < rows.Length; index++)
+						if (row != null)
 						{
-							string[] row = editor(rows[index]);
-
-							if (row != null)
-							{
-								row = RowFilter(row);
-								rows[index] = row;
-								edited = true;
-							}
+							row = RowFilter(row);
+							rows[index] = row;
+							edited = true;
 						}
-						if (edited)
-						{
-							WriteFile(file, rows);
-						}
+					}
+					if (edited)
+					{
+						WriteFile(file, rows);
 					}
 				}
 			}
