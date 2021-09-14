@@ -9,9 +9,6 @@ namespace Charlotte.SimpleDatabases
 {
 	public class SimpleDatabase
 	{
-		private static Encoding CELL_ENCODING = Encoding.UTF8;
-		//private static Encoding CELL_ENCODING = Encoding.Unicode;
-
 		private string RootDir;
 		private long FileSizeLimit;
 
@@ -56,9 +53,7 @@ namespace Charlotte.SimpleDatabases
 
 			using (FileStream writer = new FileStream(file, FileMode.Append, FileAccess.Write))
 			{
-				SCommon.Write(writer, SCommon.SplittableJoin(
-					new byte[][] { SCommon.SplittableJoin(row.Select(cell => CELL_ENCODING.GetBytes(cell)).ToArray()) }
-					));
+				WriteRow(writer, row);
 			}
 		}
 
@@ -146,7 +141,7 @@ namespace Charlotte.SimpleDatabases
 
 		private string[] GetFiles()
 		{
-			return Directory.GetFiles(this.RootDir, "*.csv", SearchOption.TopDirectoryOnly).OrderBy(SCommon.Comp).ToArray();
+			return Directory.GetFiles(this.RootDir, "*.dat", SearchOption.TopDirectoryOnly).OrderBy(SCommon.Comp).ToArray();
 		}
 
 		private string GetFirstFilePath()
@@ -169,11 +164,45 @@ namespace Charlotte.SimpleDatabases
 			return row;
 		}
 
+		private static byte[] BSizeBuff = new byte[4];
+
 		private static string[][] ReadFile(string file)
 		{
-			return SCommon.Split(File.ReadAllBytes(file)).Select(row =>
-				SCommon.Split(row).Select(cell =>
-					CELL_ENCODING.GetString(cell)).ToArray()).ToArray();
+			List<string[]> rows = new List<string[]>();
+
+			using (FileStream reader = new FileStream(file, FileMode.Open, FileAccess.Read))
+			{
+				for (; ; )
+				{
+					int ret = reader.Read(BSizeBuff, 0, 4);
+
+					if (ret <= 0)
+						break;
+
+					if (ret != 4)
+						throw new Exception();
+
+					int count = SCommon.ToInt(BSizeBuff);
+					string[] row = new string[count];
+
+					for (int index = 0; index < count; index++)
+					{
+						SCommon.Read(reader, BSizeBuff);
+
+						int size = SCommon.ToInt(BSizeBuff);
+
+						if (size < 0)
+							throw new Exception();
+
+						byte[] bCell = SCommon.Read(reader, size);
+						string cell = Encoding.UTF8.GetString(bCell);
+
+						row[index] = cell;
+					}
+					rows.Add(row);
+				}
+			}
+			return rows.ToArray();
 		}
 
 		private static void WriteFile(string file, string[][] rows)
@@ -181,13 +210,29 @@ namespace Charlotte.SimpleDatabases
 			string fileNew = CreateTempFile(file + "-new-");
 			string oldFile = CreateTempFile(file + "-old-");
 
-			File.WriteAllBytes(fileNew, SCommon.SplittableJoin(rows.Select(row =>
-				SCommon.SplittableJoin(row.Select(cell =>
-					CELL_ENCODING.GetBytes(cell)).ToArray())).ToArray()));
-
+			using (FileStream writer = new FileStream(fileNew, FileMode.Create, FileAccess.Write))
+			{
+				foreach (string[] row in rows)
+					WriteRow(writer, row);
+			}
 			File.Move(file, oldFile);
 			File.Move(fileNew, file);
 			SCommon.DeletePath(oldFile);
+		}
+
+		private static void WriteRow(FileStream writer, string[] row)
+		{
+			SCommon.ToBytes((uint)row.Length, BSizeBuff);
+			SCommon.Write(writer, BSizeBuff);
+
+			foreach (string cell in row)
+			{
+				byte[] bCell = Encoding.UTF8.GetBytes(cell);
+
+				SCommon.ToBytes((uint)bCell.Length, BSizeBuff);
+				SCommon.Write(writer, BSizeBuff);
+				SCommon.Write(writer, bCell);
+			}
 		}
 
 		private static string CreateTempFile(string prefix)

@@ -146,7 +146,7 @@ namespace Charlotte.SimpleDatabases
 
 		private string[] GetFiles()
 		{
-			return Directory.GetFiles(this.RootDir, "*.csv", SearchOption.TopDirectoryOnly).OrderBy(SCommon.Comp).ToArray();
+			return Directory.GetFiles(this.RootDir, "*.dat", SearchOption.TopDirectoryOnly).OrderBy(SCommon.Comp).ToArray();
 		}
 
 		private string GetFirstFilePath()
