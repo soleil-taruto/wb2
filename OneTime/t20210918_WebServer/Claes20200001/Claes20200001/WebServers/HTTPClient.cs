@@ -40,20 +40,17 @@ namespace Charlotte.WebServers
 		}
 
 		/// <summary>
-		/// <para>接続を試みてから、応答ヘッダを受信し終えるまでのタイムアウト</para>
-		/// <para>ミリ秒</para>
+		/// 接続を試みてから応答ヘッダを受信し終えるまでのタイムアウト_ミリ秒
 		/// </summary>
 		public int ConnectTimeoutMillis = 20000; // 20 sec
 
 		/// <summary>
-		/// <para>接続を試みてから、全て送受信し終えるまでのタイムアウト</para>
-		/// <para>ミリ秒</para>
+		/// 接続を試みてから全て送受信し終えるまでのタイムアウト_ミリ秒
 		/// </summary>
 		public int TimeoutMillis = 30000; // 30 sec
 
 		/// <summary>
-		/// <para>応答ヘッダを受信し終えてから～全て送受信し終えるまでの間の、無通信タイムアウト</para>
-		/// <para>ミリ秒</para>
+		/// 応答ヘッダを受信し終えてから全て送受信し終えるまでの間の無通信タイムアウト_ミリ秒
 		/// </summary>
 		public int IdleTimeoutMillis = 10000; // 10 sec
 

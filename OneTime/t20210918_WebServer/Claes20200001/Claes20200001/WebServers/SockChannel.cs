@@ -22,14 +22,14 @@ namespace Charlotte.WebServers
 		public static bool StopFlag = false;
 
 		/// <summary>
-		/// <para>セッションタイムアウト日時</para>
-		/// <para>null == INFINITE</para>
+		/// セッションタイムアウト日時
+		/// null == INFINITE
 		/// </summary>
 		public DateTime? SessionTimeoutTime = null;
 
 		/// <summary>
-		/// <para>無通信タイムアウト_ミリ秒</para>
-		/// <para>-1 == INFINITE</para>
+		/// 無通信タイムアウト_ミリ秒
+		/// -1 == INFINITE
 		/// </summary>
 		public int IdleTimeoutMillis = 180000; // 3 min
 
