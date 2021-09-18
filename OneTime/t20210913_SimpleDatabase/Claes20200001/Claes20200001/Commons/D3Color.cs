@@ -6,8 +6,8 @@ using System.Text;
 namespace Charlotte.Commons
 {
 	/// <summary>
-	/// <para>アルファ値の無い色または色の比率を表す。</para>
-	/// <para>各色は 0.0 ～ 1.0 を想定する。</para>
+	/// アルファ値の無い色または色の比率を表す。
+	/// 各色は 0.0 ～ 1.0 を想定する。
 	/// </summary>
 	public struct D3Color
 	{

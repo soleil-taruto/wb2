@@ -149,9 +149,9 @@ namespace Charlotte.GameCommons
 		}
 
 		/// <summary>
-		/// <para>ファイルリストを取得する。</para>
-		/// <para>ソート済み</para>
-		/// <para>'_' で始まるファイルの除去済み</para>
+		/// ファイルリストを取得する。
+		/// ソート済み
+		/// '_' で始まるファイルの除去済み
 		/// </summary>
 		/// <returns>ファイルリスト</returns>
 		public static IEnumerable<string> GetFiles()

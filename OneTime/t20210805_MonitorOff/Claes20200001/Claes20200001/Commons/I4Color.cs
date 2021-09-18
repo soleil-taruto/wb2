@@ -7,9 +7,9 @@ using System.Drawing;
 namespace Charlotte.Commons
 {
 	/// <summary>
-	/// <para>アルファ値を含む色を表す。</para>
-	/// <para>各色は 0 ～ 255 を想定する。</para>
-	/// <para>R を -1 にすることによって無効な色を示す。</para>
+	/// アルファ値を含む色を表す。
+	/// 各色は 0 ～ 255 を想定する。
+	/// R を -1 にすることによって無効な色を示す。
 	/// </summary>
 	public struct I4Color
 	{

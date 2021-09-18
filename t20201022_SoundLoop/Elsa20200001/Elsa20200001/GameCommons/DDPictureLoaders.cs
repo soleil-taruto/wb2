@@ -7,8 +7,8 @@ using Charlotte.Commons;
 namespace Charlotte.GameCommons
 {
 	/// <summary>
-	/// <para>ここで取得した DDPicture は Unload する必要あり</para>
-	/// <para>必要なし -> DDPictureLoader2</para>
+	/// ここで取得した DDPicture は Unload する必要あり
+	/// 必要なし -> DDPictureLoader2
 	/// </summary>
 	public static class DDPictureLoaders
 	{

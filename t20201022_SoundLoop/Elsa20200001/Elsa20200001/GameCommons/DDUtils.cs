@@ -17,8 +17,8 @@ namespace Charlotte.GameCommons
 		}
 
 		/// <summary>
-		/// <para>コンピュータを起動してから経過した時間を返す。</para>
-		/// <para>ミリ秒</para>
+		/// コンピュータを起動してから経過した時間を返す。
+		/// ミリ秒
 		/// </summary>
 		/// <returns>時間</returns>
 		public static long GetCurrTime()
@@ -141,10 +141,10 @@ namespace Charlotte.GameCommons
 		}
 
 		/// <summary>
-		/// <para>原点から指定座標への角度を返す。</para>
-		/// <para>ラジアン角 (0.0 ～ Math.PI * 2.0)</para>
-		/// <para>右真横 (0,0 -> 1,0 方向) を 0.0 として時計回り。但し、X軸プラス方向は右、Y軸プラス方向は下である。</para>
-		/// <para>1周は Math.PI * 2.0</para>
+		/// 原点から指定座標への角度を返す。
+		/// ラジアン角 (0.0 ～ Math.PI * 2.0)
+		/// 右真横 (0,0 -> 1,0 方向) を 0.0 として時計回り。但し、X軸プラス方向は右、Y軸プラス方向は下である。
+		/// 1周は Math.PI * 2.0
 		/// </summary>
 		/// <param name="x">X座標</param>
 		/// <param name="y">Y座標</param>

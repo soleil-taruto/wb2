@@ -128,8 +128,8 @@ namespace Charlotte.Commons
 		}
 
 		/// <summary>
-		/// <para>バイト列を連結する。</para>
-		/// <para>例：{ BYTE_ARR_1, BYTE_ARR_2, BYTE_ARR_3 } -> BYTE_ARR_1 + BYTE_ARR_2 + BYTE_ARR_3</para>
+		/// バイト列を連結する。
+		/// 例：{ BYTE_ARR_1, BYTE_ARR_2, BYTE_ARR_3 } -> BYTE_ARR_1 + BYTE_ARR_2 + BYTE_ARR_3
 		/// </summary>
 		/// <param name="src">バイト列の引数配列</param>
 		/// <returns>連結したバイト列</returns>
@@ -152,10 +152,10 @@ namespace Charlotte.Commons
 		}
 
 		/// <summary>
-		/// <para>バイト列を再分割可能なように連結する。</para>
-		/// <para>再分割するには BinTools.Split を使用すること。</para>
-		/// <para>例：{ BYTE_ARR_1, BYTE_ARR_2, BYTE_ARR_3 } -> SIZE(BYTE_ARR_1) + BYTE_ARR_1 + SIZE(BYTE_ARR_2) + BYTE_ARR_2 + SIZE(BYTE_ARR_3) + BYTE_ARR_3</para>
-		/// <para>SIZE(b) は BinTools.ToBytes(b.Length) である。</para>
+		/// バイト列を再分割可能なように連結する。
+		/// 再分割するには BinTools.Split を使用すること。
+		/// 例：{ BYTE_ARR_1, BYTE_ARR_2, BYTE_ARR_3 } -> SIZE(BYTE_ARR_1) + BYTE_ARR_1 + SIZE(BYTE_ARR_2) + BYTE_ARR_2 + SIZE(BYTE_ARR_3) + BYTE_ARR_3
+		/// SIZE(b) は BinTools.ToBytes(b.Length) である。
 		/// </summary>
 		/// <param name="src">バイト列の引数配列</param>
 		/// <returns>連結したバイト列</returns>
@@ -244,9 +244,9 @@ namespace Charlotte.Commons
 		}
 
 		/// <summary>
-		/// <para>列挙の列挙(2次元列挙)を列挙(1次元列挙)に変換する。</para>
-		/// <para>例：{{ A, B, C }, { D, E, F }, { G, H, I }} -> { A, B, C, D, E, F, G, H, I }</para>
-		/// <para>但し Concat(new X[] { AAA, BBB, CCC }) は AAA.Concat(BBB).Concat(CCC) と同じ。</para>
+		/// 列挙の列挙(2次元列挙)を列挙(1次元列挙)に変換する。
+		/// 例：{{ A, B, C }, { D, E, F }, { G, H, I }} -> { A, B, C, D, E, F, G, H, I }
+		/// 但し Concat(new X[] { AAA, BBB, CCC }) は AAA.Concat(BBB).Concat(CCC) と同じ。
 		/// </summary>
 		/// <typeparam name="T">要素の型</typeparam>
 		/// <param name="src">列挙の列挙(2次元列挙)</param>
@@ -266,8 +266,8 @@ namespace Charlotte.Commons
 		}
 
 		/// <summary>
-		/// <para>列挙をゲッターメソッドでラップします。</para>
-		/// <para>例：{ A, B, C } -> 呼び出し毎に右の順で戻り値を返す { A, B, C, default(T), default(T), default(T), ... }</para>
+		/// 列挙をゲッターメソッドでラップします。
+		/// 例：{ A, B, C } -> 呼び出し毎に右の順で戻り値を返す { A, B, C, default(T), default(T), default(T), ... }
 		/// </summary>
 		/// <typeparam name="T">要素の型</typeparam>
 		/// <param name="src">列挙</param>
