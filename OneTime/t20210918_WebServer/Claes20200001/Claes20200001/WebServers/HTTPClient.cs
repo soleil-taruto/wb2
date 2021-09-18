@@ -117,7 +117,7 @@ namespace Charlotte.WebServers
 		public void SetProxyNone()
 		{
 			this.Inner.Proxy = null;
-			//Hwr.Proxy = GlobalProxySelection.GetEmptyWebProxy(); // 古い実装
+			//this.Inner.Proxy = GlobalProxySelection.GetEmptyWebProxy(); // 古い実装
 		}
 
 		public void SetIEProxy()

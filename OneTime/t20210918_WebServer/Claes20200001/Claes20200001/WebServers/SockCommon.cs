@@ -100,6 +100,10 @@ namespace Charlotte.WebServers
 			private object SYNCROOT = new object();
 			private int Entry = 0;
 
+			// @ 2019.1.7
+			// Monitor.Enter -> Monitor.Exit は同一スレッドでなければならないっぽい。
+			// (Enter -> 別スレッドで Leave)出来るように ---> (Monitor.Wait -> Monitor.Pulse)にした。
+
 			public void Enter()
 			{
 				lock (Enter_SYNCROOT)
