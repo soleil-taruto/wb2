@@ -52,7 +52,7 @@ namespace Charlotte.WebServers
 			{
 				if (Th != null)
 				{
-					critical.Unsection_A(() => Th.Join());
+					critical.Unsection(() => Th.Join());
 					Th = null;
 				}
 			}
@@ -132,20 +132,7 @@ namespace Charlotte.WebServers
 				}
 			}
 
-			public T Section_Get<T>(Func<T> routine)
-			{
-				this.Enter();
-				try
-				{
-					return routine();
-				}
-				finally
-				{
-					this.Leave();
-				}
-			}
-
-			public void Section_A(Action routine)
+			public void Section(Action routine)
 			{
 				this.Enter();
 				try
@@ -158,26 +145,7 @@ namespace Charlotte.WebServers
 				}
 			}
 
-			public IDisposable Section()
-			{
-				this.Enter();
-				return SCommon.GetAnonyDisposable(() => this.Leave());
-			}
-
-			public T Unsection_Get<T>(Func<T> routine)
-			{
-				this.Leave();
-				try
-				{
-					return routine();
-				}
-				finally
-				{
-					this.Enter();
-				}
-			}
-
-			public void Unsection_A(Action routine)
+			public void Unsection(Action routine)
 			{
 				this.Leave();
 				try
@@ -188,12 +156,6 @@ namespace Charlotte.WebServers
 				{
 					this.Enter();
 				}
-			}
-
-			public IDisposable Unsection()
-			{
-				this.Leave();
-				return SCommon.GetAnonyDisposable(() => this.Enter());
 			}
 
 			public void ContextSwitching()

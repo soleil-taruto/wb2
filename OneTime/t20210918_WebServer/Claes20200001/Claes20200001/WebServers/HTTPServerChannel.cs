@@ -77,7 +77,7 @@ namespace Charlotte.WebServers
 			if (millis == -1)
 				return null;
 
-			return DateTime.Now + new TimeSpan((long)millis * 10000L);
+			return DateTime.Now + new TimeSpan((long)millis * TimeSpan.TicksPerMillisecond);
 		}
 
 		public class RecvFirstLineIdleTimeoutException : Exception
@@ -119,6 +119,8 @@ namespace Charlotte.WebServers
 
 		private const byte CR = 0x0d;
 		private const byte LF = 0x0a;
+
+		private readonly byte[] CRLF = new byte[] { CR, LF };
 
 		private string RecvLine()
 		{
@@ -265,39 +267,17 @@ namespace Charlotte.WebServers
 		}
 
 		public int ResStatus = 200;
-		public string ResServer = null;
 		public string ResContentType = null;
 		public List<string[]> ResHeaderPairs = new List<string[]>();
 		public IEnumerable<byte[]> ResBody = null;
-
-		public byte[] ResBody_B
-		{
-			get
-			{
-				if (this.ResBody == null)
-					return null;
-				else
-					return SCommon.Join(this.ResBody.ToArray());
-			}
-
-			set
-			{
-				if (value == null)
-					this.ResBody = null;
-				else
-					this.ResBody = new byte[][] { value };
-			}
-		}
 
 		public void SendResponse()
 		{
 			this.Body = null;
 			this.Channel.SessionTimeoutTime = TimeoutMillisToDateTime(ResponseTimeoutMillis);
 
-			this.SendLine("HTTP/1.1 " + this.ResStatus + " Chocolate Cake");
-
-			if (this.ResServer != null)
-				this.SendLine("Server: " + this.ResServer);
+			this.SendLine("HTTP/1.1 " + this.ResStatus + " Heartland");
+			this.SendLine("Server: Heartland");
 
 			if (this.ResContentType != null)
 				this.SendLine("Content-Type: " + this.ResContentType);
@@ -361,8 +341,6 @@ namespace Charlotte.WebServers
 				this.Channel.Send(CRLF);
 			}
 		}
-
-		private readonly byte[] CRLF = new byte[] { CR, LF };
 
 		private void SendLine(string line)
 		{

@@ -54,6 +54,9 @@ namespace Charlotte.WebServers
 		/// </summary>
 		public int IdleTimeoutMillis = 10000; // 10 sec
 
+		/// <summary>
+		/// 応答ボディ最大サイズ_バイト数
+		/// </summary>
 		public int ResBodySizeMax = 20000000; // 20 MB
 
 		public enum Version_e
@@ -159,10 +162,10 @@ namespace Charlotte.WebServers
 			{
 				this.Inner.ContentLength = body.Length;
 
-				using (Stream w = this.Inner.GetRequestStream())
+				using (Stream writer = this.Inner.GetRequestStream())
 				{
-					w.Write(body, 0, body.Length);
-					w.Flush();
+					writer.Write(body, 0, body.Length);
+					writer.Flush();
 				}
 			}
 			using (WebResponse res = this.Inner.GetResponse())
@@ -171,19 +174,19 @@ namespace Charlotte.WebServers
 
 				// header
 				{
-					const int RES_HEADERS_LEN_MAX = 512000;
-					const int WEIGHT = 10;
+					const int RES_HEADERS_LEN_MAX = 612000;
+					const int WEIGHT = 1000;
 
-					int totalRoughLength = 0;
+					int totalLength = 0;
 
 					foreach (string name in res.Headers.Keys)
 					{
 						if (RES_HEADERS_LEN_MAX < name.Length)
 							throw new Exception("受信ヘッダが長すぎます。");
 
-						totalRoughLength += name.Length + WEIGHT;
+						totalLength += name.Length + WEIGHT;
 
-						if (RES_HEADERS_LEN_MAX < totalRoughLength)
+						if (RES_HEADERS_LEN_MAX < totalLength)
 							throw new Exception("受信ヘッダが長すぎます。");
 
 						string value = res.Headers[name];
@@ -191,9 +194,9 @@ namespace Charlotte.WebServers
 						if (RES_HEADERS_LEN_MAX < value.Length)
 							throw new Exception("受信ヘッダが長すぎます。");
 
-						totalRoughLength += value.Length + WEIGHT;
+						totalLength += value.Length + WEIGHT;
 
-						if (RES_HEADERS_LEN_MAX < totalRoughLength)
+						if (RES_HEADERS_LEN_MAX < totalLength)
 							throw new Exception("受信ヘッダが長すぎます。");
 
 						this.ResHeaders.Add(name, res.Headers[name]);
@@ -204,16 +207,16 @@ namespace Charlotte.WebServers
 				{
 					int totalSize = 0;
 
-					using (Stream r = res.GetResponseStream())
-					using (MemoryStream w = new MemoryStream())
+					using (Stream reader = res.GetResponseStream())
+					using (MemoryStream writer = new MemoryStream())
 					{
-						r.ReadTimeout = this.IdleTimeoutMillis; // この時間経過すると r.Read() が例外を投げる。
+						reader.ReadTimeout = this.IdleTimeoutMillis; // この時間経過すると reader.Read() が例外を投げる。
 
 						byte[] buff = new byte[20000000]; // 20 MB
 
 						for (; ; )
 						{
-							int readSize = r.Read(buff, 0, buff.Length);
+							int readSize = reader.Read(buff, 0, buff.Length);
 
 							if (readSize <= 0)
 								break;
@@ -226,9 +229,9 @@ namespace Charlotte.WebServers
 							if (this.ResBodySizeMax < totalSize)
 								throw new Exception("受信データが長すぎます。");
 
-							w.Write(buff, 0, readSize);
+							writer.Write(buff, 0, readSize);
 						}
-						this.ResBody = w.ToArray();
+						this.ResBody = writer.ToArray();
 					}
 				}
 			}

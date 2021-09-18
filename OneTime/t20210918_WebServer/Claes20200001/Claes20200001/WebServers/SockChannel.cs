@@ -110,7 +110,7 @@ namespace Charlotte.WebServers
 				if (waitMillis < 100)
 					waitMillis++;
 
-				Critical.Unsection_A(() => Thread.Sleep(waitMillis));
+				Critical.Unsection(() => Thread.Sleep(waitMillis));
 
 				idleMillis += waitMillis;
 			}
@@ -173,7 +173,7 @@ namespace Charlotte.WebServers
 				if (waitMillis < 100)
 					waitMillis++;
 
-				Critical.Unsection_A(() => Thread.Sleep(waitMillis));
+				Critical.Unsection(() => Thread.Sleep(waitMillis));
 
 				idleMillis += waitMillis;
 			}

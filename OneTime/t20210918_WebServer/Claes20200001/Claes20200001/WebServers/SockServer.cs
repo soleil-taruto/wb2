@@ -19,15 +19,26 @@ namespace Charlotte.WebServers
 
 		// <---- prm
 
-		public static Action<object> ErrorOccurred = message => ProcMain.WriteLog(message);
-		public static Action<object> ErrorOccurred_Fatal = message => ProcMain.WriteLog("[FATAL] " + message);
-		public static Action ErrorOccurred_RecvFirstLineIdleTimeout = () => ProcMain.WriteLog("RECV_FIRST_LINE_IDLE_TIMEOUT");
+		public static void ErrorOccurred_Ignorable(object message)
+		{
+			ProcMain.WriteLog(message);
+		}
+
+		public static void ErrorOccurred_Fatal(object message)
+		{
+			ProcMain.WriteLog("[FATAL] " + message);
+		}
+
+		public static void ErrorOccurred_RecvFirstLineIdleTimeout()
+		{
+			ProcMain.WriteLog("RECV_FIRST_LINE_IDLE_TIMEOUT");
+		}
 
 		private List<SockCommon.ThreadEx> ConnectedThs = new List<SockCommon.ThreadEx>();
 
 		public void Perform()
 		{
-			using (SockChannel.Critical.Section())
+			SockChannel.Critical.Section(() =>
 			{
 				try
 				{
@@ -50,7 +61,7 @@ namespace Charlotte.WebServers
 								if (connectWaitMillis < 100)
 									connectWaitMillis++;
 
-								SockChannel.Critical.Unsection_A(() => Thread.Sleep(connectWaitMillis));
+								SockChannel.Critical.Unsection(() => Thread.Sleep(connectWaitMillis));
 							}
 							else
 							{
@@ -63,7 +74,7 @@ namespace Charlotte.WebServers
 									handler = null;
 									channel.PostSetHandler();
 
-									this.ConnectedThs.Add(new SockCommon.ThreadEx(() => SockChannel.Critical.Section_A(() =>
+									this.ConnectedThs.Add(new SockCommon.ThreadEx(() => SockChannel.Critical.Section(() =>
 									{
 										try
 										{
@@ -75,7 +86,7 @@ namespace Charlotte.WebServers
 										}
 										catch (Exception e)
 										{
-											ErrorOccurred(e);
+											ErrorOccurred_Ignorable(e);
 										}
 
 										try
@@ -84,7 +95,7 @@ namespace Charlotte.WebServers
 										}
 										catch (Exception e)
 										{
-											ErrorOccurred(e);
+											ErrorOccurred_Ignorable(e);
 										}
 
 										try
@@ -93,7 +104,7 @@ namespace Charlotte.WebServers
 										}
 										catch (Exception e)
 										{
-											ErrorOccurred(e);
+											ErrorOccurred_Ignorable(e);
 										}
 									}
 									)));
@@ -114,7 +125,7 @@ namespace Charlotte.WebServers
 				}
 
 				this.Stop();
-			}
+			});
 		}
 
 		private Socket Connect(Socket listener) // ret: null == 接続タイムアウト
