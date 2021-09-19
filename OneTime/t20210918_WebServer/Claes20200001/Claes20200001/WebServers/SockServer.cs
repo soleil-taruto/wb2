@@ -19,22 +19,7 @@ namespace Charlotte.WebServers
 
 		// <---- prm
 
-		public static void ErrorOccurred_Ignorable(object message)
-		{
-			ProcMain.WriteLog(message);
-		}
-
-		public static void ErrorOccurred_Fatal(object message)
-		{
-			ProcMain.WriteLog("[FATAL] " + message);
-		}
-
-		public static void ErrorOccurred_RecvFirstLineIdleTimeout()
-		{
-			ProcMain.WriteLog("RECV_FIRST_LINE_IDLE_TIMEOUT");
-		}
-
-		private List<SockCommon.ThreadEx> ConnectedThs = new List<SockCommon.ThreadEx>();
+		private List<Thread> ConnectedThs = new List<Thread>();
 
 		public void Perform()
 		{
@@ -74,7 +59,7 @@ namespace Charlotte.WebServers
 									handler = null;
 									channel.PostSetHandler();
 
-									this.ConnectedThs.Add(new SockCommon.ThreadEx(() => SockChannel.Critical.Section(() =>
+									Thread th = new Thread(() => SockChannel.Critical.Section(() =>
 									{
 										try
 										{
@@ -82,11 +67,11 @@ namespace Charlotte.WebServers
 										}
 										catch (HTTPServerChannel.RecvFirstLineIdleTimeoutException)
 										{
-											ErrorOccurred_RecvFirstLineIdleTimeout();
+											SockCommon.ErrorLog(SockCommon.ErrorKind_e.FIRST_LINE_TIMEOUT, null);
 										}
 										catch (Exception e)
 										{
-											ErrorOccurred_Ignorable(e);
+											SockCommon.ErrorLog(SockCommon.ErrorKind_e.NETWORK, e);
 										}
 
 										try
@@ -95,7 +80,7 @@ namespace Charlotte.WebServers
 										}
 										catch (Exception e)
 										{
-											ErrorOccurred_Ignorable(e);
+											SockCommon.ErrorLog(SockCommon.ErrorKind_e.NETWORK, e);
 										}
 
 										try
@@ -104,15 +89,19 @@ namespace Charlotte.WebServers
 										}
 										catch (Exception e)
 										{
-											ErrorOccurred_Ignorable(e);
+											SockCommon.ErrorLog(SockCommon.ErrorKind_e.NETWORK, e);
 										}
 									}
-									)));
+									));
+
+									th.Start();
+
+									this.ConnectedThs.Add(th);
 								}
 							}
 
 							for (int index = this.ConnectedThs.Count - 1; 0 <= index; index--)
-								if (this.ConnectedThs[index].IsEnded())
+								if (!this.ConnectedThs[index].IsAlive)
 									this.ConnectedThs.RemoveAt(index);
 
 							//GC.Collect(); // GeoDemo の Server.sln が重くなるため、暫定削除 @ 2019.4.9
@@ -121,7 +110,7 @@ namespace Charlotte.WebServers
 				}
 				catch (Exception e)
 				{
-					ErrorOccurred_Fatal(e);
+					SockCommon.ErrorLog(SockCommon.ErrorKind_e.FATAL, e);
 				}
 
 				this.Stop();
@@ -153,8 +142,8 @@ namespace Charlotte.WebServers
 
 		private void Stop_ChannelSafe()
 		{
-			foreach (SockCommon.ThreadEx connectedTh in this.ConnectedThs)
-				connectedTh.WaitToEnd(SockChannel.Critical);
+			foreach (Thread connectedTh in this.ConnectedThs)
+				SockChannel.Critical.Unsection(() => connectedTh.Join());
 
 			this.ConnectedThs.Clear();
 		}

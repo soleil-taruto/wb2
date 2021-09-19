@@ -77,7 +77,7 @@ namespace Charlotte.WebServers
 
 		public int TryRecv(byte[] data, int offset, int size)
 		{
-			Critical.ContextSwitching();
+			//Critical.ContextSwitching(); // ブラウザで重くなる原因っぽい。削除して様子見 @ 2021.9.19
 
 			int waitMillis = 0;
 			int idleMillis = 0;
@@ -88,7 +88,10 @@ namespace Charlotte.WebServers
 
 				try
 				{
+					DateTime stTm = DateTime.Now; // test
 					int recvSize = this.Handler.Receive(data, offset, size, SocketFlags.None);
+					DateTime edTm = DateTime.Now; // test
+					Console.WriteLine("*R " + (edTm - stTm) + " " + recvSize); // test
 
 					if (recvSize <= 0)
 					{
@@ -140,7 +143,7 @@ namespace Charlotte.WebServers
 
 		private int TrySend(byte[] data, int offset, int size)
 		{
-			Critical.ContextSwitching();
+			//Critical.ContextSwitching(); // ブラウザで重くなる原因っぽい。削除して様子見 @ 2021.9.19
 
 			int waitMillis = 0;
 			int idleMillis = 0;
@@ -151,7 +154,10 @@ namespace Charlotte.WebServers
 
 				try
 				{
+					DateTime stTm = DateTime.Now; // test
 					int sentSize = this.Handler.Send(data, offset, size, SocketFlags.None);
+					DateTime edTm = DateTime.Now; // test
+					Console.WriteLine("*S " + (edTm - stTm)); // test
 
 					if (sentSize <= 0)
 					{

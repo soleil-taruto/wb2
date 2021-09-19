@@ -73,5 +73,49 @@ namespace Charlotte
 		{
 			return Math.Sqrt(pt.X * pt.X + pt.Y * pt.Y);
 		}
+
+		public static string[] ParseIsland(string text, string singleTag, bool ignoreCase = false)
+		{
+			int start;
+
+			if (ignoreCase)
+				start = text.ToLower().IndexOf(singleTag.ToLower());
+			else
+				start = text.IndexOf(singleTag);
+
+			if (start == -1)
+				return null;
+
+			int end = start + singleTag.Length;
+
+			return new string[]
+			{
+				text.Substring(0, start),
+				text.Substring(start, end - start),
+				text.Substring(end),
+			};
+		}
+
+		public static string[] ParseEnclosed(string text, string openTag, string closeTag, bool ignoreCase = false)
+		{
+			string[] starts = ParseIsland(text, openTag, ignoreCase);
+
+			if (starts == null)
+				return null;
+
+			string[] ends = ParseIsland(starts[2], closeTag, ignoreCase);
+
+			if (ends == null)
+				return null;
+
+			return new string[]
+			{
+				starts[0],
+				starts[1],
+				ends[0],
+				ends[1],
+				ends[2],
+			};
+		}
 	}
 }

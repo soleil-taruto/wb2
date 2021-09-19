@@ -19,11 +19,15 @@ namespace Charlotte.WebServers
 				HTTPServerChannel hsChannel = new HTTPServerChannel();
 
 				hsChannel.Channel = channel;
+				Console.WriteLine("*1"); // test
 				hsChannel.RecvRequest();
+				Console.WriteLine("*2"); // test
 
 				HTTPConnected(hsChannel);
+				Console.WriteLine("*3"); // test
 
 				hsChannel.SendResponse();
+				Console.WriteLine("*4"); // test
 			};
 		}
 	}

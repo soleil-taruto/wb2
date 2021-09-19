@@ -310,6 +310,8 @@ namespace Charlotte.WebServers
 
 						if (resBodyIterator.MoveNext())
 						{
+							this.SendLine("Transfer-Encoding: Chunked");
+							this.EndHeader();
 							SendChunk(first);
 
 							do

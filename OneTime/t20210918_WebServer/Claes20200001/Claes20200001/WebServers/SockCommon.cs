@@ -9,71 +9,31 @@ namespace Charlotte.WebServers
 {
 	public static class SockCommon
 	{
-		public class ThreadEx : IDisposable
+		public enum ErrorKind_e
 		{
-			private Thread Th;
-			private Exception Ex = null;
+			FIRST_LINE_TIMEOUT,
+			NETWORK,
+			FATAL,
+		}
 
-			public ThreadEx(Action routine)
+		public static void ErrorLog(ErrorKind_e errorKind, object message)
+		{
+			switch (errorKind)
 			{
-				Th = new Thread(() =>
-				{
-					try
-					{
-						routine();
-					}
-					catch (Exception e)
-					{
-						Ex = e;
-					}
-				});
+				case ErrorKind_e.FIRST_LINE_TIMEOUT:
+					ProcMain.WriteLog("FIRST_LINE_TIMEOUT");
+					break;
 
-				Th.Start();
-			}
+				case ErrorKind_e.NETWORK:
+					ProcMain.WriteLog(message);
+					break;
 
-			public bool IsEnded(int millis = 0)
-			{
-				if (Th != null && Th.Join(millis))
-					Th = null;
+				case ErrorKind_e.FATAL:
+					ProcMain.WriteLog("[FATAL] " + message);
+					break;
 
-				return Th == null;
-			}
-
-			public void WaitToEnd()
-			{
-				if (Th != null)
-				{
-					Th.Join();
-					Th = null;
-				}
-			}
-
-			public void WaitToEnd(Critical critical)
-			{
-				if (Th != null)
-				{
-					critical.Unsection(() => Th.Join());
-					Th = null;
-				}
-			}
-
-			public void RelayThrow()
-			{
-				this.WaitToEnd();
-
-				if (this.Ex != null)
-					throw new AggregateException("Relay", this.Ex);
-			}
-
-			public Exception GetException()
-			{
-				this.WaitToEnd();
-				return this.Ex;
-			}
-
-			public void Dispose()
-			{
-				this.WaitToEnd();
+				default:
+					throw null; // never
 			}
 		}
 
