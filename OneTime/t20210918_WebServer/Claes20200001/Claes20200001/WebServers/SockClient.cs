@@ -16,10 +16,8 @@ namespace Charlotte.WebServers
 			SockChannel.Critical.Enter();
 		}
 
-		public void Connect(string domain, int portNo, int connectTimeoutMillis = 20000) // 20 sec
+		public void Connect(string domain, int portNo)
 		{
-			// HACK: connectTimeoutMillis 未対応
-
 			IPHostEntry hostEntry = Dns.GetHostEntry(domain);
 			IPAddress address = GetFairAddress(hostEntry.AddressList);
 			IPEndPoint endPoint = new IPEndPoint(address, portNo);

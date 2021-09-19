@@ -88,10 +88,7 @@ namespace Charlotte.WebServers
 
 				try
 				{
-					DateTime stTm = DateTime.Now; // test
 					int recvSize = this.Handler.Receive(data, offset, size, SocketFlags.None);
-					DateTime edTm = DateTime.Now; // test
-					Console.WriteLine("*R " + (edTm - stTm) + " " + recvSize); // test
 
 					if (recvSize <= 0)
 					{
@@ -154,10 +151,7 @@ namespace Charlotte.WebServers
 
 				try
 				{
-					DateTime stTm = DateTime.Now; // test
 					int sentSize = this.Handler.Send(data, offset, size, SocketFlags.None);
-					DateTime edTm = DateTime.Now; // test
-					Console.WriteLine("*S " + (edTm - stTm)); // test
 
 					if (sentSize <= 0)
 					{

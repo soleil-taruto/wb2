@@ -102,7 +102,7 @@ namespace Charlotte.WebServers
 
 							for (int index = this.ConnectedThs.Count - 1; 0 <= index; index--)
 								if (!this.ConnectedThs[index].IsAlive)
-									this.ConnectedThs.RemoveAt(index);
+									SCommon.FastDesertElement(this.ConnectedThs, index);
 
 							//GC.Collect(); // GeoDemo の Server.sln が重くなるため、暫定削除 @ 2019.4.9
 						}
