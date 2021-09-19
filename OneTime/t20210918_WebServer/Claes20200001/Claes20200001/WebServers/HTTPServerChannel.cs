@@ -37,6 +37,11 @@ namespace Charlotte.WebServers
 		/// </summary>
 		public static int IdleTimeoutMillis = 180000; // 3 min
 
+		/// <summary>
+		/// リクエストのボディの最大サイズ_バイト数
+		/// </summary>
+		public static int BodySizeMax = 300000000; // 300 MB
+
 		public void RecvRequest()
 		{
 			this.Channel.SessionTimeoutTime = TimeoutMillisToDateTime(RequestTimeoutMillis);
@@ -147,7 +152,10 @@ namespace Charlotte.WebServers
 
 		private void RecvHeader()
 		{
-			int headerRoughLength = 0;
+			const int HEADERS_LEN_MAX = 612000;
+			const int WEIGHT = 1000;
+
+			int roughHeaderLength = 0;
 
 			for (; ; )
 			{
@@ -156,9 +164,9 @@ namespace Charlotte.WebServers
 				if (line == "")
 					break;
 
-				headerRoughLength += line.Length + 10;
+				roughHeaderLength += line.Length + WEIGHT;
 
-				if (512000 < headerRoughLength)
+				if (HEADERS_LEN_MAX < roughHeaderLength)
 					throw new OverflowException();
 
 				if (line[0] <= ' ')
@@ -209,11 +217,10 @@ namespace Charlotte.WebServers
 			}
 		}
 
-		public static int BodySizeMax = 300000000; // 300 MB
-		public static int BuffSize = 3000000; // 3 MB
-
 		private void RecvBody()
 		{
+			const int READ_SIZE_MAX = 3000000; // 3 MB
+
 			using (HTTPBodyOutputStream buff = new HTTPBodyOutputStream())
 			{
 				if (this.Chunked)
@@ -244,7 +251,7 @@ namespace Charlotte.WebServers
 						int chunkEnd = buff.Count + size;
 
 						while (buff.Count < chunkEnd)
-							buff.Write(this.Channel.Recv(Math.Min(BuffSize, chunkEnd - buff.Count)));
+							buff.Write(this.Channel.Recv(Math.Min(READ_SIZE_MAX, chunkEnd - buff.Count)));
 
 						this.Channel.Recv(2); // CR-LF
 					}
@@ -260,16 +267,20 @@ namespace Charlotte.WebServers
 						throw new Exception("ボディサイズが大きすぎます。" + this.ContentLength);
 
 					while (buff.Count < this.ContentLength)
-						buff.Write(this.Channel.Recv(Math.Min(BuffSize, this.ContentLength - buff.Count)));
+						buff.Write(this.Channel.Recv(Math.Min(READ_SIZE_MAX, this.ContentLength - buff.Count)));
 				}
 				this.Body = buff.ToByteArray();
 			}
 		}
 
+		// HTTPConnected 内で(必要に応じて)設定しなければならないフィールド -->
+
 		public int ResStatus = 200;
 		public string ResContentType = null;
 		public List<string[]> ResHeaderPairs = new List<string[]>();
 		public IEnumerable<byte[]> ResBody = null;
+
+		// <-- HTTPConnected 内で(必要に応じて)設定しなければならないフィールド
 
 		public void SendResponse()
 		{
@@ -291,21 +302,21 @@ namespace Charlotte.WebServers
 			}
 			else
 			{
-				using (IEnumerator<byte[]> resBodyIte = this.ResBody.GetEnumerator())
+				using (IEnumerator<byte[]> resBodyIterator = this.ResBody.GetEnumerator())
 				{
-					if (resBodyIte.MoveNext())
+					if (resBodyIterator.MoveNext())
 					{
-						byte[] first = resBodyIte.Current;
+						byte[] first = resBodyIterator.Current;
 
-						if (resBodyIte.MoveNext())
+						if (resBodyIterator.MoveNext())
 						{
 							SendChunk(first);
 
 							do
 							{
-								SendChunk(resBodyIte.Current);
+								SendChunk(resBodyIterator.Current);
 							}
-							while (resBodyIte.MoveNext());
+							while (resBodyIterator.MoveNext());
 
 							this.SendLine("0");
 							this.Channel.Send(CRLF);

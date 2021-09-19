@@ -177,16 +177,16 @@ namespace Charlotte.WebServers
 					const int RES_HEADERS_LEN_MAX = 612000;
 					const int WEIGHT = 1000;
 
-					int totalLength = 0;
+					int roughResHeaderLength = 0;
 
 					foreach (string name in res.Headers.Keys)
 					{
 						if (RES_HEADERS_LEN_MAX < name.Length)
 							throw new Exception("受信ヘッダが長すぎます。");
 
-						totalLength += name.Length + WEIGHT;
+						roughResHeaderLength += name.Length + WEIGHT;
 
-						if (RES_HEADERS_LEN_MAX < totalLength)
+						if (RES_HEADERS_LEN_MAX < roughResHeaderLength)
 							throw new Exception("受信ヘッダが長すぎます。");
 
 						string value = res.Headers[name];
@@ -194,9 +194,9 @@ namespace Charlotte.WebServers
 						if (RES_HEADERS_LEN_MAX < value.Length)
 							throw new Exception("受信ヘッダが長すぎます。");
 
-						totalLength += value.Length + WEIGHT;
+						roughResHeaderLength += value.Length + WEIGHT;
 
-						if (RES_HEADERS_LEN_MAX < totalLength)
+						if (RES_HEADERS_LEN_MAX < roughResHeaderLength)
 							throw new Exception("受信ヘッダが長すぎます。");
 
 						this.ResHeaders.Add(name, res.Headers[name]);
