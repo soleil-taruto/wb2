@@ -50,7 +50,7 @@ namespace Charlotte.WebServers
 				}
 				catch (Exception e)
 				{
-					SockCommon.ErrorLog(SockCommon.ErrorKind_e.NETWORK, e);
+					SockCommon.ErrorLog(SockCommon.ErrorLevel_e.NETWORK, e);
 				}
 
 				try
@@ -59,7 +59,7 @@ namespace Charlotte.WebServers
 				}
 				catch (Exception e)
 				{
-					SockCommon.ErrorLog(SockCommon.ErrorKind_e.NETWORK, e);
+					SockCommon.ErrorLog(SockCommon.ErrorLevel_e.NETWORK, e);
 				}
 
 				this.Handler = null;
@@ -70,7 +70,7 @@ namespace Charlotte.WebServers
 				}
 				catch (Exception e)
 				{
-					SockCommon.ErrorLog(SockCommon.ErrorKind_e.FATAL, e);
+					SockCommon.ErrorLog(SockCommon.ErrorLevel_e.FATAL, e);
 				}
 			}
 		}

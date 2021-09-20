@@ -11,10 +11,33 @@ namespace Charlotte.WebServers
 {
 	public class SockServer
 	{
+		/// <summary>
+		/// ポート番号
+		/// </summary>
 		public int PortNo = 59999;
+
+		/// <summary>
+		/// 接続待ちキューの長さ
+		/// </summary>
 		public int Backlog = 100;
+
+		/// <summary>
+		/// 最大同時接続数
+		/// </summary>
 		public int ConnectMax = 30;
+
+		/// <summary>
+		/// サーバーロジック
+		/// 引数：
+		/// -- channel: 接続チャネル
+		/// </summary>
 		public Action<SockChannel> Connected = channel => { };
+
+		/// <summary>
+		/// 処理の合間に呼ばれる処理
+		/// 戻り値：
+		/// -- サーバーを継続するか
+		/// </summary>
 		public Func<bool> Interlude = () => !Console.KeyAvailable;
 
 		// <---- prm
@@ -67,11 +90,11 @@ namespace Charlotte.WebServers
 										}
 										catch (HTTPServerChannel.RecvFirstLineIdleTimeoutException)
 										{
-											SockCommon.ErrorLog(SockCommon.ErrorKind_e.FIRST_LINE_TIMEOUT, null);
+											SockCommon.ErrorLog(SockCommon.ErrorLevel_e.FIRST_LINE_TIMEOUT, null);
 										}
 										catch (Exception e)
 										{
-											SockCommon.ErrorLog(SockCommon.ErrorKind_e.NETWORK, e);
+											SockCommon.ErrorLog(SockCommon.ErrorLevel_e.NETWORK_OR_SERVER_LOGIC, e);
 										}
 
 										try
@@ -80,7 +103,7 @@ namespace Charlotte.WebServers
 										}
 										catch (Exception e)
 										{
-											SockCommon.ErrorLog(SockCommon.ErrorKind_e.NETWORK, e);
+											SockCommon.ErrorLog(SockCommon.ErrorLevel_e.NETWORK, e);
 										}
 
 										try
@@ -89,7 +112,7 @@ namespace Charlotte.WebServers
 										}
 										catch (Exception e)
 										{
-											SockCommon.ErrorLog(SockCommon.ErrorKind_e.NETWORK, e);
+											SockCommon.ErrorLog(SockCommon.ErrorLevel_e.NETWORK, e);
 										}
 									}
 									));
@@ -110,7 +133,7 @@ namespace Charlotte.WebServers
 				}
 				catch (Exception e)
 				{
-					SockCommon.ErrorLog(SockCommon.ErrorKind_e.FATAL, e);
+					SockCommon.ErrorLog(SockCommon.ErrorLevel_e.FATAL, e);
 				}
 
 				this.Stop();

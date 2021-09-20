@@ -48,9 +48,17 @@ namespace Charlotte.Tests
 			{
 				HTTPConnected = channel =>
 				{
+					//channel.ResStatus = 200;
 					channel.ResContentType = "text/plain; charset=US-ASCII";
+					//channel.ResHeaderPairs.Add(new string[] { "X-Key-01", "Value-01" });
+					//channel.ResHeaderPairs.Add(new string[] { "X-Key-02", "Value-02" });
+					//channel.ResHeaderPairs.Add(new string[] { "X-Key-03", "Value-03" });
 					channel.ResBody = "Hello, Happy World!".ToCharArray().Select(chr => Encoding.ASCII.GetBytes("" + chr));
 				},
+				//PortNo = 80,
+				//Backlog = 100,
+				//ConnectMax = 30,
+				//Interlude = () => !Console.KeyAvailable,
 			}
 			.Perform();
 		}

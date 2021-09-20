@@ -9,26 +9,28 @@ namespace Charlotte.WebServers
 {
 	public static class SockCommon
 	{
-		public enum ErrorKind_e
+		public enum ErrorLevel_e
 		{
 			FIRST_LINE_TIMEOUT,
 			NETWORK,
+			NETWORK_OR_SERVER_LOGIC,
 			FATAL,
 		}
 
-		public static void ErrorLog(ErrorKind_e errorKind, object message)
+		public static void ErrorLog(ErrorLevel_e errorKind, object message)
 		{
 			switch (errorKind)
 			{
-				case ErrorKind_e.FIRST_LINE_TIMEOUT:
+				case ErrorLevel_e.FIRST_LINE_TIMEOUT:
 					ProcMain.WriteLog("FIRST_LINE_TIMEOUT");
 					break;
 
-				case ErrorKind_e.NETWORK:
+				case ErrorLevel_e.NETWORK:
+				case ErrorLevel_e.NETWORK_OR_SERVER_LOGIC:
 					ProcMain.WriteLog(message);
 					break;
 
-				case ErrorKind_e.FATAL:
+				case ErrorLevel_e.FATAL:
 					ProcMain.WriteLog("[FATAL] " + message);
 					break;
 

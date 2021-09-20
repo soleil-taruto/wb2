@@ -129,6 +129,8 @@ namespace Charlotte.WebServers
 
 		private string RecvLine()
 		{
+			const int LINE_LEN_MAX = 512000;
+
 			using (MemoryStream buff = new MemoryStream())
 			{
 				for (; ; )
@@ -141,7 +143,7 @@ namespace Charlotte.WebServers
 					if (chr == LF)
 						break;
 
-					if (512000 < buff.Length)
+					if (LINE_LEN_MAX < buff.Length)
 						throw new OverflowException();
 
 					buff.WriteByte(chr);

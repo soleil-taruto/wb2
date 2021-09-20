@@ -43,6 +43,8 @@ namespace Charlotte.WebServers
 			{
 				throw new SessionTimeoutException();
 			}
+
+			// TODO: 時間でコンテキスト切り替え
 		}
 
 		public byte[] Recv(int size)

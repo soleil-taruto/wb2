@@ -7,6 +7,11 @@ namespace Charlotte.WebServers
 {
 	public class HTTPServer : SockServer
 	{
+		/// <summary>
+		/// サーバーロジック
+		/// 引数：
+		/// -- channel: 接続チャネル
+		/// </summary>
 		public Action<HTTPServerChannel> HTTPConnected = channel => { };
 
 		// <---- prm
