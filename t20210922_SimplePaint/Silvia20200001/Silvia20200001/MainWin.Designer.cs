@@ -110,9 +110,9 @@
 			// 
 			// panel1
 			// 
-			this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+			| System.Windows.Forms.AnchorStyles.Left)
+			| System.Windows.Forms.AnchorStyles.Right)));
 			this.panel1.Controls.Add(this.pictureBox1);
 			this.panel1.Location = new System.Drawing.Point(12, 27);
 			this.panel1.Name = "panel1";
@@ -142,7 +142,6 @@
 			this.Name = "MainWin";
 			this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;
 			this.Text = "Silvia20200001";
-			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainWin_FormClosing);
 			this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainWin_FormClosed);
 			this.Load += new System.EventHandler(this.MainWin_Load);
 			this.Shown += new System.EventHandler(this.MainWin_Shown);

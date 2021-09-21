@@ -61,26 +61,30 @@ namespace Charlotte
 		private void MainWin_Shown(object sender, EventArgs e)
 		{
 			this.MainTimer.Enabled = true;
-		}
-
-		private void MainWin_FormClosing(object sender, FormClosingEventArgs e)
-		{
-			this.MainTimer.Enabled = false; // 念のため
+			this.MT_Busy = false;
 		}
 
 		private void MainWin_FormClosed(object sender, FormClosedEventArgs e)
 		{
-			this.MainTimer.Enabled = false; // 念のため
+			this.MainTimer.Enabled = false;
+			this.MT_Busy = true;
 		}
 
 		private void CloseWindow()
 		{
 			this.MainTimer.Enabled = false;
+			this.MT_Busy = true;
 			this.Close();
 		}
 
+		private bool MT_Busy = true;
+
 		private void MainTimer_Tick(object sender, EventArgs e)
 		{
+			if (this.MT_Busy)
+				return;
+
+			this.MT_Busy = true;
 			try
 			{
 				this.UpdateSubStatus();
@@ -88,6 +92,10 @@ namespace Charlotte
 			catch (Exception ex)
 			{
 				ProcMain.WriteLog(ex);
+			}
+			finally
+			{
+				this.MT_Busy = false;
 			}
 		}
 
