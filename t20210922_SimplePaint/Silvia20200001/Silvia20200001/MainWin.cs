@@ -23,7 +23,7 @@ namespace Charlotte
 
 			if (m.Msg == WM_SYSCOMMAND && (m.WParam.ToInt64() & 0xFFF0L) == SC_CLOSE)
 			{
-				this.BeginInvoke((MethodInvoker)this.CloseWindow);
+				this.BeginInvoke((MethodInvoker)delegate { this.保存して終了Click(null, null); });
 				return;
 			}
 			base.WndProc(ref m);
@@ -38,17 +38,17 @@ namespace Charlotte
 
 		private void MainWin_Load(object sender, EventArgs e)
 		{
-			// init WriteLog
+			// ログ出力_初期化
 			{
-				string consoleLogFile = ProcMain.SelfFile + "-console.log";
+				string logFile = Path.Combine(Environment.GetEnvironmentVariable("TMP"), ProcMain.APP_IDENT + ".log");
 
-				File.WriteAllBytes(consoleLogFile, SCommon.EMPTY_BYTES);
+				SCommon.DeletePath(logFile);
 
 				ProcMain.WriteLog = message =>
 				{
 					try
 					{
-						File.AppendAllLines(consoleLogFile, new string[] { "[" + DateTime.Now + "] " + message }, Encoding.UTF8);
+						File.AppendAllLines(logFile, new string[] { "[" + DateTime.Now + "] " + message }, Encoding.UTF8);
 					}
 					catch
 					{ }
@@ -60,22 +60,50 @@ namespace Charlotte
 
 		private void MainWin_Shown(object sender, EventArgs e)
 		{
-			// none
+			this.MainTimer.Enabled = true;
 		}
 
 		private void MainWin_FormClosing(object sender, FormClosingEventArgs e)
 		{
-			// none
+			this.MainTimer.Enabled = false; // 念のため
 		}
 
 		private void MainWin_FormClosed(object sender, FormClosedEventArgs e)
 		{
-			// none
+			this.MainTimer.Enabled = false; // 念のため
 		}
 
 		private void CloseWindow()
 		{
+			this.MainTimer.Enabled = false;
 			this.Close();
+		}
+
+		private void MainTimer_Tick(object sender, EventArgs e)
+		{
+			try
+			{
+				this.UpdateSubStatus();
+			}
+			catch (Exception ex)
+			{
+				ProcMain.WriteLog(ex);
+			}
+		}
+
+		private void UpdateSubStatus()
+		{
+			// TODO
+		}
+
+		private void 保存して終了Click(object sender, EventArgs e)
+		{
+			// TODO
+		}
+
+		private void 保存せずに終了Click(object sender, EventArgs e)
+		{
+			// TODO
 		}
 	}
 }

@@ -35,7 +35,7 @@
 			// 
 			// MainTimer
 			// 
-			this.MainTimer.Enabled = true;
+			this.MainTimer.Tick += new System.EventHandler(this.MainTimer_Tick);
 			// 
 			// MainWin
 			// 
@@ -46,6 +46,7 @@
 			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
 			this.Name = "MainWin";
+			this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;
 			this.Text = "Silvia20200001";
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainWin_FormClosing);
 			this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainWin_FormClosed);

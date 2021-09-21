@@ -38,44 +38,40 @@ namespace Charlotte
 
 		private void MainWin_Load(object sender, EventArgs e)
 		{
-			// init WriteLog
-			{
-				string consoleLogFile = ProcMain.SelfFile + "-console.log";
-
-				File.WriteAllBytes(consoleLogFile, SCommon.EMPTY_BYTES);
-
-				ProcMain.WriteLog = message =>
-				{
-					try
-					{
-						File.AppendAllLines(consoleLogFile, new string[] { "[" + DateTime.Now + "] " + message }, Encoding.UTF8);
-					}
-					catch
-					{ }
-				};
-			}
-
 			Ground.I = new Ground();
 		}
 
 		private void MainWin_Shown(object sender, EventArgs e)
 		{
-			// none
+			this.MainTimer.Enabled = true;
 		}
 
 		private void MainWin_FormClosing(object sender, FormClosingEventArgs e)
 		{
-			// none
+			this.MainTimer.Enabled = false; // 念のため
 		}
 
 		private void MainWin_FormClosed(object sender, FormClosedEventArgs e)
 		{
-			// none
+			this.MainTimer.Enabled = false; // 念のため
 		}
 
 		private void CloseWindow()
 		{
+			this.MainTimer.Enabled = false;
 			this.Close();
+		}
+
+		private void MainTimer_Tick(object sender, EventArgs e)
+		{
+			try
+			{
+				// none
+			}
+			catch (Exception ex)
+			{
+				ProcMain.WriteLog(ex);
+			}
 		}
 	}
 }
