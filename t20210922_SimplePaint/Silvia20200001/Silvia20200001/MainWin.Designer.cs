@@ -38,12 +38,12 @@
 			this.アプリToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.保存して終了ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.保存せずに終了ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.panel1 = new System.Windows.Forms.Panel();
-			this.pictureBox1 = new System.Windows.Forms.PictureBox();
+			this.MainPanel = new System.Windows.Forms.Panel();
+			this.MainPicture = new System.Windows.Forms.PictureBox();
 			this.statusStrip1.SuspendLayout();
 			this.menuStrip1.SuspendLayout();
-			this.panel1.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+			this.MainPanel.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.MainPicture)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// MainTimer
@@ -109,31 +109,33 @@
 			this.保存せずに終了ToolStripMenuItem.Text = "保存せずに終了";
 			this.保存せずに終了ToolStripMenuItem.Click += new System.EventHandler(this.保存せずに終了Click);
 			// 
-			// panel1
+			// MainPanel
 			// 
-			this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+			this.MainPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.panel1.Controls.Add(this.pictureBox1);
-			this.panel1.Location = new System.Drawing.Point(12, 27);
-			this.panel1.Name = "panel1";
-			this.panel1.Size = new System.Drawing.Size(560, 309);
-			this.panel1.TabIndex = 2;
+			this.MainPanel.Controls.Add(this.MainPicture);
+			this.MainPanel.Location = new System.Drawing.Point(12, 27);
+			this.MainPanel.Name = "MainPanel";
+			this.MainPanel.Size = new System.Drawing.Size(560, 309);
+			this.MainPanel.TabIndex = 2;
+			this.MainPanel.Paint += new System.Windows.Forms.PaintEventHandler(this.MainPanel_Paint);
 			// 
-			// pictureBox1
+			// MainPicture
 			// 
-			this.pictureBox1.Location = new System.Drawing.Point(3, 3);
-			this.pictureBox1.Name = "pictureBox1";
-			this.pictureBox1.Size = new System.Drawing.Size(100, 50);
-			this.pictureBox1.TabIndex = 0;
-			this.pictureBox1.TabStop = false;
+			this.MainPicture.Location = new System.Drawing.Point(3, 3);
+			this.MainPicture.Name = "MainPicture";
+			this.MainPicture.Size = new System.Drawing.Size(100, 50);
+			this.MainPicture.TabIndex = 0;
+			this.MainPicture.TabStop = false;
+			this.MainPicture.Click += new System.EventHandler(this.MainPicture_Click);
 			// 
 			// MainWin
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(584, 361);
-			this.Controls.Add(this.panel1);
+			this.Controls.Add(this.MainPanel);
 			this.Controls.Add(this.statusStrip1);
 			this.Controls.Add(this.menuStrip1);
 			this.Font = new System.Drawing.Font("メイリオ", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
@@ -150,8 +152,8 @@
 			this.statusStrip1.PerformLayout();
 			this.menuStrip1.ResumeLayout(false);
 			this.menuStrip1.PerformLayout();
-			this.panel1.ResumeLayout(false);
-			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+			this.MainPanel.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.MainPicture)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -167,8 +169,8 @@
 		private System.Windows.Forms.ToolStripMenuItem アプリToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem 保存して終了ToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem 保存せずに終了ToolStripMenuItem;
-		private System.Windows.Forms.Panel panel1;
-		private System.Windows.Forms.PictureBox pictureBox1;
+		private System.Windows.Forms.Panel MainPanel;
+		private System.Windows.Forms.PictureBox MainPicture;
 	}
 }
 

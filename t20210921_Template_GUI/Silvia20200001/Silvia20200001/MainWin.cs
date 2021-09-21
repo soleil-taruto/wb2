@@ -15,6 +15,8 @@ namespace Charlotte
 {
 	public partial class MainWin : Form
 	{
+		#region WndProc
+
 		[SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.UnmanagedCode)]
 		protected override void WndProc(ref Message m)
 		{
@@ -28,6 +30,8 @@ namespace Charlotte
 			}
 			base.WndProc(ref m);
 		}
+
+		#endregion
 
 		public MainWin()
 		{
@@ -43,40 +47,28 @@ namespace Charlotte
 
 		private void MainWin_Shown(object sender, EventArgs e)
 		{
-			this.MT_Visitor--;
+			this.EM.StartTimer();
 		}
 
 		private void MainWin_FormClosed(object sender, FormClosedEventArgs e)
 		{
-			this.MT_Visitor++; // 念のため
+			this.EM.EndTimer(); // 念のため
 		}
 
 		private void CloseWindow()
 		{
-			this.MT_Visitor++;
+			this.EM.EndTimer();
 			this.Close();
 		}
 
-		private int MT_Visitor = 1;
+		private Common.EventManager EM = new Common.EventManager();
 
 		private void MainTimer_Tick(object sender, EventArgs e)
 		{
-			if (1 <= this.MT_Visitor)
-				return;
-
-			this.MT_Visitor++;
-			try
+			this.EM.ExecuteTimer(() =>
 			{
 				// none
-			}
-			catch (Exception ex)
-			{
-				ProcMain.WriteLog(ex);
-			}
-			finally
-			{
-				this.MT_Visitor--;
-			}
+			});
 		}
 	}
 }
