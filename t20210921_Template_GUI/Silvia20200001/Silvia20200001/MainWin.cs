@@ -43,19 +43,16 @@ namespace Charlotte
 
 		private void MainWin_Shown(object sender, EventArgs e)
 		{
-			this.MainTimer.Enabled = true;
 			this.MT_Busy = false;
 		}
 
 		private void MainWin_FormClosed(object sender, FormClosedEventArgs e)
 		{
-			this.MainTimer.Enabled = false;
 			this.MT_Busy = true;
 		}
 
 		private void CloseWindow()
 		{
-			this.MainTimer.Enabled = false;
 			this.MT_Busy = true;
 			this.Close();
 		}

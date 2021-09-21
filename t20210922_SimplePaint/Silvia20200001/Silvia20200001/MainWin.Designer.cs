@@ -48,6 +48,7 @@
 			// 
 			// MainTimer
 			// 
+			this.MainTimer.Enabled = true;
 			this.MainTimer.Tick += new System.EventHandler(this.MainTimer_Tick);
 			// 
 			// statusStrip1
@@ -97,22 +98,22 @@
 			// 保存して終了ToolStripMenuItem
 			// 
 			this.保存して終了ToolStripMenuItem.Name = "保存して終了ToolStripMenuItem";
-			this.保存して終了ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.保存して終了ToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
 			this.保存して終了ToolStripMenuItem.Text = "保存して終了";
 			this.保存して終了ToolStripMenuItem.Click += new System.EventHandler(this.保存して終了Click);
 			// 
 			// 保存せずに終了ToolStripMenuItem
 			// 
 			this.保存せずに終了ToolStripMenuItem.Name = "保存せずに終了ToolStripMenuItem";
-			this.保存せずに終了ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.保存せずに終了ToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
 			this.保存せずに終了ToolStripMenuItem.Text = "保存せずに終了";
 			this.保存せずに終了ToolStripMenuItem.Click += new System.EventHandler(this.保存せずに終了Click);
 			// 
 			// panel1
 			// 
-			this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-			| System.Windows.Forms.AnchorStyles.Left)
-			| System.Windows.Forms.AnchorStyles.Right)));
+			this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.panel1.Controls.Add(this.pictureBox1);
 			this.panel1.Location = new System.Drawing.Point(12, 27);
 			this.panel1.Name = "panel1";
