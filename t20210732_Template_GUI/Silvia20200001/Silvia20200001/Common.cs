@@ -38,7 +38,7 @@ namespace Charlotte
 			public void TimerEventHandler(Action routine)
 			{
 				if (this.TimerStarted)
-					this.EventHandler(routine);
+					this.EventHandler(true, routine);
 			}
 
 			private bool Busy = false;
@@ -46,8 +46,9 @@ namespace Charlotte
 			/// <summary>
 			/// タイマー以外のイベント実行
 			/// </summary>
+			/// <param name="background">バックグラウンドで動くイベントか</param>
 			/// <param name="routine">イベントロジック</param>
-			public void EventHandler(Action routine)
+			public void EventHandler(bool background, Action routine)
 			{
 				if (this.Busy)
 					return;
@@ -59,7 +60,10 @@ namespace Charlotte
 				}
 				catch (Exception e)
 				{
-					ProcMain.WriteLog(e);
+					if (background)
+						ProcMain.WriteLog(e);
+					else
+						MessageBox.Show("" + e, "失敗", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 				}
 				finally
 				{

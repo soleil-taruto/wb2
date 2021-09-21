@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
+using System.Drawing.Text;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -10,8 +13,6 @@ using System.IO;
 using System.Security.Permissions;
 using System.Windows.Forms;
 using Charlotte.Commons;
-using System.Drawing.Text;
-using System.Drawing.Drawing2D;
 
 namespace Charlotte
 {
@@ -27,7 +28,7 @@ namespace Charlotte
 
 			if (m.Msg == WM_SYSCOMMAND && (m.WParam.ToInt64() & 0xFFF0L) == SC_CLOSE)
 			{
-				this.BeginInvoke((MethodInvoker)delegate { this.保存して終了Click(null, null); });
+				this.BeginInvoke((MethodInvoker)delegate { this.保存せずに終了Click(null, null); });
 				return;
 			}
 			base.WndProc(ref m);
@@ -93,22 +94,93 @@ namespace Charlotte
 
 		private void UpdateSubStatus()
 		{
-			// TODO
+			this.SubStatus.Text = string.Join(", ", this.LastMousePos.X, this.LastMousePos.Y, this.PenDown, this.EraserDown);
+		}
+
+		private void ファイルを開くClick(object sender, EventArgs e)
+		{
+			this.EM.EventHandler(false, () =>
+			{
+				string homeDir = Directory.GetCurrentDirectory();
+				try
+				{
+					using (OpenFileDialog f = new OpenFileDialog())
+					{
+						f.Title = "ファイルを開く";
+
+						f.FileName = "何時ぞやのキャンバス.bmp";
+						f.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+
+						f.Filter = "BMPファイル(*.bmp)|*.bmp|PNGファイル(*.png)|*.png|全てのファイル(*.*)|*.*";
+						f.FilterIndex = 1;
+
+						if (f.ShowDialog() == DialogResult.OK)
+						{
+							this.ClearCanvas(Bitmap.FromFile(f.FileName));
+						}
+					}
+				}
+				finally
+				{
+					Directory.SetCurrentDirectory(homeDir);
+				}
+			});
 		}
 
 		private void 保存して終了Click(object sender, EventArgs e)
 		{
-			this.EM.EventHandler(() =>
+			this.EM.EventHandler(false, () =>
 			{
-				// TODO
+				string homeDir = Directory.GetCurrentDirectory();
+				try
+				{
+					using (SaveFileDialog f = new SaveFileDialog())
+					{
+						f.Title = "現在のキャンバスを保存して終了する";
+
+						f.FileName = "現在のキャンバス.bmp";
+						f.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+
+						f.Filter = "BMPファイル(*.bmp)|*.bmp|PNGファイル(*.png)|*.png|全てのファイル(*.*)|*.*";
+						f.FilterIndex = 1;
+
+						if (f.ShowDialog() == DialogResult.OK)
+						{
+							string ext = Path.GetExtension(f.FileName);
+
+							if (SCommon.EqualsIgnoreCase(ext, ".bmp"))
+								this.MainPicture.Image.Save(f.FileName, ImageFormat.Bmp);
+							else
+								this.MainPicture.Image.Save(f.FileName);
+
+							this.CloseWindow();
+							return;
+						}
+					}
+				}
+				finally
+				{
+					Directory.SetCurrentDirectory(homeDir);
+				}
 			});
 		}
 
 		private void 保存せずに終了Click(object sender, EventArgs e)
 		{
-			this.EM.EventHandler(() =>
+			this.EM.EventHandler(false, () =>
 			{
-				// TODO
+				if (MessageBox.Show(
+					"保存せずに終了します。",
+					"確認",
+					MessageBoxButtons.OKCancel,
+					MessageBoxIcon.Warning
+					)
+					!= DialogResult.OK
+					)
+					return;
+
+				this.CloseWindow();
+				return;
 			});
 		}
 
@@ -167,7 +239,7 @@ namespace Charlotte
 
 		private void MainPicture_MouseDown(object sender, MouseEventArgs e)
 		{
-			this.EM.EventHandler(() =>
+			this.EM.EventHandler(false, () =>
 			{
 				if (e.Button == MouseButtons.Left)
 					this.PenDown = true;
@@ -178,7 +250,7 @@ namespace Charlotte
 
 		private void MainPicture_MouseUp(object sender, MouseEventArgs e)
 		{
-			this.EM.EventHandler(() =>
+			this.EM.EventHandler(false, () =>
 			{
 				if (e.Button == MouseButtons.Left)
 					this.PenDown = false;
@@ -189,7 +261,7 @@ namespace Charlotte
 
 		private void MainPicture_MouseMove(object sender, MouseEventArgs e)
 		{
-			this.EM.EventHandler(() =>
+			this.EM.EventHandler(false, () =>
 			{
 				I2Point p1 = this.LastMousePos;
 				I2Point p2 = new I2Point(e.X, e.Y);
@@ -199,7 +271,7 @@ namespace Charlotte
 					if (this.PenDown)
 						g.DrawLine(new Pen(Color.Black), p1.X, p1.Y, p2.X, p2.Y);
 					else if (this.EraserDown)
-						g.DrawLine(new Pen(Color.White), p1.X, p1.Y, p2.X, p2.Y);
+						g.DrawLine(new Pen(Color.White, 60F), p1.X, p1.Y, p2.X, p2.Y);
 				});
 
 				this.LastMousePos = p2;
