@@ -212,6 +212,10 @@ namespace Charlotte
 
 		private void ClearCanvas(Image image)
 		{
+			// 位置ズレ対策
+			this.MainPicture.Width = 10;
+			this.MainPicture.Height = 10;
+
 			this.MainPicture.Image = image;
 			this.MainPicture.Left = 0;
 			this.MainPicture.Top = 0;
