@@ -78,7 +78,7 @@ namespace Charlotte
 			this.Close();
 		}
 
-		private Common.EventManager EM = new Common.EventManager();
+		private Common.P_EventManager EM = new Common.P_EventManager();
 
 		private void MainTimer_Tick(object sender, EventArgs e)
 		{

@@ -9,9 +9,9 @@ namespace Charlotte
 {
 	public static class Common
 	{
-		#region EventManager
+		#region P_EventManager
 
-		public class EventManager
+		public class P_EventManager
 		{
 			private bool TimerStarted = false;
 
