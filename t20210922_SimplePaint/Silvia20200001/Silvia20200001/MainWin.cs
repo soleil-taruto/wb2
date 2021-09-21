@@ -10,6 +10,8 @@ using System.IO;
 using System.Security.Permissions;
 using System.Windows.Forms;
 using Charlotte.Commons;
+using System.Drawing.Text;
+using System.Drawing.Drawing2D;
 
 namespace Charlotte
 {
@@ -64,6 +66,7 @@ namespace Charlotte
 
 		private void MainWin_Shown(object sender, EventArgs e)
 		{
+			this.ClearCanvas(800, 600);
 			this.EM.StartTimer();
 		}
 
@@ -117,6 +120,90 @@ namespace Charlotte
 		private void MainPicture_Click(object sender, EventArgs e)
 		{
 			// noop
+		}
+
+		private void ClearCanvas()
+		{
+			this.ClearCanvas(this.MainPicture.Image.Width, this.MainPicture.Image.Height);
+		}
+
+		private void ClearCanvas(int w, int h)
+		{
+			Image image = new Bitmap(w, h);
+
+			using (Graphics g = Graphics.FromImage(image))
+			{
+				g.FillRectangle(Brushes.White, 0, 0, w, h);
+			}
+			this.ClearCanvas(image);
+		}
+
+		private void ClearCanvas(Image image)
+		{
+			this.MainPicture.Image = image;
+			this.MainPicture.Left = 0;
+			this.MainPicture.Top = 0;
+			this.MainPicture.Width = image.Width;
+			this.MainPicture.Height = image.Height;
+		}
+
+		private void DrawCanvas(bool antiAliasing, Action<Graphics> routine)
+		{
+			using (Graphics g = Graphics.FromImage(this.MainPicture.Image))
+			{
+				if (antiAliasing)
+				{
+					g.TextRenderingHint = TextRenderingHint.AntiAlias;
+					g.SmoothingMode = SmoothingMode.AntiAlias;
+				}
+				routine(g);
+			}
+			this.MainPicture.Invalidate();
+		}
+
+		private I2Point LastMousePos = new I2Point(0, 0);
+		private bool PenDown = false;
+		private bool EraserDown = false;
+
+		private void MainPicture_MouseDown(object sender, MouseEventArgs e)
+		{
+			this.EM.EventHandler(() =>
+			{
+				if (e.Button == MouseButtons.Left)
+					this.PenDown = true;
+				else if (e.Button == MouseButtons.Right)
+					this.EraserDown = true;
+			});
+		}
+
+		private void MainPicture_MouseUp(object sender, MouseEventArgs e)
+		{
+			this.EM.EventHandler(() =>
+			{
+				if (e.Button == MouseButtons.Left)
+					this.PenDown = false;
+				else if (e.Button == MouseButtons.Right)
+					this.EraserDown = false;
+			});
+		}
+
+		private void MainPicture_MouseMove(object sender, MouseEventArgs e)
+		{
+			this.EM.EventHandler(() =>
+			{
+				I2Point p1 = this.LastMousePos;
+				I2Point p2 = new I2Point(e.X, e.Y);
+
+				this.DrawCanvas(false, g =>
+				{
+					if (this.PenDown)
+						g.DrawLine(new Pen(Color.Black), p1.X, p1.Y, p2.X, p2.Y);
+					else if (this.EraserDown)
+						g.DrawLine(new Pen(Color.White), p1.X, p1.Y, p2.X, p2.Y);
+				});
+
+				this.LastMousePos = p2;
+			});
 		}
 	}
 }

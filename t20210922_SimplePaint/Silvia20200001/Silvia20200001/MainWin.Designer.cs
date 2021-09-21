@@ -114,6 +114,7 @@
 			this.MainPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+			this.MainPanel.AutoScroll = true;
 			this.MainPanel.Controls.Add(this.MainPicture);
 			this.MainPanel.Location = new System.Drawing.Point(12, 27);
 			this.MainPanel.Name = "MainPanel";
@@ -129,6 +130,9 @@
 			this.MainPicture.TabIndex = 0;
 			this.MainPicture.TabStop = false;
 			this.MainPicture.Click += new System.EventHandler(this.MainPicture_Click);
+			this.MainPicture.MouseDown += new System.Windows.Forms.MouseEventHandler(this.MainPicture_MouseDown);
+			this.MainPicture.MouseMove += new System.Windows.Forms.MouseEventHandler(this.MainPicture_MouseMove);
+			this.MainPicture.MouseUp += new System.Windows.Forms.MouseEventHandler(this.MainPicture_MouseUp);
 			// 
 			// MainWin
 			// 
