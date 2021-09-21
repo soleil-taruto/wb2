@@ -36,12 +36,12 @@
 			this.SubStatus = new System.Windows.Forms.ToolStripStatusLabel();
 			this.menuStrip1 = new System.Windows.Forms.MenuStrip();
 			this.アプリToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.ファイルを開くToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
 			this.保存して終了ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.保存せずに終了ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.MainPanel = new System.Windows.Forms.Panel();
 			this.MainPicture = new System.Windows.Forms.PictureBox();
-			this.ファイルを開くToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
 			this.statusStrip1.SuspendLayout();
 			this.menuStrip1.SuspendLayout();
 			this.MainPanel.SuspendLayout();
@@ -99,17 +99,29 @@
 			this.アプリToolStripMenuItem.Size = new System.Drawing.Size(45, 20);
 			this.アプリToolStripMenuItem.Text = "アプリ";
 			// 
+			// ファイルを開くToolStripMenuItem
+			// 
+			this.ファイルを開くToolStripMenuItem.Name = "ファイルを開くToolStripMenuItem";
+			this.ファイルを開くToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
+			this.ファイルを開くToolStripMenuItem.Text = "ファイルを開く";
+			this.ファイルを開くToolStripMenuItem.Click += new System.EventHandler(this.ファイルを開くClick);
+			// 
+			// toolStripMenuItem1
+			// 
+			this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+			this.toolStripMenuItem1.Size = new System.Drawing.Size(148, 6);
+			// 
 			// 保存して終了ToolStripMenuItem
 			// 
 			this.保存して終了ToolStripMenuItem.Name = "保存して終了ToolStripMenuItem";
-			this.保存して終了ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.保存して終了ToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
 			this.保存して終了ToolStripMenuItem.Text = "保存して終了";
 			this.保存して終了ToolStripMenuItem.Click += new System.EventHandler(this.保存して終了Click);
 			// 
 			// 保存せずに終了ToolStripMenuItem
 			// 
 			this.保存せずに終了ToolStripMenuItem.Name = "保存せずに終了ToolStripMenuItem";
-			this.保存せずに終了ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.保存せずに終了ToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
 			this.保存せずに終了ToolStripMenuItem.Text = "保存せずに終了";
 			this.保存せずに終了ToolStripMenuItem.Click += new System.EventHandler(this.保存せずに終了Click);
 			// 
@@ -138,20 +150,9 @@
 			this.MainPicture.MouseMove += new System.Windows.Forms.MouseEventHandler(this.MainPicture_MouseMove);
 			this.MainPicture.MouseUp += new System.Windows.Forms.MouseEventHandler(this.MainPicture_MouseUp);
 			// 
-			// ファイルを開くToolStripMenuItem
-			// 
-			this.ファイルを開くToolStripMenuItem.Name = "ファイルを開くToolStripMenuItem";
-			this.ファイルを開くToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-			this.ファイルを開くToolStripMenuItem.Text = "ファイルを開く";
-			this.ファイルを開くToolStripMenuItem.Click += new System.EventHandler(this.ファイルを開くClick);
-			// 
-			// toolStripMenuItem1
-			// 
-			this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-			this.toolStripMenuItem1.Size = new System.Drawing.Size(149, 6);
-			// 
 			// MainWin
 			// 
+			this.AllowDrop = true;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(584, 361);
@@ -168,6 +169,8 @@
 			this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainWin_FormClosed);
 			this.Load += new System.EventHandler(this.MainWin_Load);
 			this.Shown += new System.EventHandler(this.MainWin_Shown);
+			this.DragDrop += new System.Windows.Forms.DragEventHandler(this.MainWin_DragDrop);
+			this.DragEnter += new System.Windows.Forms.DragEventHandler(this.MainWin_DragEnter);
 			this.statusStrip1.ResumeLayout(false);
 			this.statusStrip1.PerformLayout();
 			this.menuStrip1.ResumeLayout(false);

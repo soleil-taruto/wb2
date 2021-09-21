@@ -97,6 +97,19 @@ namespace Charlotte
 			this.SubStatus.Text = string.Join(", ", this.LastMousePos.X, this.LastMousePos.Y, this.PenDown, this.EraserDown);
 		}
 
+		private void MainWin_DragEnter(object sender, DragEventArgs e)
+		{
+			e.Effect = DragDropEffects.Copy;
+		}
+
+		private void MainWin_DragDrop(object sender, DragEventArgs e)
+		{
+			this.EM.EventHandler(false, () =>
+			{
+				this.ClearCanvas(Bitmap.FromFile(((string[])e.Data.GetData(DataFormats.FileDrop))[0]));
+			});
+		}
+
 		private void ファイルを開くClick(object sender, EventArgs e)
 		{
 			this.EM.EventHandler(false, () =>
