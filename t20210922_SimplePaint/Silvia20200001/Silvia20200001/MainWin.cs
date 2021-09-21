@@ -60,28 +60,28 @@ namespace Charlotte
 
 		private void MainWin_Shown(object sender, EventArgs e)
 		{
-			this.MT_Busy = false;
+			this.MT_Visitor--;
 		}
 
 		private void MainWin_FormClosed(object sender, FormClosedEventArgs e)
 		{
-			this.MT_Busy = true;
+			this.MT_Visitor++; // 念のため
 		}
 
 		private void CloseWindow()
 		{
-			this.MT_Busy = true;
+			this.MT_Visitor++;
 			this.Close();
 		}
 
-		private bool MT_Busy = true;
+		private int MT_Visitor = 1;
 
 		private void MainTimer_Tick(object sender, EventArgs e)
 		{
-			if (this.MT_Busy)
+			if (1 <= this.MT_Visitor)
 				return;
 
-			this.MT_Busy = true;
+			this.MT_Visitor++;
 			try
 			{
 				this.UpdateSubStatus();
@@ -92,7 +92,7 @@ namespace Charlotte
 			}
 			finally
 			{
-				this.MT_Busy = false;
+				this.MT_Visitor--;
 			}
 		}
 
