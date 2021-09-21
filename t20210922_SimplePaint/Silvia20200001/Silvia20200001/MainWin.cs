@@ -82,7 +82,7 @@ namespace Charlotte
 
 		private void MainTimer_Tick(object sender, EventArgs e)
 		{
-			this.EM.ExecuteTimer(() =>
+			this.EM.TimerEventHandler(() =>
 			{
 				this.UpdateSubStatus();
 			});
@@ -95,7 +95,7 @@ namespace Charlotte
 
 		private void 保存して終了Click(object sender, EventArgs e)
 		{
-			this.EM.Execute(() =>
+			this.EM.EventHandler(() =>
 			{
 				// TODO
 			});
@@ -103,7 +103,7 @@ namespace Charlotte
 
 		private void 保存せずに終了Click(object sender, EventArgs e)
 		{
-			this.EM.Execute(() =>
+			this.EM.EventHandler(() =>
 			{
 				// TODO
 			});

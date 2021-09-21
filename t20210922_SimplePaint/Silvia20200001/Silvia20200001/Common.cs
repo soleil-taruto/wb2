@@ -34,10 +34,10 @@ namespace Charlotte
 			/// タイマーのイベント実行
 			/// </summary>
 			/// <param name="routine">イベントロジック</param>
-			public void ExecuteTimer(Action routine)
+			public void TimerEventHandler(Action routine)
 			{
 				if (this.TimerStarted)
-					this.Execute(routine);
+					this.EventHandler(routine);
 			}
 
 			private bool Busy = false;
@@ -46,7 +46,7 @@ namespace Charlotte
 			/// タイマー以外のイベント実行
 			/// </summary>
 			/// <param name="routine">イベントロジック</param>
-			public void Execute(Action routine)
+			public void EventHandler(Action routine)
 			{
 				if (this.Busy)
 					return;
