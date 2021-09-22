@@ -52,9 +52,7 @@ namespace Charlotte.WebServers
 			else if (this.ThreadTimeoutTime.Value < DateTime.Now)
 			{
 				this.ThreadTimeoutTime = null;
-				ProcMain.WriteLog("*1"); // test
 				Critical.ContextSwitching();
-				ProcMain.WriteLog("*2"); // test
 			}
 		}
 
