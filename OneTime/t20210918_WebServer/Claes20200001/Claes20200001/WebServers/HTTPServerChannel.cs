@@ -82,7 +82,7 @@ namespace Charlotte.WebServers
 			if (millis == -1)
 				return null;
 
-			return DateTime.Now + new TimeSpan((long)millis * TimeSpan.TicksPerMillisecond);
+			return DateTime.Now + TimeSpan.FromMilliseconds((double)millis);
 		}
 
 		public class RecvFirstLineIdleTimeoutException : Exception

@@ -152,8 +152,7 @@ namespace Charlotte.WebServers
 
 		public void Send(byte[] body, string method)
 		{
-			DateTime startedTime = DateTime.Now;
-			TimeSpan timeoutSpan = TimeSpan.FromMilliseconds(TimeoutMillis);
+			DateTime timeoutTime = DateTime.Now + TimeSpan.FromMilliseconds((double)TimeoutMillis);
 
 			this.Inner.Timeout = this.ConnectTimeoutMillis;
 			this.Inner.Method = method;
@@ -221,7 +220,7 @@ namespace Charlotte.WebServers
 							if (readSize <= 0)
 								break;
 
-							if (timeoutSpan < DateTime.Now - startedTime)
+							if (timeoutTime < DateTime.Now)
 								throw new Exception("受信タイムアウト");
 
 							totalSize += readSize;

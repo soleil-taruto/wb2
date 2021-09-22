@@ -33,6 +33,8 @@ namespace Charlotte.WebServers
 		/// </summary>
 		public int IdleTimeoutMillis = 180000; // 3 min
 
+		private DateTime? ThreadTimeoutTime = null;
+
 		private void PreRecvSend()
 		{
 			if (StopFlag)
@@ -43,8 +45,17 @@ namespace Charlotte.WebServers
 			{
 				throw new SessionTimeoutException();
 			}
-
-			// TODO: 時間でコンテキスト切り替え
+			if (this.ThreadTimeoutTime == null)
+			{
+				this.ThreadTimeoutTime = DateTime.Now + TimeSpan.FromMilliseconds(100.0);
+			}
+			else if (this.ThreadTimeoutTime.Value < DateTime.Now)
+			{
+				this.ThreadTimeoutTime = null;
+				ProcMain.WriteLog("*1"); // test
+				Critical.ContextSwitching();
+				ProcMain.WriteLog("*2"); // test
+			}
 		}
 
 		public byte[] Recv(int size)
@@ -79,8 +90,6 @@ namespace Charlotte.WebServers
 
 		public int TryRecv(byte[] data, int offset, int size)
 		{
-			//Critical.ContextSwitching(); // ブラウザで重くなる原因っぽい。削除して様子見 @ 2021.9.19
-
 			int waitMillis = 0;
 			int idleMillis = 0;
 
@@ -142,8 +151,6 @@ namespace Charlotte.WebServers
 
 		private int TrySend(byte[] data, int offset, int size)
 		{
-			//Critical.ContextSwitching(); // ブラウザで重くなる原因っぽい。削除して様子見 @ 2021.9.19
-
 			int waitMillis = 0;
 			int idleMillis = 0;
 
