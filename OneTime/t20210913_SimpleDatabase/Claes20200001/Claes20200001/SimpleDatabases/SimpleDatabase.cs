@@ -151,7 +151,7 @@ namespace Charlotte.SimpleDatabases
 
 		private string GetFirstFilePath()
 		{
-			return Path.Combine(this.RootDir, "20190101000059000.dat");
+			return Path.Combine(this.RootDir, "20191231235959000.dat");
 		}
 
 		private string CreateNextFilePath(string file)

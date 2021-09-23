@@ -26,6 +26,8 @@ namespace Charlotte.SimpleDatabases
 
 			this.RootDir = rootDir;
 			this.FileSizeLimit = fileSizeLimit;
+
+			this.MergeSmallFiles();
 		}
 
 		public void Add(string[] row)
@@ -58,6 +60,9 @@ namespace Charlotte.SimpleDatabases
 			{
 				writer.WriteRow(row);
 			}
+
+			if (!append)
+				this.MergeSmallFiles(); // HACK: 追加前へ？
 		}
 
 		public IEnumerable<string[]> ReadToEnd()
@@ -149,7 +154,7 @@ namespace Charlotte.SimpleDatabases
 
 		private string GetFirstFilePath()
 		{
-			return Path.Combine(this.RootDir, "20190101000059000.csv");
+			return Path.Combine(this.RootDir, "20191231235959000.csv");
 		}
 
 		private string CreateNextFilePath(string file)
@@ -174,8 +179,8 @@ namespace Charlotte.SimpleDatabases
 
 		private static void WriteFile(string file, string[][] rows)
 		{
-			string fileNew = CreateTempFile(file + "-new-");
-			string oldFile = CreateTempFile(file + "-old-");
+			string fileNew = CreateTempFile(file + TEMP_NEW);
+			string oldFile = CreateTempFile(file + TEMP_OLD);
 
 			using (CsvFileWriter writer = new CsvFileWriter(fileNew))
 			{
@@ -185,6 +190,43 @@ namespace Charlotte.SimpleDatabases
 			File.Move(fileNew, file);
 			SCommon.DeletePath(oldFile);
 		}
+
+		private void MergeSmallFiles()
+		{
+			string[] files = this.GetFiles();
+
+			for (int index = files.Length - 1; 1 <= index; index--)
+			{
+				string file1 = files[index - 1];
+				string file2 = files[index];
+
+				if (new FileInfo(file1).Length + new FileInfo(file2).Length < this.FileSizeLimit)
+				{
+					this.MergeFile(file1, file2);
+				}
+			}
+		}
+
+		private void MergeFile(string file1, string file2)
+		{
+			string fileNew = CreateTempFile(file1 + TEMP_NEW);
+			string oldFile1 = CreateTempFile(file1 + TEMP_OLD);
+			string oldFile2 = CreateTempFile(file2 + TEMP_OLD);
+
+			using (FileStream writer = new FileStream(fileNew, FileMode.Create, FileAccess.Write))
+			{
+				SCommon.Write(writer, File.ReadAllBytes(file1));
+				SCommon.Write(writer, File.ReadAllBytes(file2));
+			}
+			File.Move(file1, oldFile1);
+			File.Move(file2, oldFile2);
+			File.Move(fileNew, file1);
+			SCommon.DeletePath(oldFile1);
+			SCommon.DeletePath(oldFile2);
+		}
+
+		private const string TEMP_NEW = "-new-";
+		private const string TEMP_OLD = "-old-";
 
 		private static string CreateTempFile(string prefix)
 		{
