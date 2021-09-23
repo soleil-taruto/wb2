@@ -11,7 +11,7 @@ namespace Charlotte.WebServers
 	{
 		public enum ErrorLevel_e
 		{
-			FIRST_LINE_TIMEOUT,
+			FIRST_LINE_TIMEOUT = 1,
 			NETWORK,
 			NETWORK_OR_SERVER_LOGIC,
 			FATAL,
