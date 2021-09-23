@@ -79,7 +79,6 @@
     <Compile Include="WebServers\SockClient.cs" />
     <Compile Include="WebServers\SockServer.cs" />
     <Compile Include="Tests\Test0001.cs" />
-    <Compile Include="WebServers\Test1001.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

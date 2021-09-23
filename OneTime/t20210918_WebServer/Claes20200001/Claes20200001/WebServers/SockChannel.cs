@@ -95,7 +95,6 @@ namespace Charlotte.WebServers
 			{
 				this.PreRecvSend();
 
-				Test1001.Enter();
 				try
 				{
 					int recvSize = this.Handler.Receive(data, offset, size, SocketFlags.None);
@@ -112,10 +111,6 @@ namespace Charlotte.WebServers
 					{
 						throw new Exception("受信エラー", e);
 					}
-				}
-				finally // test test test test test
-				{
-					Test1001.Leave("handler.Receive");
 				}
 				if (this.IdleTimeoutMillis != -1 && this.IdleTimeoutMillis <= idleMillis)
 				{
@@ -161,7 +156,6 @@ namespace Charlotte.WebServers
 			{
 				this.PreRecvSend();
 
-				Test1001.Enter();
 				try
 				{
 					int sentSize = this.Handler.Send(data, offset, size, SocketFlags.None);
@@ -178,10 +172,6 @@ namespace Charlotte.WebServers
 					{
 						throw new Exception("送信エラー", e);
 					}
-				}
-				finally // test test test test test
-				{
-					Test1001.Leave("handler.Send");
 				}
 				if (this.IdleTimeoutMillis != -1 && this.IdleTimeoutMillis <= idleMillis)
 				{
