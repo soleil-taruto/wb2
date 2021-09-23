@@ -9,6 +9,9 @@ namespace Charlotte.SimpleDatabases
 {
 	public class SimpleDatabase
 	{
+		private static Encoding CELL_ENCODING = Encoding.UTF8;
+		//private static Encoding CELL_ENCODING = Encoding.Unicode;
+
 		private string RootDir;
 		private long FileSizeLimit;
 
@@ -34,10 +37,12 @@ namespace Charlotte.SimpleDatabases
 
 			string[] files = this.GetFiles();
 			string file;
+			bool append = true;
 
 			if (files.Length == 0)
 			{
 				file = this.GetFirstFilePath();
+				append = false;
 			}
 			else
 			{
@@ -48,6 +53,7 @@ namespace Charlotte.SimpleDatabases
 				if (this.FileSizeLimit < fileInfo.Length)
 				{
 					file = this.CreateNextFilePath(file);
+					append = false;
 				}
 			}
 
@@ -55,6 +61,9 @@ namespace Charlotte.SimpleDatabases
 			{
 				WriteRow(writer, row);
 			}
+
+			if (!append)
+				this.MergeSmallFiles(); // ファイルリストが変わる場合があるので、行追加後に行う。
 		}
 
 		public IEnumerable<string[]> ReadToEnd()
@@ -195,7 +204,7 @@ namespace Charlotte.SimpleDatabases
 							throw new Exception();
 
 						byte[] bCell = SCommon.Read(reader, size);
-						string cell = Encoding.UTF8.GetString(bCell);
+						string cell = CELL_ENCODING.GetString(bCell);
 
 						row[index] = cell;
 					}
@@ -207,8 +216,8 @@ namespace Charlotte.SimpleDatabases
 
 		private static void WriteFile(string file, string[][] rows)
 		{
-			string fileNew = CreateTempFile(file + "-new-");
-			string oldFile = CreateTempFile(file + "-old-");
+			string fileNew = CreateTempFile(file + TEMP_NEW);
+			string oldFile = CreateTempFile(file + TEMP_OLD);
 
 			using (FileStream writer = new FileStream(fileNew, FileMode.Create, FileAccess.Write))
 			{
@@ -227,13 +236,50 @@ namespace Charlotte.SimpleDatabases
 
 			foreach (string cell in row)
 			{
-				byte[] bCell = Encoding.UTF8.GetBytes(cell);
+				byte[] bCell = CELL_ENCODING.GetBytes(cell);
 
 				SCommon.ToBytes((uint)bCell.Length, BSizeBuff);
 				SCommon.Write(writer, BSizeBuff);
 				SCommon.Write(writer, bCell);
 			}
 		}
+
+		private void MergeSmallFiles()
+		{
+			string[] files = this.GetFiles();
+
+			for (int index = files.Length - 1; 1 <= index; index--)
+			{
+				string file1 = files[index - 1];
+				string file2 = files[index];
+
+				if (new FileInfo(file1).Length + new FileInfo(file2).Length < this.FileSizeLimit)
+				{
+					this.MergeFile(file1, file2);
+				}
+			}
+		}
+
+		private void MergeFile(string file1, string file2)
+		{
+			string fileNew = CreateTempFile(file1 + TEMP_NEW);
+			string oldFile1 = CreateTempFile(file1 + TEMP_OLD);
+			string oldFile2 = CreateTempFile(file2 + TEMP_OLD);
+
+			using (FileStream writer = new FileStream(fileNew, FileMode.Create, FileAccess.Write))
+			{
+				SCommon.Write(writer, File.ReadAllBytes(file1));
+				SCommon.Write(writer, File.ReadAllBytes(file2));
+			}
+			File.Move(file1, oldFile1);
+			File.Move(file2, oldFile2);
+			File.Move(fileNew, file1);
+			SCommon.DeletePath(oldFile1);
+			SCommon.DeletePath(oldFile2);
+		}
+
+		private const string TEMP_NEW = "-new-";
+		private const string TEMP_OLD = "-old-";
 
 		private static string CreateTempFile(string prefix)
 		{

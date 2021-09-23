@@ -26,8 +26,6 @@ namespace Charlotte.SimpleDatabases
 
 			this.RootDir = rootDir;
 			this.FileSizeLimit = fileSizeLimit;
-
-			this.MergeSmallFiles();
 		}
 
 		public void Add(string[] row)
@@ -62,7 +60,7 @@ namespace Charlotte.SimpleDatabases
 			}
 
 			if (!append)
-				this.MergeSmallFiles(); // HACK: 追加前へ？
+				this.MergeSmallFiles(); // ファイルリストが変わる場合があるので、行追加後に行う。
 		}
 
 		public IEnumerable<string[]> ReadToEnd()
