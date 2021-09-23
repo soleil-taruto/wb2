@@ -50,8 +50,10 @@ namespace Charlotte.WebServers
 			{
 				try
 				{
+					Test1001.Enter();
 					using (Socket listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
 					{
+						Test1001.Leave("new Socket");
 						IPEndPoint endPoint = new IPEndPoint(0L, this.PortNo);
 
 						listener.Bind(endPoint);
@@ -62,7 +64,9 @@ namespace Charlotte.WebServers
 
 						while (this.Interlude())
 						{
+							Test1001.Enter();
 							Socket handler = this.ConnectedThs.Count < this.ConnectMax ? this.Connect(listener) : null;
+							Test1001.Leave("SockServer.Connect");
 
 							if (handler == null)
 							{
@@ -97,6 +101,7 @@ namespace Charlotte.WebServers
 											SockCommon.ErrorLog(SockCommon.ErrorLevel_e.NETWORK_OR_SERVER_LOGIC, e);
 										}
 
+										Test1001.Enter();
 										try
 										{
 											channel.Handler.Shutdown(SocketShutdown.Both);
@@ -105,7 +110,9 @@ namespace Charlotte.WebServers
 										{
 											SockCommon.ErrorLog(SockCommon.ErrorLevel_e.NETWORK, e);
 										}
+										Test1001.Leave("handler.Shutdown");
 
+										Test1001.Enter();
 										try
 										{
 											channel.Handler.Close();
@@ -114,6 +121,7 @@ namespace Charlotte.WebServers
 										{
 											SockCommon.ErrorLog(SockCommon.ErrorLevel_e.NETWORK, e);
 										}
+										Test1001.Leave("handler.Close");
 									}
 									));
 

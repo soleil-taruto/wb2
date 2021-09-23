@@ -62,5 +62,57 @@ namespace Charlotte.Tests
 			}
 			.Perform();
 		}
+
+		public void Test03()
+		{
+			new HTTPServer()
+			{
+				HTTPConnected = channel =>
+				{
+					channel.ResContentType = "text/plain; charset=US-ASCII";
+					channel.ResHeaderPairs.Add(new string[] { "Content-Disposition", "attachment" }); // ダウンロードさせる。
+					channel.ResBody = Test03_E_ResBody();
+				},
+			}
+			.Perform();
+		}
+
+		/// <summary>
+		/// カウンタを2MB毎に連結して(塊にして)列挙する。
+		/// </summary>
+		/// <returns>カウンタの塊の列挙</returns>
+		private IEnumerable<byte[]> Test03_E_ResBody()
+		{
+			List<byte[]> parts = new List<byte[]>();
+			int size = 0;
+
+			foreach (byte[] part in Test03_E_Counter())
+			{
+				parts.Add(part);
+				size += part.Length;
+
+				if (2000000 < size)
+				{
+					yield return SCommon.Join(parts);
+					parts.Clear();
+					size = 0;
+				}
+			}
+			yield return SCommon.Join(parts);
+		}
+
+		/// <summary>
+		/// カウンタ
+		/// 1～1億
+		/// およそ1GB弱になる。
+		/// </summary>
+		/// <returns>カウンタ</returns>
+		private IEnumerable<byte[]> Test03_E_Counter()
+		{
+			for (int count = 1; count <= 100000000; count++)
+			{
+				yield return Encoding.ASCII.GetBytes(count + "\r\n");
+			}
+		}
 	}
 }
