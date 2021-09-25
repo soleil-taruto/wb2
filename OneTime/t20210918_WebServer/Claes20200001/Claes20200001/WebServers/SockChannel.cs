@@ -43,7 +43,7 @@ namespace Charlotte.WebServers
 			}
 			if (this.SessionTimeoutTime != null && this.SessionTimeoutTime.Value < DateTime.Now)
 			{
-				throw new SessionTimeoutException();
+				throw new Exception("セッション時間切れ");
 			}
 			if (this.ThreadTimeoutTime == null)
 			{
@@ -114,7 +114,7 @@ namespace Charlotte.WebServers
 				}
 				if (this.IdleTimeoutMillis != -1 && this.IdleTimeoutMillis < (DateTime.Now - startedTime).TotalMilliseconds)
 				{
-					throw new IdleTimeoutException();
+					throw new RecvIdleTimeoutException();
 				}
 				if (waitMillis < 100)
 					waitMillis++;
@@ -123,10 +123,10 @@ namespace Charlotte.WebServers
 			}
 		}
 
-		public class SessionTimeoutException : Exception
-		{ }
-
-		public class IdleTimeoutException : Exception
+		/// <summary>
+		/// 受信の無通信タイムアウト
+		/// </summary>
+		public class RecvIdleTimeoutException : Exception
 		{ }
 
 		public void Send(byte[] data, int offset = 0)
@@ -173,7 +173,7 @@ namespace Charlotte.WebServers
 				}
 				if (this.IdleTimeoutMillis != -1 && this.IdleTimeoutMillis < (DateTime.Now - startedTime).TotalMilliseconds)
 				{
-					throw new Exception("送信タイムアウト");
+					throw new Exception("送信の無通信タイムアウト");
 				}
 				if (waitMillis < 100)
 					waitMillis++;

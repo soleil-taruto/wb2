@@ -51,7 +51,7 @@ namespace Charlotte.WebServers
 			{
 				this.FirstLine = this.RecvLine();
 			}
-			catch (SockChannel.IdleTimeoutException)
+			catch (SockChannel.RecvIdleTimeoutException)
 			{
 				throw new RecvFirstLineIdleTimeoutException();
 			}

@@ -60,9 +60,6 @@ namespace Charlotte.WebServers
 			finally
 			{
 				double millis = (DateTime.Now - startedTime).TotalMilliseconds;
-
-				// ノンブロッキングな処理に時間が掛かっていないかチェックする。
-				// 時間が掛かっていると判断するしきい値
 				const double MILLIS_LIMIT = 50.0;
 
 				if (MILLIS_LIMIT < millis)

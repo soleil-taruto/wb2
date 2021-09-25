@@ -88,7 +88,7 @@ namespace Charlotte.WebServers
 
 									Thread th = new Thread(() => SockChannel.Critical.Section(() =>
 									{
-										SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "通信開始 " + Thread.CurrentThread.ManagedThreadId);
+										SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "通信開始 " + Thread.CurrentThread.ManagedThreadId + " " + channel.Handler.RemoteEndPoint);
 
 										try
 										{
