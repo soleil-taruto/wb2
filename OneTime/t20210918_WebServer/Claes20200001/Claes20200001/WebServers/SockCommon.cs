@@ -11,23 +11,31 @@ namespace Charlotte.WebServers
 	{
 		public enum ErrorLevel_e
 		{
-			FIRST_LINE_TIMEOUT = 1,
+			INFO = 1,
+			FIRST_LINE_TIMEOUT,
 			NETWORK,
 			NETWORK_OR_SERVER_LOGIC,
 			FATAL,
 		}
 
-		public static void ErrorLog(ErrorLevel_e errorKind, object message)
+		public static void WriteLog(ErrorLevel_e errorLevel, object message)
 		{
-			switch (errorKind)
+			switch (errorLevel)
 			{
+				case ErrorLevel_e.INFO:
+					ProcMain.WriteLog(message);
+					break;
+
 				case ErrorLevel_e.FIRST_LINE_TIMEOUT:
-					ProcMain.WriteLog("FIRST_LINE_TIMEOUT");
+					ProcMain.WriteLog("[FIRST-LINE-TIMEOUT]");
 					break;
 
 				case ErrorLevel_e.NETWORK:
+					ProcMain.WriteLog("[NETWORK] " + message);
+					break;
+
 				case ErrorLevel_e.NETWORK_OR_SERVER_LOGIC:
-					ProcMain.WriteLog(message);
+					ProcMain.WriteLog("[NETWORK-SERVER-LOGIC] " + message);
 					break;
 
 				case ErrorLevel_e.FATAL:
@@ -41,6 +49,9 @@ namespace Charlotte.WebServers
 
 		public static T NonBlocking<T>(string title, Func<T> routine)
 		{
+#if !true
+			return routine();
+#else
 			DateTime startedTime = DateTime.Now;
 			try
 			{
@@ -50,10 +61,14 @@ namespace Charlotte.WebServers
 			{
 				double millis = (DateTime.Now - startedTime).TotalMilliseconds;
 
-				// ? 時間が掛かっている。しきい値_要調整
-				if (50.0 < millis)
-					ProcMain.WriteLog("非ブロック処理に時間が掛かっています。" + title + ", " + millis);
+				// ノンブロッキングな処理に時間が掛かっていないかチェックする。
+				// 時間が掛かっていると判断するしきい値
+				const double MILLIS_LIMIT = 50.0;
+
+				if (MILLIS_LIMIT < millis)
+					ProcMain.WriteLog("非ブロック処理に掛かった時間 " + title + " " + Thread.CurrentThread.ManagedThreadId + " " + millis.ToString("F0"));
 			}
+#endif
 		}
 
 		public class Critical : Semaphore

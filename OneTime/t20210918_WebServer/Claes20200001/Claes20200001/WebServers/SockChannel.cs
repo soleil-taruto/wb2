@@ -19,8 +19,6 @@ namespace Charlotte.WebServers
 			this.Handler.Blocking = false;
 		}
 
-		public static bool StopFlag = false;
-
 		/// <summary>
 		/// セッションタイムアウト日時
 		/// null == INFINITE
@@ -33,7 +31,9 @@ namespace Charlotte.WebServers
 		/// </summary>
 		public int IdleTimeoutMillis = 180000; // 3 min
 
-		private DateTime? ThreadTimeoutTime = null;
+		public static bool StopFlag = false;
+		public DateTime? ThreadTimeoutTime = null;
+		public static SockCommon.Critical Critical = new SockCommon.Critical();
 
 		private void PreRecvSend()
 		{
@@ -88,8 +88,8 @@ namespace Charlotte.WebServers
 
 		public int TryRecv(byte[] data, int offset, int size)
 		{
+			DateTime startedTime = DateTime.Now;
 			int waitMillis = 0;
-			int idleMillis = 0;
 
 			for (; ; )
 			{
@@ -112,7 +112,7 @@ namespace Charlotte.WebServers
 						throw new Exception("受信エラー", e);
 					}
 				}
-				if (this.IdleTimeoutMillis != -1 && this.IdleTimeoutMillis <= idleMillis)
+				if (this.IdleTimeoutMillis != -1 && this.IdleTimeoutMillis < (DateTime.Now - startedTime).TotalMilliseconds)
 				{
 					throw new IdleTimeoutException();
 				}
@@ -120,8 +120,6 @@ namespace Charlotte.WebServers
 					waitMillis++;
 
 				Critical.Unsection(() => Thread.Sleep(waitMillis));
-
-				idleMillis += waitMillis;
 			}
 		}
 
@@ -149,8 +147,8 @@ namespace Charlotte.WebServers
 
 		private int TrySend(byte[] data, int offset, int size)
 		{
+			DateTime startedTime = DateTime.Now;
 			int waitMillis = 0;
-			int idleMillis = 0;
 
 			for (; ; )
 			{
@@ -173,7 +171,7 @@ namespace Charlotte.WebServers
 						throw new Exception("送信エラー", e);
 					}
 				}
-				if (this.IdleTimeoutMillis != -1 && this.IdleTimeoutMillis <= idleMillis)
+				if (this.IdleTimeoutMillis != -1 && this.IdleTimeoutMillis < (DateTime.Now - startedTime).TotalMilliseconds)
 				{
 					throw new Exception("送信タイムアウト");
 				}
@@ -181,11 +179,7 @@ namespace Charlotte.WebServers
 					waitMillis++;
 
 				Critical.Unsection(() => Thread.Sleep(waitMillis));
-
-				idleMillis += waitMillis;
 			}
 		}
-
-		public static SockCommon.Critical Critical = new SockCommon.Critical();
 	}
 }

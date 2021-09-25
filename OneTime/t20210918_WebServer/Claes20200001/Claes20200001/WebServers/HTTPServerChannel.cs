@@ -288,6 +288,7 @@ namespace Charlotte.WebServers
 		{
 			this.Body = null;
 			this.Channel.SessionTimeoutTime = TimeoutMillisToDateTime(ResponseTimeoutMillis);
+			this.Channel.ThreadTimeoutTime = null;
 
 			this.SendLine("HTTP/1.1 " + this.ResStatus + " Heartland");
 			this.SendLine("Server: Heartland");

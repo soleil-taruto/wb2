@@ -48,7 +48,7 @@ namespace Charlotte.WebServers
 		{
 			SockChannel.Critical.Section(() =>
 			{
-				ProcMain.WriteLog("サーバーを開始しています...");
+				SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "サーバーを開始しています...");
 
 				try
 				{
@@ -60,7 +60,7 @@ namespace Charlotte.WebServers
 						listener.Listen(this.Backlog);
 						listener.Blocking = false;
 
-						ProcMain.WriteLog("サーバーを開始しました。");
+						SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "サーバーを開始しました。");
 
 						int connectWaitMillis = 0;
 
@@ -88,21 +88,21 @@ namespace Charlotte.WebServers
 
 									Thread th = new Thread(() => SockChannel.Critical.Section(() =>
 									{
-										ProcMain.WriteLog("通信開始 " + Thread.CurrentThread.ManagedThreadId);
+										SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "通信開始 " + Thread.CurrentThread.ManagedThreadId);
 
 										try
 										{
 											this.Connected(channel);
 
-											ProcMain.WriteLog("通信終了 " + Thread.CurrentThread.ManagedThreadId);
+											SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "通信終了 " + Thread.CurrentThread.ManagedThreadId);
 										}
 										catch (HTTPServerChannel.RecvFirstLineIdleTimeoutException)
 										{
-											SockCommon.ErrorLog(SockCommon.ErrorLevel_e.FIRST_LINE_TIMEOUT, null);
+											SockCommon.WriteLog(SockCommon.ErrorLevel_e.FIRST_LINE_TIMEOUT, null);
 										}
 										catch (Exception e)
 										{
-											SockCommon.ErrorLog(SockCommon.ErrorLevel_e.NETWORK_OR_SERVER_LOGIC, e);
+											SockCommon.WriteLog(SockCommon.ErrorLevel_e.NETWORK_OR_SERVER_LOGIC, e);
 										}
 
 										try
@@ -111,7 +111,7 @@ namespace Charlotte.WebServers
 										}
 										catch (Exception e)
 										{
-											SockCommon.ErrorLog(SockCommon.ErrorLevel_e.NETWORK, e);
+											SockCommon.WriteLog(SockCommon.ErrorLevel_e.NETWORK, e);
 										}
 
 										try
@@ -120,10 +120,10 @@ namespace Charlotte.WebServers
 										}
 										catch (Exception e)
 										{
-											SockCommon.ErrorLog(SockCommon.ErrorLevel_e.NETWORK, e);
+											SockCommon.WriteLog(SockCommon.ErrorLevel_e.NETWORK, e);
 										}
 
-										ProcMain.WriteLog("切断します。" + Thread.CurrentThread.ManagedThreadId);
+										SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "切断します。" + Thread.CurrentThread.ManagedThreadId);
 									}
 									));
 
@@ -139,18 +139,18 @@ namespace Charlotte.WebServers
 
 							//GC.Collect(); // GeoDemo の Server.sln が重くなるため、暫定削除 @ 2019.4.9
 						}
+
+						SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "サーバーを終了しています...");
 					}
 				}
 				catch (Exception e)
 				{
-					SockCommon.ErrorLog(SockCommon.ErrorLevel_e.FATAL, e);
+					SockCommon.WriteLog(SockCommon.ErrorLevel_e.FATAL, e);
 				}
-
-				ProcMain.WriteLog("サーバーを終了しています...");
 
 				this.Stop();
 
-				ProcMain.WriteLog("サーバーを終了しました。");
+				SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "サーバーを終了しました。");
 			});
 		}
 

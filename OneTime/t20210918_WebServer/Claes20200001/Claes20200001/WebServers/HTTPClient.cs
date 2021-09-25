@@ -23,7 +23,6 @@ namespace Charlotte.WebServers
 			}
 
 			this.Inner = (HttpWebRequest)HttpWebRequest.Create(url);
-			//this.Inner.ServicePoint.Expect100Continue = false;
 			this.SetProxyNone();
 		}
 
@@ -59,27 +58,45 @@ namespace Charlotte.WebServers
 		/// </summary>
 		public int ResBodySizeMax = 20000000; // 20 MB
 
+		/// <summary>
+		/// HTTP versions
+		/// </summary>
 		public enum Version_e
 		{
-			v10,
-			v11,
+			/// <summary>
+			/// HTTP 1.0
+			/// </summary>
+			V_1_0,
+
+			/// <summary>
+			/// HTTP 1.1
+			/// </summary>
+			V_1_1,
 		};
 
 		public void SetVersion(Version_e version)
 		{
 			switch (version)
 			{
-				case Version_e.v10:
+				case Version_e.V_1_0:
 					this.Inner.ProtocolVersion = HttpVersion.Version10;
 					break;
 
-				case Version_e.v11:
+				case Version_e.V_1_1:
 					this.Inner.ProtocolVersion = HttpVersion.Version11;
 					break;
 
 				default:
 					throw null;
 			}
+		}
+
+		/// <summary>
+		/// 100-Continue-を行わないようにする。
+		/// </summary>
+		public void Disable100Continue()
+		{
+			this.Inner.ServicePoint.Expect100Continue = false;
 		}
 
 		public void SetAuthorization(string user, string password)
@@ -130,16 +147,26 @@ namespace Charlotte.WebServers
 			this.Inner.Proxy = new WebProxy(host, port);
 		}
 
+		/// <summary>
+		/// HEAD-リクエストを実行
+		/// </summary>
 		public void Head()
 		{
 			this.Send(null, "HEAD");
 		}
 
+		/// <summary>
+		/// GET-リクエストを実行
+		/// </summary>
 		public void Get()
 		{
 			this.Send(null);
 		}
 
+		/// <summary>
+		/// POST-リクエストを実行
+		/// </summary>
+		/// <param name="body">リクエストボディ</param>
 		public void Post(byte[] body)
 		{
 			this.Send(body);
