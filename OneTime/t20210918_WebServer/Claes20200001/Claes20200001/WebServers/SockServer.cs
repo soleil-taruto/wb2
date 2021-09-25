@@ -50,6 +50,7 @@ namespace Charlotte.WebServers
 			{
 				try
 				{
+					ProcMain.WriteLog("STARTING"); // test
 					using (Socket listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
 					{
 						IPEndPoint endPoint = new IPEndPoint(0L, this.PortNo);
@@ -57,6 +58,7 @@ namespace Charlotte.WebServers
 						listener.Bind(endPoint);
 						listener.Listen(this.Backlog);
 						listener.Blocking = false;
+						ProcMain.WriteLog("STARTED"); // test
 
 						int connectWaitMillis = 0;
 
@@ -86,7 +88,7 @@ namespace Charlotte.WebServers
 									{
 										try
 										{
-											this.Connected(channel);
+											SockCommon.NonBlocking("server-logic", () => this.Connected(channel));
 										}
 										catch (HTTPServerChannel.RecvFirstLineIdleTimeoutException)
 										{
@@ -99,7 +101,7 @@ namespace Charlotte.WebServers
 
 										try
 										{
-											channel.Handler.Shutdown(SocketShutdown.Both);
+											SockCommon.NonBlocking("shutdown", () => channel.Handler.Shutdown(SocketShutdown.Both));
 										}
 										catch (Exception e)
 										{
@@ -108,7 +110,7 @@ namespace Charlotte.WebServers
 
 										try
 										{
-											channel.Handler.Close();
+											SockCommon.NonBlocking("close", () => channel.Handler.Close());
 										}
 										catch (Exception e)
 										{
@@ -136,7 +138,9 @@ namespace Charlotte.WebServers
 					SockCommon.ErrorLog(SockCommon.ErrorLevel_e.FATAL, e);
 				}
 
+				ProcMain.WriteLog("ENDING"); // test
 				this.Stop();
+				ProcMain.WriteLog("ENDED"); // test
 			});
 		}
 
@@ -144,7 +148,7 @@ namespace Charlotte.WebServers
 		{
 			try
 			{
-				return listener.Accept();
+				return SockCommon.NonBlocking("conn", () => listener.Accept());
 			}
 			catch (SocketException e)
 			{

@@ -39,6 +39,30 @@ namespace Charlotte.WebServers
 			}
 		}
 
+		public static void NonBlocking(string title, Action routine)
+		{
+			DateTime startedTime = DateTime.Now;
+			try
+			{
+				routine();
+			}
+			finally
+			{
+				double millis = (DateTime.Now - startedTime).TotalMilliseconds;
+
+				// ? 時間が掛かっている。しきい値_要調整
+				if (50.0 < millis)
+					ProcMain.WriteLog("非ブロック処理に時間が掛かっています。" + title + ", " + millis);
+			}
+		}
+
+		public static T NonBlocking<T>(string title, Func<T> routine)
+		{
+			T ret = default(T);
+			NonBlocking(title, () => { ret = routine(); });
+			return ret;
+		}
+
 		public class Critical : Semaphore
 		{
 			public Critical()
