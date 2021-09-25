@@ -189,22 +189,27 @@ namespace Charlotte
 			{
 				string outFile = wd.MakePath();
 				string errFile = wd.MakePath();
+				string outFile2 = wd.MakePath();
 
 				SCommon.Batch(new string[]
 				{
 					string.Format(@"{0} > ""{1}"" 2> ""{2}""", command, outFile, errFile),
+					string.Format(@">> ""{0}"" ECHO ERRORLEVEL=%ERRORLEVEL%", outFile2),
 				});
 
 				using (FileStream writer = new FileStream(ProcLogFile, FileMode.Append, FileAccess.Write))
 				{
-					using (FileStream reader = new FileStream(outFile, FileMode.Open, FileAccess.Read))
+					Action<string> a = file =>
 					{
-						SCommon.ReadToEnd(reader.Read, writer.Write);
-					}
-					using (FileStream reader = new FileStream(errFile, FileMode.Open, FileAccess.Read))
-					{
-						SCommon.ReadToEnd(reader.Read, writer.Write);
-					}
+						using (FileStream reader = new FileStream(file, FileMode.Open, FileAccess.Read))
+						{
+							SCommon.ReadToEnd(reader.Read, writer.Write);
+						}
+					};
+
+					a(outFile);
+					a(errFile);
+					a(outFile2);
 				}
 			}
 		}
