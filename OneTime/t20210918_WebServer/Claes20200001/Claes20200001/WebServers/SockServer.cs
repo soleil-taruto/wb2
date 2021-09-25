@@ -48,9 +48,10 @@ namespace Charlotte.WebServers
 		{
 			SockChannel.Critical.Section(() =>
 			{
+				ProcMain.WriteLog("サーバーを開始しています...");
+
 				try
 				{
-					ProcMain.WriteLog("STARTING"); // test
 					using (Socket listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
 					{
 						IPEndPoint endPoint = new IPEndPoint(0L, this.PortNo);
@@ -58,7 +59,8 @@ namespace Charlotte.WebServers
 						listener.Bind(endPoint);
 						listener.Listen(this.Backlog);
 						listener.Blocking = false;
-						ProcMain.WriteLog("STARTED"); // test
+
+						ProcMain.WriteLog("サーバーを開始しました。");
 
 						int connectWaitMillis = 0;
 
@@ -86,9 +88,13 @@ namespace Charlotte.WebServers
 
 									Thread th = new Thread(() => SockChannel.Critical.Section(() =>
 									{
+										ProcMain.WriteLog("通信開始 " + Thread.CurrentThread.ManagedThreadId);
+
 										try
 										{
-											SockCommon.NonBlocking("server-logic", () => this.Connected(channel));
+											this.Connected(channel);
+
+											ProcMain.WriteLog("通信終了 " + Thread.CurrentThread.ManagedThreadId);
 										}
 										catch (HTTPServerChannel.RecvFirstLineIdleTimeoutException)
 										{
@@ -101,7 +107,7 @@ namespace Charlotte.WebServers
 
 										try
 										{
-											SockCommon.NonBlocking("shutdown", () => channel.Handler.Shutdown(SocketShutdown.Both));
+											channel.Handler.Shutdown(SocketShutdown.Both);
 										}
 										catch (Exception e)
 										{
@@ -110,12 +116,14 @@ namespace Charlotte.WebServers
 
 										try
 										{
-											SockCommon.NonBlocking("close", () => channel.Handler.Close());
+											channel.Handler.Close();
 										}
 										catch (Exception e)
 										{
 											SockCommon.ErrorLog(SockCommon.ErrorLevel_e.NETWORK, e);
 										}
+
+										ProcMain.WriteLog("切断します。" + Thread.CurrentThread.ManagedThreadId);
 									}
 									));
 
@@ -138,9 +146,11 @@ namespace Charlotte.WebServers
 					SockCommon.ErrorLog(SockCommon.ErrorLevel_e.FATAL, e);
 				}
 
-				ProcMain.WriteLog("ENDING"); // test
+				ProcMain.WriteLog("サーバーを終了しています...");
+
 				this.Stop();
-				ProcMain.WriteLog("ENDED"); // test
+
+				ProcMain.WriteLog("サーバーを終了しました。");
 			});
 		}
 
