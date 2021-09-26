@@ -165,7 +165,7 @@
 			this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
 			this.Name = "MainWin";
 			this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Show;
-			this.Text = "Silvia20200001";
+			this.Text = "SimplePaint";
 			this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainWin_FormClosed);
 			this.Load += new System.EventHandler(this.MainWin_Load);
 			this.Shown += new System.EventHandler(this.MainWin_Shown);

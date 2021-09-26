@@ -173,11 +173,11 @@ namespace Charlotte.WebServers
 		private void Stop()
 		{
 			SockChannel.StopFlag = true;
-			Stop_ChannelSafe();
+			WaitToStop();
 			SockChannel.StopFlag = false;
 		}
 
-		private void Stop_ChannelSafe()
+		private void WaitToStop()
 		{
 			foreach (Thread connectedTh in this.ConnectedThs)
 				SockChannel.Critical.Unsection(() => connectedTh.Join());

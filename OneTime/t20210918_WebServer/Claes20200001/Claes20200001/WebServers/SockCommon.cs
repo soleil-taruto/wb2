@@ -60,6 +60,7 @@ namespace Charlotte.WebServers
 			finally
 			{
 				double millis = (DateTime.Now - startedTime).TotalMilliseconds;
+
 				const double MILLIS_LIMIT = 50.0;
 
 				if (MILLIS_LIMIT < millis)

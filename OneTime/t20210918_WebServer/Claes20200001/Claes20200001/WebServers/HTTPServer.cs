@@ -26,7 +26,11 @@ namespace Charlotte.WebServers
 				hsChannel.Channel = channel;
 				hsChannel.RecvRequest();
 
-				HTTPConnected(hsChannel);
+				SockCommon.NonBlocking("svlg", () =>
+				{
+					HTTPConnected(hsChannel);
+					return -1; // dummy
+				});
 
 				hsChannel.SendResponse();
 			};

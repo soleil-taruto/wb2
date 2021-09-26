@@ -19,6 +19,15 @@ namespace Charlotte.WebServers
 			this.Handler.Blocking = false;
 		}
 
+		public static SockCommon.Critical Critical = new SockCommon.Critical();
+
+		/// <summary>
+		/// 停止リクエスト
+		/// プロセス終了時の利用を想定
+		/// プロセス内の全てのチャネルが停止することに注意
+		/// </summary>
+		public static bool StopFlag = false;
+
 		/// <summary>
 		/// セッションタイムアウト日時
 		/// null == INFINITE
@@ -26,14 +35,16 @@ namespace Charlotte.WebServers
 		public DateTime? SessionTimeoutTime = null;
 
 		/// <summary>
+		/// スレッド占用タイムアウト日時
+		/// null == リセット状態
+		/// </summary>
+		public DateTime? ThreadTimeoutTime = null;
+
+		/// <summary>
 		/// 無通信タイムアウト_ミリ秒
 		/// -1 == INFINITE
 		/// </summary>
 		public int IdleTimeoutMillis = 180000; // 3 min
-
-		public static bool StopFlag = false;
-		public DateTime? ThreadTimeoutTime = null;
-		public static SockCommon.Critical Critical = new SockCommon.Critical();
 
 		private void PreRecvSend()
 		{
@@ -51,6 +62,8 @@ namespace Charlotte.WebServers
 			}
 			else if (this.ThreadTimeoutTime.Value < DateTime.Now)
 			{
+				SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "スレッド占用タイムアウト");
+
 				this.ThreadTimeoutTime = null;
 				Critical.ContextSwitching();
 			}
@@ -116,6 +129,9 @@ namespace Charlotte.WebServers
 				{
 					throw new RecvIdleTimeoutException();
 				}
+
+				this.ThreadTimeoutTime = null;
+
 				if (waitMillis < 100)
 					waitMillis++;
 
@@ -175,6 +191,9 @@ namespace Charlotte.WebServers
 				{
 					throw new Exception("送信の無通信タイムアウト");
 				}
+
+				this.ThreadTimeoutTime = null;
+
 				if (waitMillis < 100)
 					waitMillis++;
 
