@@ -307,11 +307,11 @@ namespace Charlotte.WebServers
 			{
 				using (IEnumerator<byte[]> resBodyIterator = this.ResBody.GetEnumerator())
 				{
-					if (SockCommon.NonBlocking("chu1", () => resBodyIterator.MoveNext()))
+					if (SockCommon.NB("chu1", () => resBodyIterator.MoveNext()))
 					{
 						byte[] first = resBodyIterator.Current;
 
-						if (SockCommon.NonBlocking("chu2", () => resBodyIterator.MoveNext()))
+						if (SockCommon.NB("chu2", () => resBodyIterator.MoveNext()))
 						{
 							this.SendLine("Transfer-Encoding: chunked");
 							this.EndHeader();
@@ -321,7 +321,7 @@ namespace Charlotte.WebServers
 							{
 								SendChunk(resBodyIterator.Current);
 							}
-							while (SockCommon.NonBlocking("chux", () => resBodyIterator.MoveNext()));
+							while (SockCommon.NB("chux", () => resBodyIterator.MoveNext()));
 
 							this.SendLine("0");
 							this.Channel.Send(CRLF);

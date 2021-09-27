@@ -110,7 +110,7 @@ namespace Charlotte.WebServers
 
 				try
 				{
-					int recvSize = SockCommon.NonBlocking("recv", () => this.Handler.Receive(data, offset, size, SocketFlags.None));
+					int recvSize = SockCommon.NB("recv", () => this.Handler.Receive(data, offset, size, SocketFlags.None));
 
 					if (recvSize <= 0)
 					{
@@ -172,7 +172,7 @@ namespace Charlotte.WebServers
 
 				try
 				{
-					int sentSize = SockCommon.NonBlocking("send", () => this.Handler.Send(data, offset, size, SocketFlags.None));
+					int sentSize = SockCommon.NB("send", () => this.Handler.Send(data, offset, size, SocketFlags.None));
 
 					if (sentSize <= 0)
 					{

@@ -158,7 +158,7 @@ namespace Charlotte.WebServers
 		{
 			try
 			{
-				return SockCommon.NonBlocking("conn", () => listener.Accept());
+				return SockCommon.NB("conn", () => listener.Accept());
 			}
 			catch (SocketException e)
 			{

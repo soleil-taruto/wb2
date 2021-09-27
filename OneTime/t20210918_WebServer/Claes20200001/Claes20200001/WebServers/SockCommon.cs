@@ -47,7 +47,7 @@ namespace Charlotte.WebServers
 			}
 		}
 
-		public static T NonBlocking<T>(string title, Func<T> routine)
+		public static T NB<T>(string title, Func<T> routine)
 		{
 #if !true
 			return routine();
@@ -64,7 +64,7 @@ namespace Charlotte.WebServers
 				const double MILLIS_LIMIT = 50.0;
 
 				if (MILLIS_LIMIT < millis)
-					ProcMain.WriteLog("非ブロック処理に掛かった時間 " + title + " " + Thread.CurrentThread.ManagedThreadId + " " + millis.ToString("F0"));
+					ProcMain.WriteLog("ブロックしない処理に掛かった時間 " + title + " " + Thread.CurrentThread.ManagedThreadId + " " + millis.ToString("F0"));
 			}
 #endif
 		}
