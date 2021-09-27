@@ -70,5 +70,18 @@ namespace Charlotte
 				// none
 			});
 		}
+
+		/// <summary>
+		/// ダミーなので消して下さい。
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void DummyButton_Click(object sender, EventArgs e)
+		{
+			this.EM.EventHandler(false, () =>
+			{
+				MessageBox.Show("Dummy");
+			});
+		}
 	}
 }

@@ -15,7 +15,7 @@ namespace Charlotte
 {
 	public partial class MainWin : Form
 	{
-		#region ALT_F4 抑止
+		#region WndProc
 
 		[SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.UnmanagedCode)]
 		protected override void WndProc(ref Message m)
