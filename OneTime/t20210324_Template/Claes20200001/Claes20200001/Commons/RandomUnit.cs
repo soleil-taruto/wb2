@@ -100,7 +100,7 @@ namespace Charlotte.Commons
 		public ulong GetUInt64_M(ulong modulo)
 		{
 			if (modulo == 0ul)
-				throw new Exception("modulo is zero"); // ConfuserElsa のために ArgumentOutOfRangeException を使用しない。
+				throw new ArgumentOutOfRangeException("modulo is zero");
 
 			ulong m = (ulong.MaxValue % modulo + 1ul) % modulo;
 			ulong r;
