@@ -34,19 +34,23 @@ namespace Charlotte
 
 		private void Main3()
 		{
+			Main4();
+			//Common.Pause();
+		}
+
+		private void Main4()
+		{
 			// -- choose one --
 
-			Main4();
+			Test01_Main();
 			//new Test0001().Test01();
 			//new Test0002().Test01();
 			//new Test0003().Test01();
 
 			// --
-
-			//Common.Pause();
 		}
 
-		private void Main4()
+		private void Test01_Main()
 		{
 			for (int testcnt = 0; testcnt < 1000000; testcnt++)
 			{

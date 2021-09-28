@@ -19,5 +19,29 @@ namespace Charlotte.Tests
 
 			Common.Pause();
 		}
+
+		public void Test02()
+		{
+			try
+			{
+				using (new Test02_a())
+				{
+					throw new Exception("using_Test02_a");
+				}
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e); // Test02_a_Dispose のスタックトレースのみ -- using_Test02_a は捨てられる。
+			}
+			Common.Pause();
+		}
+
+		private class Test02_a : IDisposable
+		{
+			public void Dispose()
+			{
+				throw new Exception("Test02_a_Dispose");
+			}
+		}
 	}
 }

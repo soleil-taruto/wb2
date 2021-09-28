@@ -34,15 +34,7 @@ namespace Charlotte
 
 		private void Main3()
 		{
-			// -- choose one --
-
 			Main4();
-			//new Test0001().Test01();
-			//new Test0002().Test01();
-			//new Test0003().Test01();
-
-			// --
-
 			//Common.Pause();
 		}
 
@@ -53,6 +45,9 @@ namespace Charlotte
 			//Test01();
 			//Test02();
 			Test03();
+			//new Test0001().Test01();
+			//new Test0002().Test01();
+			//new Test0003().Test01();
 
 			// --
 		}

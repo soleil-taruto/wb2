@@ -34,22 +34,21 @@ namespace Charlotte
 
 		private void Main3()
 		{
-			// -- choose one --
-
-			//Main4();
-			//new Test0001().Test01();
-			//new Test0002().Test01(); // ファイルコピー(ランダム)
-			//new Test0002().Test02(); // ファイルコピー(時間)
-			new Test0003().Test01();
-
-			// --
-
+			Main4();
 			//Common.Pause();
 		}
 
 		private void Main4()
 		{
-			// none
+			// -- choose one --
+
+			//new Test0001().Test01();
+			//new Test0002().Test01(); // ファイルコピー(ランダム)
+			//new Test0002().Test02(); // ファイルコピー(時間)
+			//new Test0003().Test01();
+			new Test0003().Test02();
+
+			// --
 		}
 	}
 }

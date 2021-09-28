@@ -34,16 +34,20 @@ namespace Charlotte
 
 		private void Main3()
 		{
+			Main4();
+			//Common.Pause();
+		}
+
+		private void Main4()
+		{
 			// -- choose one --
 
-			Main4();
+			Main5();
 			//new Test0001().Test01();
 			//new Test0002().Test01();
 			//new Test0003().Test01();
 
 			// --
-
-			//Common.Pause();
 		}
 
 		private static I3Color[] ReplaceColorPairArray = new I3Color[]
@@ -86,7 +90,7 @@ namespace Charlotte
 
 		private static ReplaceColorPairInfo[] ReplaceColorPairs;
 
-		private void Main4()
+		private void Main5()
 		{
 			ReplaceColorPairs = Enumerable.Range(0, ReplaceColorPairArray.Length)
 				.Select(index => new ReplaceColorPairInfo()

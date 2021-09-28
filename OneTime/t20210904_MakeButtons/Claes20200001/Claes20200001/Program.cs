@@ -34,16 +34,8 @@ namespace Charlotte
 
 		private void Main3()
 		{
-			// -- choose one --
-
 			Main4();
-			//new Test0001().Test01();
-			//new Test0002().Test01();
-			//new Test0003().Test01();
-
-			// --
-
-			//Common.Pause();
+			Common.Pause();
 		}
 
 		private void Main4()
@@ -51,6 +43,9 @@ namespace Charlotte
 			// -- choose one --
 
 			MakeTextPanels_20210904();
+			//new Test0001().Test01();
+			//new Test0002().Test01();
+			//new Test0003().Test01();
 
 			// --
 		}

@@ -278,5 +278,17 @@ namespace Charlotte.Commons
 				ProcMtx = null;
 			}
 		}
+
+		public static bool DEBUG
+		{
+			get
+			{
+#if DEBUG
+				return true;
+#else
+				return false;
+#endif
+			}
+		}
 	}
 }

@@ -41,6 +41,11 @@ namespace Charlotte.WebServers
 		public DateTime? ThreadTimeoutTime = null;
 
 		/// <summary>
+		/// スレッド占用タイムアウト_ミリ秒
+		/// </summary>
+		public int ThreadTimeoutMillis = 100;
+
+		/// <summary>
 		/// 無通信タイムアウト_ミリ秒
 		/// -1 == INFINITE
 		/// </summary>
@@ -58,7 +63,7 @@ namespace Charlotte.WebServers
 			}
 			if (this.ThreadTimeoutTime == null)
 			{
-				this.ThreadTimeoutTime = DateTime.Now + TimeSpan.FromMilliseconds(100.0);
+				this.ThreadTimeoutTime = DateTime.Now + TimeSpan.FromMilliseconds((double)this.ThreadTimeoutMillis);
 			}
 			else if (this.ThreadTimeoutTime.Value < DateTime.Now)
 			{

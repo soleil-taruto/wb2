@@ -20,31 +20,38 @@ namespace Charlotte
 
 		private void Main2(ArgsReader ar)
 		{
-			// -- choose one --
-
-			//TestMain(); // テスト
-			ProductMain(); // 本番
-
-			// --
+			if (ProcMain.DEBUG)
+			{
+				Main3();
+			}
+			else
+			{
+				Main4();
+			}
+			Common.OpenOutputDirIfCreated();
 		}
 
-		private void TestMain()
+		private void Main3()
+		{
+			Main4();
+			Common.Pause();
+		}
+
+		private void Main4()
 		{
 			// -- choose one --
 
-			new Test0001().Test01();
-			//new Test0001().Test02();
-			//new Test0001().Test03();
+			Main5();
+			//new Test0001().Test01();
+			//new Test0002().Test01();
+			//new Test0003().Test01();
 
 			// --
-
-			Console.WriteLine("Press ENTER key.");
-			Console.ReadLine();
 		}
 
 		private Bitmap 位置合わせ_Bmp;
 
-		private void ProductMain()
+		private void Main5()
 		{
 			if (!Directory.Exists(Consts.SCREENSHOTS_DIR))
 				throw new Exception("no SCREENSHOTS_DIR");

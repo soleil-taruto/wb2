@@ -9,75 +9,63 @@ namespace Charlotte
 {
 	public static class Common
 	{
-		public static string[] GetRepositoryFiles(string dir)
+		public static void Pause()
 		{
-			return E_GetRepositoryFiles(dir).ToArray();
+			Console.WriteLine("Press ENTER key.");
+			Console.ReadLine();
 		}
 
-		private static IEnumerable<string> E_GetRepositoryFiles(string dir)
+		#region GetOutputDir
+
+		private static string GOD_Dir;
+
+		public static string GetOutputDir()
 		{
-			foreach (string subDir in Directory.GetDirectories(dir))
-			{
-				if (SCommon.EqualsIgnoreCase(Path.GetFileName(subDir), ".git"))
-					continue;
+			if (GOD_Dir == null)
+				GOD_Dir = GetOutputDir_Main();
 
-				foreach (string file in Directory.GetFiles(subDir, "*", SearchOption.AllDirectories))
-					yield return file;
-			}
-			foreach (string file in Directory.GetFiles(dir))
-			{
-				if (SCommon.EqualsIgnoreCase(Path.GetFileName(file), ".gitattributes"))
-					continue;
-
-				yield return file;
-			}
+			return GOD_Dir;
 		}
 
-		public static IEnumerable<string> ReadAllLines_SJIS(string file)
+		private static string GetOutputDir_Main()
 		{
-			const int LINE_LEN_MAX = 1000;
-
-			using (FileStream reader = new FileStream(file, FileMode.Open, FileAccess.Read))
+			for (int c = 1; c <= 999; c++)
 			{
-				byte[] buff = new byte[LINE_LEN_MAX];
+				string dir = "C:\\" + c;
 
-				for (; ; )
+				if (
+					!Directory.Exists(dir) &&
+					!File.Exists(dir)
+					)
 				{
-					int index = 0;
-
-					// 行の長さが LINE_LEN_MAX バイトを超える場合 LINE_LEN_MAX バイト目と LINE_LEN_MAX + 1 バイト目の間に改行があるものとして処理する。
-
-					while (index < LINE_LEN_MAX)
-					{
-						int chr = reader.ReadByte();
-
-						if (chr == -1)
-						{
-							if (index == 0)
-								goto endLoop;
-
-							break;
-						}
-						if (chr == 0x0d) // ? CR
-							continue;
-
-						if (chr == 0x0a) // ? LF
-							break;
-
-						buff[index++] = (byte)chr;
-					}
-					byte[] l_buff = SCommon.GetSubBytes(buff, 0, index);
-					string line = SCommon.ToJString(l_buff, true, false, true, true);
-					byte[] b_line = SCommon.ENCODING_SJIS.GetBytes(line);
-
-					if (SCommon.Comp(l_buff, b_line) != 0) // ? buff は SJIS ではない。
-						break;
-
-					yield return line;
+					SCommon.CreateDir(dir);
+					//SCommon.Batch(new string[] { "START " + dir });
+					return dir;
 				}
-			endLoop:
-				;
+			}
+			throw new Exception("C:\\1 ～ 999 は使用できません。");
+		}
+
+		public static void OpenOutputDir()
+		{
+			SCommon.Batch(new string[] { "START " + GetOutputDir() });
+		}
+
+		public static void OpenOutputDirIfCreated()
+		{
+			if (GOD_Dir != null)
+			{
+				OpenOutputDir();
 			}
 		}
+
+		private static int NOP_Count = 0;
+
+		public static string NextOutputPath()
+		{
+			return Path.Combine(GetOutputDir(), (++NOP_Count).ToString("D4"));
+		}
+
+		#endregion
 	}
 }

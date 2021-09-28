@@ -35,22 +35,26 @@ namespace Charlotte
 
 		private void Main3()
 		{
+			Main4();
+			//Common.Pause();
+		}
+
+		private void Main4()
+		{
 			// -- choose one --
 
-			Main4();
+			Test01();
 			//new Test0001().Test01();
 			//new Test0002().Test01();
 			//new Test0003().Test01();
 
 			// --
-
-			//Common.Pause();
 		}
 
 		[DllImport("User32.dll", EntryPoint = "PostMessage")]
 		public static extern Int32 PostMessage(Int32 hWnd, Int32 Msg, Int32 wParam, Int32 lParam);
 
-		private void Main4()
+		private void Test01()
 		{
 			// memo:
 			// https://neos21.net/blog/2018/06/15-01.html

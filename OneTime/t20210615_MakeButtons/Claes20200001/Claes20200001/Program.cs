@@ -34,15 +34,7 @@ namespace Charlotte
 
 		private void Main3()
 		{
-			// -- choose one --
-
 			Main4();
-			//new Test0001().Test01();
-			//new Test0002().Test01();
-			//new Test0003().Test01();
-
-			// --
-
 			//Common.Pause();
 		}
 
@@ -53,6 +45,9 @@ namespace Charlotte
 			//MakeButtons_20200001_RSSAGame();
 			//MakeButtons_20200002_SSAGame();
 			MakeButtons_20210001_TVAGame();
+			//new Test0001().Test01();
+			//new Test0002().Test01();
+			//new Test0003().Test01();
 
 			// --
 		}
