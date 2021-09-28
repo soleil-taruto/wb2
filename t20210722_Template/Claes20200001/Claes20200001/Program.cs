@@ -48,7 +48,68 @@ namespace Charlotte
 
 		private void Main4()
 		{
-			// none
+			// main
 		}
+
+		// 以下様式統一のためのサンプル -- ★要削除
+
+#if false // コマンド引数有り -- ★要削除
+		private void Main2(ArgsReader ar)
+		{
+			if (ProcMain.DEBUG)
+			{
+				Main3();
+			}
+			else
+			{
+				Main4(ar);
+			}
+			Common.OpenOutputDirIfCreated();
+		}
+
+		private void Main3()
+		{
+			// -- choose one --
+
+			Main4(new ArgsReader(new string[] { @"C:\temp" }));
+			//new Test0001().Test01();
+			//new Test0002().Test01();
+			//new Test0003().Test01();
+
+			// --
+
+			//Common.Pause();
+		}
+
+		private void Main4(ArgsReader ar)
+		{
+			// main
+		}
+#endif
+
+#if false // テスト用プログラム -- ★要削除
+		private void Main3()
+		{
+			Main4();
+			//Common.Pause();
+		}
+
+		private void Main4()
+		{
+			// -- choose one --
+
+			Main5();
+			//new Test0001().Test01();
+			//new Test0002().Test01();
+			//new Test0003().Test01();
+
+			// --
+		}
+
+		private void Main5()
+		{
+			// main
+		}
+#endif
 	}
 }
