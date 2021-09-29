@@ -12,6 +12,7 @@ namespace Charlotte.WebServers
 		public enum ErrorLevel_e
 		{
 			INFO = 1,
+			WARNING,
 			FIRST_LINE_TIMEOUT,
 			NETWORK,
 			NETWORK_OR_SERVER_LOGIC,
@@ -24,6 +25,10 @@ namespace Charlotte.WebServers
 			{
 				case ErrorLevel_e.INFO:
 					ProcMain.WriteLog(message);
+					break;
+
+				case ErrorLevel_e.WARNING:
+					ProcMain.WriteLog("[WARNING] " + message);
 					break;
 
 				case ErrorLevel_e.FIRST_LINE_TIMEOUT:
@@ -64,7 +69,7 @@ namespace Charlotte.WebServers
 				const double MILLIS_LIMIT = 50.0;
 
 				if (MILLIS_LIMIT < millis)
-					ProcMain.WriteLog("ブロックしない処理に掛かった時間 " + title + " " + Thread.CurrentThread.ManagedThreadId + " " + millis.ToString("F0"));
+					SockCommon.WriteLog(SockCommon.ErrorLevel_e.WARNING, "NB-処理に掛かった時間 " + title + " " + Thread.CurrentThread.ManagedThreadId + " " + millis.ToString("F0"));
 			}
 #endif
 		}
@@ -165,11 +170,11 @@ namespace Charlotte.WebServers
 
 			public static void Connected()
 			{
-				AddTimeWait(0);
+				KickCounter(0);
 
 				if (10000 < Counters.Sum()) // ? TIME_WAIT 多すぎ -> 時間当たりの接続数を制限する。-- TIME_WAIT を減らす。
 				{
-					ProcMain.WriteLog("[WARNING] PORT-EXHAUSTION");
+					SockCommon.WriteLog(SockCommon.ErrorLevel_e.WARNING, "PORT-EXHAUSTION");
 
 					SockChannel.Critical.Unsection(() => Thread.Sleep(50));
 				}
@@ -177,10 +182,10 @@ namespace Charlotte.WebServers
 
 			public static void Disconnect()
 			{
-				AddTimeWait(1);
+				KickCounter(1);
 			}
 
-			private static void AddTimeWait(int valAdd)
+			private static void KickCounter(int valAdd)
 			{
 				if (NextRotateTime < DateTime.Now)
 				{
@@ -192,7 +197,7 @@ namespace Charlotte.WebServers
 				else
 					Counters[CounterIndex] += valAdd;
 
-				ProcMain.WriteLog("TIME-WAIT-MONITOR: " + valAdd + ", " + Counters.Sum());
+				SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "TIME-WAIT-MONITOR: " + valAdd + ", " + Counters.Sum());
 			}
 
 			private static DateTime GetNextRotateTime()
