@@ -156,5 +156,49 @@ namespace Charlotte.WebServers
 				this.Enter();
 			}
 		}
+
+		public static class TimeWaitMonitor
+		{
+			private static int[] Counters = new int[5]; // 過去４～５分の間に発生した切断(TIME_WAIT)の回数
+			private static int CounterIndex = 0;
+			private static DateTime NextRotateTime = GetNextRotateTime();
+
+			public static void Connected()
+			{
+				AddTimeWait(0);
+
+				if (10000 < Counters.Sum()) // ? TIME_WAIT 多すぎ -> 時間当たりの接続数を制限する。-- TIME_WAIT を減らす。
+				{
+					ProcMain.WriteLog("[WARNING] PORT-EXHAUSTION");
+
+					SockChannel.Critical.Unsection(() => Thread.Sleep(50));
+				}
+			}
+
+			public static void Disconnect()
+			{
+				AddTimeWait(1);
+			}
+
+			private static void AddTimeWait(int valAdd)
+			{
+				if (NextRotateTime < DateTime.Now)
+				{
+					CounterIndex++;
+					CounterIndex %= Counters.Length;
+					Counters[CounterIndex] = valAdd;
+					NextRotateTime = GetNextRotateTime();
+				}
+				else
+					Counters[CounterIndex] += valAdd;
+
+				ProcMain.WriteLog("TIME-WAIT-MONITOR: " + valAdd + ", " + Counters.Sum());
+			}
+
+			private static DateTime GetNextRotateTime()
+			{
+				return DateTime.Now + TimeSpan.FromMinutes(1.0);
+			}
+		}
 	}
 }

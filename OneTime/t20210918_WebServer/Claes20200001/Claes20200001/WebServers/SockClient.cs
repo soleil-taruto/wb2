@@ -40,6 +40,9 @@ namespace Charlotte.WebServers
 			return addresses[0];
 		}
 
+		/// <summary>
+		/// 例外を投げないこと。
+		/// </summary>
 		public void Dispose()
 		{
 			if (this.Handler != null)

@@ -79,6 +79,8 @@ namespace Charlotte.WebServers
 							{
 								connectWaitMillis = 0;
 
+								SockCommon.TimeWaitMonitor.Connected();
+
 								{
 									SockChannel channel = new SockChannel();
 
@@ -124,6 +126,7 @@ namespace Charlotte.WebServers
 										}
 
 										SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "切断します。" + Thread.CurrentThread.ManagedThreadId);
+										SockCommon.TimeWaitMonitor.Disconnect();
 									}
 									));
 

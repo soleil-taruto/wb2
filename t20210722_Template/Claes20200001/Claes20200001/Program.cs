@@ -71,7 +71,7 @@ namespace Charlotte
 		{
 			// -- choose one --
 
-			Main4(new ArgsReader(new string[] { @"C:\temp" }));
+			Main4(new ArgsReader(new string[] { }));
 			//new Test0001().Test01();
 			//new Test0002().Test01();
 			//new Test0003().Test01();
