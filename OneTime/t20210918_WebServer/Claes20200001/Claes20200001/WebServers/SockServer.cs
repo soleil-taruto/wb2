@@ -62,6 +62,7 @@ namespace Charlotte.WebServers
 
 						SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "サーバーを開始しました。");
 
+						DateTime? threadTimeoutTime = null;
 						int connectWaitMillis = 0;
 
 						while (this.Interlude())
@@ -70,6 +71,8 @@ namespace Charlotte.WebServers
 
 							if (handler == null)
 							{
+								threadTimeoutTime = null;
+
 								if (connectWaitMillis < 100)
 									connectWaitMillis++;
 
@@ -77,6 +80,18 @@ namespace Charlotte.WebServers
 							}
 							else
 							{
+								if (threadTimeoutTime == null)
+								{
+									threadTimeoutTime = DateTime.Now + TimeSpan.FromMilliseconds((double)SockChannel.ThreadTimeoutMillis);
+								}
+								else if (threadTimeoutTime.Value < DateTime.Now)
+								{
+									SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "スレッド占用タイムアウト(接続)");
+
+									threadTimeoutTime = null;
+									SockChannel.Critical.ContextSwitching();
+								}
+
 								connectWaitMillis = 0;
 
 								SockCommon.TimeWaitMonitor.Connected();

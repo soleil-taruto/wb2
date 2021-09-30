@@ -43,7 +43,7 @@ namespace Charlotte.WebServers
 		/// <summary>
 		/// スレッド占用タイムアウト_ミリ秒
 		/// </summary>
-		public int ThreadTimeoutMillis = 100;
+		public static int ThreadTimeoutMillis = 100;
 
 		/// <summary>
 		/// 無通信タイムアウト_ミリ秒
@@ -63,7 +63,7 @@ namespace Charlotte.WebServers
 			}
 			if (this.ThreadTimeoutTime == null)
 			{
-				this.ThreadTimeoutTime = DateTime.Now + TimeSpan.FromMilliseconds((double)this.ThreadTimeoutMillis);
+				this.ThreadTimeoutTime = DateTime.Now + TimeSpan.FromMilliseconds((double)ThreadTimeoutMillis);
 			}
 			else if (this.ThreadTimeoutTime.Value < DateTime.Now)
 			{
