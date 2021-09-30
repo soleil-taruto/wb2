@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using Charlotte.Commons;
 
-namespace Charlotte.WebServers
+namespace Charlotte.WebServices
 {
 	public static class SockCommon
 	{

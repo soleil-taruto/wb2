@@ -5,7 +5,7 @@ using System.Text;
 using System.IO;
 using Charlotte.Commons;
 
-namespace Charlotte.WebServers
+namespace Charlotte.WebServices
 {
 	public class HTTPServerChannel
 	{

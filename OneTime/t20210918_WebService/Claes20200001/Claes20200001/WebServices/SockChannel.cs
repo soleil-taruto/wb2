@@ -6,7 +6,7 @@ using System.Threading;
 using System.Net.Sockets;
 using Charlotte.Commons;
 
-namespace Charlotte.WebServers
+namespace Charlotte.WebServices
 {
 	public class SockChannel
 	{
