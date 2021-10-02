@@ -36,7 +36,7 @@ namespace Charlotte.WebServices
 		/// 無通信タイムアウト_ミリ秒
 		/// -1 == INFINITE
 		/// </summary>
-		public int IdleTimeoutMillis = 180000; // 3 min
+		public int IdleTimeoutMillis = -1;
 
 		private void PreRecvSend()
 		{

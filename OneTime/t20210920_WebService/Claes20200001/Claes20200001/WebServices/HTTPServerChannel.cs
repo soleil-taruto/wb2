@@ -35,7 +35,7 @@ namespace Charlotte.WebServices
 		/// リクエストの最初の行以外の(レスポンスも含む)無通信タイムアウト_ミリ秒
 		/// -1 == INFINITE
 		/// </summary>
-		public static int IdleTimeoutMillis = 180000; // 3 min
+		public static int IdleTimeoutMillis = 10000; // 10 sec
 
 		/// <summary>
 		/// リクエストのボディの最大サイズ_バイト数

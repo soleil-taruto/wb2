@@ -19,12 +19,12 @@ namespace Charlotte.WebServices
 		/// <summary>
 		/// 接続待ちキューの長さ
 		/// </summary>
-		public int Backlog = 100;
+		public int Backlog = 200;
 
 		/// <summary>
 		/// 最大同時接続数
 		/// </summary>
-		public int ConnectMax = 30;
+		public int ConnectMax = 100;
 
 		/// <summary>
 		/// サーバーロジック
