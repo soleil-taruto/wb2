@@ -35,39 +35,25 @@ namespace Charlotte.WebServices
 		/// リクエストの最初の行以外の(レスポンスも含む)無通信タイムアウト_ミリ秒
 		/// -1 == INFINITE
 		/// </summary>
-		public static int IdleTimeoutMillis = 10000; // 10 sec
+		public static int IdleTimeoutMillis = 180000; // 3 min
 
 		/// <summary>
 		/// リクエストのボディの最大サイズ_バイト数
 		/// </summary>
 		public static int BodySizeMax = 300000000; // 300 MB
 
-		public IEnumerable<bool> RecvRequest()
+		public IEnumerable<SockCommon.ER> RecvRequest(Action a_return)
 		{
 			this.Channel.SessionTimeoutTime = TimeoutMillisToDateTime(RequestTimeoutMillis);
 			this.Channel.IdleTimeoutMillis = FirstLineTimeoutMillis;
 
 			{
-				Func<string> e_recvLine = SCommon.Supplier(this.RecvLine());
+				this.Channel.RecvFirstLineFlag = true;
 
-				for (; ; )
-				{
-					try
-					{
-						string line = e_recvLine();
+				foreach (var dummy in this.RecvLine(ret => this.FirstLine = ret))
+					yield return null;
 
-						if (line != null)
-						{
-							this.FirstLine = line;
-							break;
-						}
-					}
-					catch (SockChannel.RecvIdleTimeoutException)
-					{
-						throw new RecvFirstLineIdleTimeoutException();
-					}
-					yield return true;
-				}
+				this.Channel.RecvFirstLineFlag = false;
 			}
 
 			{
@@ -80,17 +66,21 @@ namespace Charlotte.WebServices
 
 			this.Channel.IdleTimeoutMillis = IdleTimeoutMillis;
 
-			foreach (bool dummy in this.RecvHeader())
-				yield return true;
+			foreach (var dummy in this.RecvHeader(() => { }))
+				yield return null;
 
 			this.CheckHeader();
 
 			if (this.Expect100Continue)
 			{
-				this.SendLine("HTTP/1.1 100 Continue");
-				this.SendLine("");
+				foreach (var dummy in this.SendLine("HTTP/1.1 100 Continue", () => { }))
+					yield return null;
+
+				foreach (var dummy in this.SendLine("", () => { }))
+					yield return null;
 			}
-			this.RecvBody();
+			foreach (var dummy in this.RecvBody(() => { }))
+				yield return null;
 		}
 
 		private static DateTime? TimeoutMillisToDateTime(int millis)
@@ -100,9 +90,6 @@ namespace Charlotte.WebServices
 
 			return DateTime.Now + TimeSpan.FromMilliseconds((double)millis);
 		}
-
-		public class RecvFirstLineIdleTimeoutException : Exception
-		{ }
 
 		private string DecodeURL(string path)
 		{
@@ -143,20 +130,20 @@ namespace Charlotte.WebServices
 
 		private readonly byte[] CRLF = new byte[] { CR, LF };
 
-		private IEnumerable<string> RecvLine()
+		private IEnumerable<SockCommon.ER> RecvLine(Action<string> a_return)
 		{
 			const int LINE_LEN_MAX = 512000;
 
-			List<byte> buff = new List<byte>();
+			List<byte> buff = new List<byte>(LINE_LEN_MAX);
 
-			foreach (byte[] data in this.Channel.Recv(1))
+			for (; ; )
 			{
-				if (data == null)
-				{
+				byte[] chrs = null;
+
+				foreach (var dummy in this.Channel.Recv(1, ret => chrs = ret))
 					yield return null;
-					continue;
-				}
-				byte chr = data[0];
+
+				byte chr = chrs[0];
 
 				if (chr == CR)
 					continue;
@@ -169,23 +156,26 @@ namespace Charlotte.WebServices
 
 				buff.Add(chr);
 			}
-			yield return Encoding.ASCII.GetString(buff.ToArray());
+			a_return(Encoding.ASCII.GetString(buff.ToArray()));
 		}
 
-		private IEnumerable<bool> RecvHeader()
+		private IEnumerable<SockCommon.ER> RecvHeader(Action a_return)
 		{
 			const int HEADERS_LEN_MAX = 612000;
 			const int WEIGHT = 1000;
 
 			int roughHeaderLength = 0;
 
-			foreach (string line in this.RecvLine())
+			for (; ; )
 			{
+				string line = null;
+
+				foreach (var dummy in this.RecvLine(ret => line = ret))
+					yield return null;
+
 				if (line == null)
-				{
-					yield return true;
-					continue;
-				}
+					throw null; // never
+
 				if (line == "")
 					break;
 
@@ -209,6 +199,7 @@ namespace Charlotte.WebServices
 					});
 				}
 			}
+			a_return();
 		}
 
 		public int ContentLength = 0;
@@ -242,101 +233,99 @@ namespace Charlotte.WebServices
 			}
 		}
 
-		private IEnumerable<bool> RecvBody()
+		private IEnumerable<SockCommon.ER> RecvBody(Action a_return)
 		{
 			const int READ_SIZE_MAX = 2000000; // 2 MB
 
-			HTTPBodyOutputStream buff = this.Channel.BodyOutputStream;
-
-			if (this.Chunked)
+			// buff
 			{
-				foreach (string f_line in this.RecvLine())
+				HTTPBodyOutputStream buff = this.Channel.BodyOutputStream;
+
+				if (this.Chunked)
 				{
-					string line = f_line;
-
-					if (line == null)
+					for (; ; )
 					{
-						yield return true;
-						continue;
-					}
+						string line = null;
 
-					// chunk-extension の削除
-					{
-						int i = line.IndexOf(';');
+						foreach (var dummy in this.RecvLine(ret => line = ret))
+							yield return null;
 
-						if (i != -1)
-							line = line.Substring(0, i);
-					}
+						if (line == null)
+							throw null; // never
 
-					int size = Convert.ToInt32(line.Trim(), 16);
-
-					if (size == 0)
-						break;
-
-					if (size < 0)
-						throw new Exception("不正なチャンクサイズです。" + size);
-
-					if (BodySizeMax - buff.Count < size)
-						throw new Exception("ボディサイズが大きすぎます。" + buff.Count + " + " + size);
-
-					int chunkEnd = buff.Count + size;
-
-					while (buff.Count < chunkEnd)
-					{
-						foreach (byte[] data in this.Channel.Recv(Math.Min(READ_SIZE_MAX, chunkEnd - buff.Count)))
+						// chunk-extension の削除
 						{
-							if (data == null)
-							{
-								yield return true;
-								continue;
-							}
-							buff.Write(data);
+							int i = line.IndexOf(';');
+
+							if (i != -1)
+								line = line.Substring(0, i);
+						}
+
+						int size = Convert.ToInt32(line.Trim(), 16);
+
+						if (size == 0)
 							break;
-						}
-					}
-					this.Channel.Recv(2); // CR-LF
-				}
-				for (; ; )
-				{
-					string line = null;
 
-					foreach (string f_line in this.RecvLine())
-					{
-						if (f_line == null)
+						if (size < 0)
+							throw new Exception("不正なチャンクサイズです。" + size);
+
+						if (BodySizeMax - buff.Count < size)
+							throw new Exception("ボディサイズが大きすぎます。" + buff.Count + " + " + size);
+
+						int chunkEnd = buff.Count + size;
+
+						while (buff.Count < chunkEnd)
 						{
-							yield return true;
-							continue;
+							byte[] data = null;
+
+							foreach (var dummy in this.Channel.Recv(Math.Min(READ_SIZE_MAX, chunkEnd - buff.Count), ret => data = ret))
+								yield return null;
+
+							if (data == null)
+								throw null; // never
+
+							buff.Write(data);
 						}
-						line = f_line;
-						break;
+						foreach (var dummy in this.Channel.Recv(2, ret => { })) // CR-LF
+							yield return null;
 					}
-					if (line == "") // RFC 7230 4.1.2 Chunked Trailer Part
-						break;
-				}
-			}
-			else
-			{
-				if (this.ContentLength < 0)
-					throw new Exception("不正なボディサイズです。" + this.ContentLength);
-
-				if (BodySizeMax < this.ContentLength)
-					throw new Exception("ボディサイズが大きすぎます。" + this.ContentLength);
-
-				while (buff.Count < this.ContentLength)
-				{
-					foreach (byte[] data in this.Channel.Recv(Math.Min(READ_SIZE_MAX, this.ContentLength - buff.Count)))
+					for (; ; ) // RFC 7230 4.1.2 Chunked Trailer Part
 					{
+						string line = null;
+
+						foreach (var dummy in this.RecvLine(ret => { }))
+							yield return null;
+
+						if (line == null)
+							throw null; // never
+
+						if (line == "")
+							break;
+					}
+				}
+				else
+				{
+					if (this.ContentLength < 0)
+						throw new Exception("不正なボディサイズです。" + this.ContentLength);
+
+					if (BodySizeMax < this.ContentLength)
+						throw new Exception("ボディサイズが大きすぎます。" + this.ContentLength);
+
+					while (buff.Count < this.ContentLength)
+					{
+						byte[] data = null;
+
+						foreach (var dummy in this.Channel.Recv(Math.Min(READ_SIZE_MAX, this.ContentLength - buff.Count), ret => data = ret))
+							yield return null;
+
 						if (data == null)
-						{
-							yield return true;
-							continue;
-						}
+							throw null; // never
+
 						buff.Write(data);
-						break;
 					}
 				}
+				this.Body = buff.ToByteArray();
 			}
-			this.Body = buff.ToByteArray();
 		}
 
 		// HTTPConnected 内で(必要に応じて)設定しなければならないフィールド -->
@@ -348,83 +337,124 @@ namespace Charlotte.WebServices
 
 		// <-- HTTPConnected 内で(必要に応じて)設定しなければならないフィールド
 
-		public void SendResponse()
+		public IEnumerable<SockCommon.ER> SendResponse(Action a_return)
 		{
 			this.Body = null;
 			this.Channel.SessionTimeoutTime = TimeoutMillisToDateTime(ResponseTimeoutMillis);
 
-			this.SendLine("HTTP/1.1 " + this.ResStatus + " Heartland");
-			this.SendLine("Server: Heartland");
+			foreach (var dummy in this.SendLine("HTTP/1.1 " + this.ResStatus + " Heartland", () => { }))
+				yield return null;
+
+			foreach (var dummy in this.SendLine("Server: Heartland", () => { }))
+				yield return null;
 
 			if (this.ResContentType != null)
-				this.SendLine("Content-Type: " + this.ResContentType);
+				foreach (var dummy in this.SendLine("Content-Type: " + this.ResContentType, () => { }))
+					yield return null;
 
 			foreach (string[] pair in this.ResHeaderPairs)
-				this.SendLine(pair[0] + ": " + pair[1]);
+				foreach (var dummy in this.SendLine(pair[0] + ": " + pair[1], () => { }))
+					yield return null;
 
 			if (this.ResBody == null)
 			{
-				this.EndHeader();
+				foreach (var dummy in this.EndHeader(() => { }))
+					yield return null;
 			}
 			else
 			{
-				using (IEnumerator<byte[]> resBodyIterator = this.ResBody.GetEnumerator())
+				// HACK: using 要る？
 				{
+					IEnumerator<byte[]> resBodyIterator = this.ResBody.GetEnumerator();
+
 					if (SockCommon.NB("chu1", () => resBodyIterator.MoveNext()))
 					{
 						byte[] first = resBodyIterator.Current;
 
 						if (SockCommon.NB("chu2", () => resBodyIterator.MoveNext()))
 						{
-							this.SendLine("Transfer-Encoding: chunked");
-							this.EndHeader();
-							SendChunk(first);
+							foreach (var dummy in this.SendLine("Transfer-Encoding: chunked", () => { }))
+								yield return null;
+
+							foreach (var dummy in this.EndHeader(() => { }))
+								yield return null;
+
+							foreach (var dummy in SendChunk(first, () => { }))
+								yield return null;
 
 							do
 							{
-								SendChunk(resBodyIterator.Current);
+								foreach (var dummy in SendChunk(resBodyIterator.Current, () => { }))
+									yield return null;
 							}
 							while (SockCommon.NB("chux", () => resBodyIterator.MoveNext()));
 
-							this.SendLine("0");
-							this.Channel.Send(CRLF);
+							foreach (var dummy in this.SendLine("0", () => { }))
+								yield return null;
+
+							foreach (var dummy in this.Channel.Send(CRLF, () => { }))
+								yield return null;
 						}
 						else
 						{
-							this.SendLine("Content-Length: " + first.Length);
-							this.EndHeader();
-							this.Channel.Send(first);
+							foreach (var dummy in this.SendLine("Content-Length: " + first.Length, () => { }))
+								yield return null;
+
+							foreach (var dummy in this.EndHeader(() => { }))
+								yield return null;
+
+							foreach (var dummy in this.Channel.Send(first, () => { }))
+								yield return null;
 						}
 					}
 					else
 					{
-						this.SendLine("Content-Length: 0");
-						this.EndHeader();
+						foreach (var dummy in this.SendLine("Content-Length: 0", () => { }))
+							yield return null;
+
+						foreach (var dummy in this.EndHeader(() => { }))
+							yield return null;
 					}
 				}
 			}
+			a_return();
 		}
 
-		private void EndHeader()
+		private IEnumerable<SockCommon.ER> EndHeader(Action a_return)
 		{
-			this.SendLine("Connection: close");
-			this.Channel.Send(CRLF);
+			foreach (var dummy in this.SendLine("Connection: close", () => { }))
+				yield return null;
+
+			foreach (var dummy in this.Channel.Send(CRLF, () => { }))
+				yield return null;
+
+			a_return();
 		}
 
-		private void SendChunk(byte[] chunk)
+		private IEnumerable<SockCommon.ER> SendChunk(byte[] chunk, Action a_return)
 		{
 			if (1 <= chunk.Length)
 			{
-				this.SendLine(chunk.Length.ToString("x"));
-				this.Channel.Send(chunk);
-				this.Channel.Send(CRLF);
+				this.SendLine(chunk.Length.ToString("x"), () => { });
+
+				foreach (var dummy in this.Channel.Send(chunk, () => { }))
+					yield return null;
+
+				foreach (var dummy in this.Channel.Send(CRLF, () => { }))
+					yield return null;
 			}
+			a_return();
 		}
 
-		private void SendLine(string line)
+		private IEnumerable<SockCommon.ER> SendLine(string line, Action a_return)
 		{
-			this.Channel.Send(Encoding.ASCII.GetBytes(line));
-			this.Channel.Send(CRLF);
+			foreach (var dummy in this.Channel.Send(Encoding.ASCII.GetBytes(line), () => { }))
+				yield return null;
+
+			foreach (var dummy in this.Channel.Send(CRLF, () => { }))
+				yield return null;
+
+			a_return();
 		}
 	}
 }

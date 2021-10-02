@@ -22,6 +22,9 @@ namespace Charlotte.WebServices
 			this.Handler.Blocking = false;
 		}
 
+		public bool RecvFirstLineFlag = false;
+		public bool RecvedOrSent = false;
+
 		/// <summary>
 		/// セッションタイムアウト日時
 		/// null == INFINITE
@@ -42,45 +45,43 @@ namespace Charlotte.WebServices
 			}
 		}
 
-		public IEnumerable<byte[]> Recv(int size)
+		public IEnumerable<SockCommon.ER> Recv(int size, Action<byte[]> a_return)
 		{
-			if (size <= 0)
-				throw null; // never
-
 			byte[] data = new byte[size];
 			int offset = 0;
 
-			foreach (int recvSize in this.TryRecv(data, offset, size))
+			while (1 <= size)
 			{
-				size -= recvSize;
-				offset += recvSize;
+				int? recvSize = null;
 
-				if (size <= 0)
-					break;
+				foreach (var dummy in this.TryRecv(data, offset, size, ret => recvSize = ret))
+					yield return null;
 
-				yield return null;
+				size -= recvSize.Value;
+				offset += recvSize.Value;
 			}
-			yield return data;
+			a_return(data);
 		}
 
-		public IEnumerable<int> TryRecv(byte[] data, int offset, int size)
+		public IEnumerable<SockCommon.ER> TryRecv(byte[] data, int offset, int size, Action<int> a_return)
 		{
 			DateTime startedTime = DateTime.Now;
 
 			for (; ; )
 			{
-				int recvSize = 0;
-
 				this.PreRecvSend();
 
 				try
 				{
-					recvSize = SockCommon.NB("recv", () => this.Handler.Receive(data, offset, size, SocketFlags.None));
+					int recvSize = SockCommon.NB("recv", () => this.Handler.Receive(data, offset, size, SocketFlags.None));
 
 					if (recvSize <= 0)
 					{
 						throw new Exception("受信エラー(切断)");
 					}
+					this.RecvedOrSent = true;
+					a_return(recvSize);
+					break;
 				}
 				catch (SocketException e)
 				{
@@ -93,7 +94,7 @@ namespace Charlotte.WebServices
 				{
 					throw new RecvIdleTimeoutException();
 				}
-				yield return recvSize;
+				yield return null;
 			}
 		}
 
@@ -103,44 +104,43 @@ namespace Charlotte.WebServices
 		public class RecvIdleTimeoutException : Exception
 		{ }
 
-		public IEnumerable<bool> Send(byte[] data)
+		public IEnumerable<SockCommon.ER> Send(byte[] data, Action a_return)
 		{
 			int offset = 0;
 			int size = data.Length;
 
-			if (size <= 0)
-				throw null; // never
-
-			foreach (int sentSize in this.TrySend(data, offset, Math.Min(4 * 1024 * 1024, size)))
+			while (1 <= size)
 			{
-				size -= sentSize;
-				offset += sentSize;
+				int? sentSize = null;
 
-				if (size <= 0)
-					break;
+				foreach (var dummy in this.TrySend(data, offset, Math.Min(4 * 1024 * 1024, size), ret => sentSize = ret))
+					yield return null;
 
-				yield return true;
+				size -= sentSize.Value;
+				offset += sentSize.Value;
 			}
+			a_return();
 		}
 
-		private IEnumerable<int> TrySend(byte[] data, int offset, int size)
+		private IEnumerable<SockCommon.ER> TrySend(byte[] data, int offset, int size, Action<int> a_return)
 		{
 			DateTime startedTime = DateTime.Now;
 
 			for (; ; )
 			{
-				int sentSize = 0;
-
 				this.PreRecvSend();
 
 				try
 				{
-					sentSize = SockCommon.NB("send", () => this.Handler.Send(data, offset, size, SocketFlags.None));
+					int sentSize = SockCommon.NB("send", () => this.Handler.Send(data, offset, size, SocketFlags.None));
 
 					if (sentSize <= 0)
 					{
 						throw new Exception("送信エラー(切断)");
 					}
+					this.RecvedOrSent = true;
+					a_return(sentSize);
+					break;
 				}
 				catch (SocketException e)
 				{
@@ -153,7 +153,7 @@ namespace Charlotte.WebServices
 				{
 					throw new Exception("送信の無通信タイムアウト");
 				}
-				yield return sentSize;
+				yield return null;
 			}
 		}
 	}

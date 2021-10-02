@@ -111,14 +111,13 @@ namespace Charlotte.WebServices
 									waitMillis = 0;
 								}
 							}
-							catch (HTTPServerChannel.RecvFirstLineIdleTimeoutException)
-							{
-								SockCommon.WriteLog(SockCommon.ErrorLevel_e.FIRST_LINE_TIMEOUT, null);
-								size = -1;
-							}
 							catch (Exception e)
 							{
-								SockCommon.WriteLog(SockCommon.ErrorLevel_e.NETWORK_OR_SERVER_LOGIC, e);
+								if (channel.RecvFirstLineFlag)
+									SockCommon.WriteLog(SockCommon.ErrorLevel_e.FIRST_LINE_TIMEOUT, null);
+								else
+									SockCommon.WriteLog(SockCommon.ErrorLevel_e.NETWORK_OR_SERVER_LOGIC, e);
+
 								size = -1;
 							}
 

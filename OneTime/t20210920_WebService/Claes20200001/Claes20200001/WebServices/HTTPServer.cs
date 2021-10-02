@@ -26,7 +26,9 @@ namespace Charlotte.WebServices
 			HTTPServerChannel hsChannel = new HTTPServerChannel();
 
 			hsChannel.Channel = channel;
-			hsChannel.RecvRequest(); // TODO
+
+			foreach (var dummy in hsChannel.RecvRequest(() => { }))
+				yield return GetRecvedOrSentReset(channel) ? 1 : 0;
 
 			SockCommon.NB("svlg", () =>
 			{
@@ -34,9 +36,18 @@ namespace Charlotte.WebServices
 				return -1; // dummy
 			});
 
-			hsChannel.SendResponse(); // TODO
+			foreach (var dummy in hsChannel.SendResponse(() => { }))
+				yield return GetRecvedOrSentReset(channel) ? 1 : 0;
+		}
 
-			yield break; // TODO
+		private static bool GetRecvedOrSentReset(SockChannel channel)
+		{
+			if (channel.RecvedOrSent)
+			{
+				channel.RecvedOrSent = false;
+				return true;
+			}
+			return false;
 		}
 	}
 }
