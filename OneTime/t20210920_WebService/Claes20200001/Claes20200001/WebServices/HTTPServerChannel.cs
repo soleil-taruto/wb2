@@ -42,18 +42,32 @@ namespace Charlotte.WebServices
 		/// </summary>
 		public static int BodySizeMax = 300000000; // 300 MB
 
-		public void RecvRequest()
+		public IEnumerable<bool> RecvRequest()
 		{
 			this.Channel.SessionTimeoutTime = TimeoutMillisToDateTime(RequestTimeoutMillis);
 			this.Channel.IdleTimeoutMillis = FirstLineTimeoutMillis;
 
-			try
 			{
-				this.FirstLine = this.RecvLine();
-			}
-			catch (SockChannel.RecvIdleTimeoutException)
-			{
-				throw new RecvFirstLineIdleTimeoutException();
+				Func<string> e_recvLine = SCommon.Supplier(this.RecvLine());
+
+				for (; ; )
+				{
+					try
+					{
+						string line = e_recvLine();
+
+						if (line != null)
+						{
+							this.FirstLine = line;
+							break;
+						}
+					}
+					catch (SockChannel.RecvIdleTimeoutException)
+					{
+						throw new RecvFirstLineIdleTimeoutException();
+					}
+					yield return true;
+				}
 			}
 
 			{
@@ -66,7 +80,9 @@ namespace Charlotte.WebServices
 
 			this.Channel.IdleTimeoutMillis = IdleTimeoutMillis;
 
-			this.RecvHeader();
+			foreach (bool dummy in this.RecvHeader())
+				yield return true;
+
 			this.CheckHeader();
 
 			if (this.Expect100Continue)
@@ -127,42 +143,49 @@ namespace Charlotte.WebServices
 
 		private readonly byte[] CRLF = new byte[] { CR, LF };
 
-		private string RecvLine()
+		private IEnumerable<string> RecvLine()
 		{
 			const int LINE_LEN_MAX = 512000;
 
-			using (MemoryStream buff = new MemoryStream())
+			List<byte> buff = new List<byte>();
+
+			foreach (byte[] data in this.Channel.Recv(1))
 			{
-				for (; ; )
+				if (data == null)
 				{
-					byte chr = this.Channel.Recv(1)[0];
-
-					if (chr == CR)
-						continue;
-
-					if (chr == LF)
-						break;
-
-					if (LINE_LEN_MAX < buff.Length)
-						throw new OverflowException();
-
-					buff.WriteByte(chr);
+					yield return null;
+					continue;
 				}
-				return Encoding.ASCII.GetString(buff.ToArray());
+				byte chr = data[0];
+
+				if (chr == CR)
+					continue;
+
+				if (chr == LF)
+					break;
+
+				if (LINE_LEN_MAX < buff.Count)
+					throw new OverflowException();
+
+				buff.Add(chr);
 			}
+			yield return Encoding.ASCII.GetString(buff.ToArray());
 		}
 
-		private void RecvHeader()
+		private IEnumerable<bool> RecvHeader()
 		{
 			const int HEADERS_LEN_MAX = 612000;
 			const int WEIGHT = 1000;
 
 			int roughHeaderLength = 0;
 
-			for (; ; )
+			foreach (string line in this.RecvLine())
 			{
-				string line = this.RecvLine();
-
+				if (line == null)
+				{
+					yield return true;
+					continue;
+				}
 				if (line == "")
 					break;
 
@@ -219,60 +242,101 @@ namespace Charlotte.WebServices
 			}
 		}
 
-		private void RecvBody()
+		private IEnumerable<bool> RecvBody()
 		{
-			const int READ_SIZE_MAX = 3000000; // 3 MB
+			const int READ_SIZE_MAX = 2000000; // 2 MB
 
-			using (HTTPBodyOutputStream buff = new HTTPBodyOutputStream())
+			HTTPBodyOutputStream buff = this.Channel.BodyOutputStream;
+
+			if (this.Chunked)
 			{
-				if (this.Chunked)
+				foreach (string f_line in this.RecvLine())
 				{
-					for (; ; )
+					string line = f_line;
+
+					if (line == null)
 					{
-						string line = this.RecvLine();
-
-						// chunk-extension の削除
-						{
-							int i = line.IndexOf(';');
-
-							if (i != -1)
-								line = line.Substring(0, i);
-						}
-
-						int size = Convert.ToInt32(line.Trim(), 16);
-
-						if (size == 0)
-							break;
-
-						if (size < 0)
-							throw new Exception("不正なチャンクサイズです。" + size);
-
-						if (BodySizeMax - buff.Count < size)
-							throw new Exception("ボディサイズが大きすぎます。" + buff.Count + " + " + size);
-
-						int chunkEnd = buff.Count + size;
-
-						while (buff.Count < chunkEnd)
-							buff.Write(this.Channel.Recv(Math.Min(READ_SIZE_MAX, chunkEnd - buff.Count)));
-
-						this.Channel.Recv(2); // CR-LF
+						yield return true;
+						continue;
 					}
-					while (this.RecvLine() != "") // RFC 7230 4.1.2 Chunked Trailer Part
-					{ }
+
+					// chunk-extension の削除
+					{
+						int i = line.IndexOf(';');
+
+						if (i != -1)
+							line = line.Substring(0, i);
+					}
+
+					int size = Convert.ToInt32(line.Trim(), 16);
+
+					if (size == 0)
+						break;
+
+					if (size < 0)
+						throw new Exception("不正なチャンクサイズです。" + size);
+
+					if (BodySizeMax - buff.Count < size)
+						throw new Exception("ボディサイズが大きすぎます。" + buff.Count + " + " + size);
+
+					int chunkEnd = buff.Count + size;
+
+					while (buff.Count < chunkEnd)
+					{
+						foreach (byte[] data in this.Channel.Recv(Math.Min(READ_SIZE_MAX, chunkEnd - buff.Count)))
+						{
+							if (data == null)
+							{
+								yield return true;
+								continue;
+							}
+							buff.Write(data);
+							break;
+						}
+					}
+					this.Channel.Recv(2); // CR-LF
 				}
-				else
+				for (; ; )
 				{
-					if (this.ContentLength < 0)
-						throw new Exception("不正なボディサイズです。" + this.ContentLength);
+					string line = null;
 
-					if (BodySizeMax < this.ContentLength)
-						throw new Exception("ボディサイズが大きすぎます。" + this.ContentLength);
-
-					while (buff.Count < this.ContentLength)
-						buff.Write(this.Channel.Recv(Math.Min(READ_SIZE_MAX, this.ContentLength - buff.Count)));
+					foreach (string f_line in this.RecvLine())
+					{
+						if (f_line == null)
+						{
+							yield return true;
+							continue;
+						}
+						line = f_line;
+						break;
+					}
+					if (line == "") // RFC 7230 4.1.2 Chunked Trailer Part
+						break;
 				}
-				this.Body = buff.ToByteArray();
 			}
+			else
+			{
+				if (this.ContentLength < 0)
+					throw new Exception("不正なボディサイズです。" + this.ContentLength);
+
+				if (BodySizeMax < this.ContentLength)
+					throw new Exception("ボディサイズが大きすぎます。" + this.ContentLength);
+
+				while (buff.Count < this.ContentLength)
+				{
+					foreach (byte[] data in this.Channel.Recv(Math.Min(READ_SIZE_MAX, this.ContentLength - buff.Count)))
+					{
+						if (data == null)
+						{
+							yield return true;
+							continue;
+						}
+						buff.Write(data);
+						break;
+					}
+				}
+			}
+			this.Body = buff.ToByteArray();
 		}
 
 		// HTTPConnected 内で(必要に応じて)設定しなければならないフィールド -->

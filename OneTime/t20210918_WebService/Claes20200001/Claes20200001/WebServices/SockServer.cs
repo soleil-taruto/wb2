@@ -159,14 +159,14 @@ namespace Charlotte.WebServices
 						}
 
 						SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "サーバーを終了しています...");
+
+						this.Stop();
 					}
 				}
 				catch (Exception e)
 				{
 					SockCommon.WriteLog(SockCommon.ErrorLevel_e.FATAL, e);
 				}
-
-				this.Stop();
 
 				SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "サーバーを終了しました。");
 			});

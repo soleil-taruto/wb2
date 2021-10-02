@@ -9,7 +9,7 @@ using Charlotte.Commons;
 
 namespace Charlotte.WebServices
 {
-	public class SockServer
+	public abstract class SockServer
 	{
 		/// <summary>
 		/// ポート番号
@@ -28,10 +28,14 @@ namespace Charlotte.WebServices
 
 		/// <summary>
 		/// サーバーロジック
-		/// 引数：
-		/// -- channel: 接続チャネル
+		/// 通信量：
+		/// -- 0 未満 == 通信終了
+		/// -- 0 == 通信無し
+		/// -- 1 以上 == 通信有り
 		/// </summary>
-		public Action<SockChannel> Connected = channel => { };
+		/// <param name="channel">接続チャネル</param>
+		/// <returns>通信量</returns>
+		public abstract IEnumerable<int> E_Connected(SockChannel channel);
 
 		/// <summary>
 		/// 処理の合間に呼ばれる処理
@@ -42,121 +46,107 @@ namespace Charlotte.WebServices
 
 		// <---- prm
 
-		private List<Thread> ConnectedThs = new List<Thread>();
+		private List<SockChannel> Channels = new List<SockChannel>();
 
 		public void Perform()
 		{
-			{ // TODO del
-				SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "サーバーを開始しています...");
+			SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "サーバーを開始しています...");
 
-				try
+			try
+			{
+				using (Socket listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
 				{
-					using (Socket listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
+					IPEndPoint endPoint = new IPEndPoint(0L, this.PortNo);
+
+					listener.Bind(endPoint);
+					listener.Listen(this.Backlog);
+					listener.Blocking = false;
+
+					SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "サーバーを開始しました。");
+
+					int waitMillis = 0;
+
+					while (this.Interlude())
 					{
-						IPEndPoint endPoint = new IPEndPoint(0L, this.PortNo);
+						if (0 < waitMillis)
+							Thread.Sleep(waitMillis);
 
-						listener.Bind(endPoint);
-						listener.Listen(this.Backlog);
-						listener.Blocking = false;
+						if (waitMillis < 100)
+							waitMillis++;
 
-						SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "サーバーを開始しました。");
+						Socket handler = this.Channels.Count < this.ConnectMax ? this.Connect(listener) : null;
 
-						DateTime? threadTimeoutTime = null; // TODO del
-						int connectWaitMillis = 0;
-
-						while (this.Interlude())
+						if (handler != null)
 						{
-							Socket handler = this.ConnectedThs.Count < this.ConnectMax ? this.Connect(listener) : null;
+							waitMillis = 0;
 
-							if (handler == null)
+							SockCommon.TimeWaitMonitor.Connected();
+
 							{
-								threadTimeoutTime = null;
+								SockChannel channel = new SockChannel();
 
-								if (connectWaitMillis < 100)
-									connectWaitMillis++;
+								channel.Handler = handler;
+								handler = null;
+								channel.PostSetHandler();
+								channel.ID = channel.GetHashCode(); // HACK
+								channel.Connected = SCommon.Supplier(this.E_Connected(channel));
+								channel.BodyOutputStream = new HTTPBodyOutputStream();
 
-								Thread.Sleep(connectWaitMillis); // TODO del
+								this.Channels.Add(channel);
+
+								SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "通信開始 " + channel.ID);
 							}
-							else
+						}
+						for (int index = this.Channels.Count - 1; 0 <= index; index--)
+						{
+							SockChannel channel = this.Channels[index];
+							int size;
+
+							try
 							{
-								connectWaitMillis = 0;
+								size = channel.Connected();
 
-								SockCommon.TimeWaitMonitor.Connected();
-
+								if (0 < size) // ? 通信有り
 								{
-									SockChannel channel = new SockChannel();
-
-									channel.Handler = handler;
-									handler = null;
-									channel.PostSetHandler();
-
-									Thread th = new Thread(() => // TODO del Thread
-									{
-										SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "通信開始 " + Thread.CurrentThread.ManagedThreadId + " " + channel.Handler.RemoteEndPoint);
-
-										try
-										{
-											this.Connected(channel);
-
-											SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "通信終了 " + Thread.CurrentThread.ManagedThreadId);
-										}
-										catch (HTTPServerChannel.RecvFirstLineIdleTimeoutException)
-										{
-											SockCommon.WriteLog(SockCommon.ErrorLevel_e.FIRST_LINE_TIMEOUT, null);
-										}
-										catch (Exception e)
-										{
-											SockCommon.WriteLog(SockCommon.ErrorLevel_e.NETWORK_OR_SERVER_LOGIC, e);
-										}
-
-										try
-										{
-											channel.Handler.Shutdown(SocketShutdown.Both);
-										}
-										catch (Exception e)
-										{
-											SockCommon.WriteLog(SockCommon.ErrorLevel_e.NETWORK, e);
-										}
-
-										try
-										{
-											channel.Handler.Close();
-										}
-										catch (Exception e)
-										{
-											SockCommon.WriteLog(SockCommon.ErrorLevel_e.NETWORK, e);
-										}
-
-										SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "切断します。" + Thread.CurrentThread.ManagedThreadId);
-										SockCommon.TimeWaitMonitor.Disconnect();
-									}
-									);
-
-									th.Start();
-
-									this.ConnectedThs.Add(th);
+									waitMillis = 0;
 								}
 							}
+							catch (HTTPServerChannel.RecvFirstLineIdleTimeoutException)
+							{
+								SockCommon.WriteLog(SockCommon.ErrorLevel_e.FIRST_LINE_TIMEOUT, null);
+								size = -1;
+							}
+							catch (Exception e)
+							{
+								SockCommon.WriteLog(SockCommon.ErrorLevel_e.NETWORK_OR_SERVER_LOGIC, e);
+								size = -1;
+							}
 
-							for (int index = this.ConnectedThs.Count - 1; 0 <= index; index--)
-								if (!this.ConnectedThs[index].IsAlive)
-									SCommon.FastDesertElement(this.ConnectedThs, index);
+							if (size < 0) // ? 切断
+							{
+								SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "通信終了 " + channel.ID);
 
-							//GC.Collect(); // GeoDemo の Server.sln が重くなるため、暫定削除 @ 2019.4.9
+								this.Disconnect(channel);
+								SCommon.FastDesertElement(this.Channels, index);
+
+								SockCommon.TimeWaitMonitor.Disconnect();
+							}
 						}
 
-						SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "サーバーを終了しています...");
+						//GC.Collect(); // GeoDemo の Server.sln が重くなるため、暫定削除 @ 2019.4.9
 					}
-				}
-				catch (Exception e)
-				{
-					SockCommon.WriteLog(SockCommon.ErrorLevel_e.FATAL, e);
-				}
 
-				this.Stop();
+					SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "サーバーを終了しています...");
 
-				SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "サーバーを終了しました。");
-			} // del
+					this.Stop();
+				}
+			}
+			catch (Exception e)
+			{
+				SockCommon.WriteLog(SockCommon.ErrorLevel_e.FATAL, e);
+			}
+
+			SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "サーバーを終了しました。");
 		}
 
 		private Socket Connect(Socket listener) // ret: null == 接続タイムアウト
@@ -177,17 +167,40 @@ namespace Charlotte.WebServices
 
 		private void Stop()
 		{
-			SockChannel.StopFlag = true;
-			WaitToStop();
-			SockChannel.StopFlag = false;
+			foreach (SockChannel channel in this.Channels)
+				this.Disconnect(channel);
+
+			this.Channels.Clear();
 		}
 
-		private void WaitToStop()
+		private void Disconnect(SockChannel channel)
 		{
-			foreach (Thread connectedTh in this.ConnectedThs)
-				connectedTh.Join(); // TODO: del Thread
+			try
+			{
+				channel.Handler.Shutdown(SocketShutdown.Both);
+			}
+			catch (Exception e)
+			{
+				SockCommon.WriteLog(SockCommon.ErrorLevel_e.NETWORK, e);
+			}
 
-			this.ConnectedThs.Clear();
+			try
+			{
+				channel.Handler.Close();
+			}
+			catch (Exception e)
+			{
+				SockCommon.WriteLog(SockCommon.ErrorLevel_e.NETWORK, e);
+			}
+
+			try
+			{
+				channel.BodyOutputStream.Dispose();
+			}
+			catch (Exception e)
+			{
+				SockCommon.WriteLog(SockCommon.ErrorLevel_e.FATAL, e);
+			}
 		}
 	}
 }

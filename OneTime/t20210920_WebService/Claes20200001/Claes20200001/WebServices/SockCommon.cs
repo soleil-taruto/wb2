@@ -103,7 +103,7 @@ namespace Charlotte.WebServices
 				{
 					SockCommon.WriteLog(SockCommon.ErrorLevel_e.WARNING, "PORT-EXHAUSTION");
 
-					//SockChannel.Critical.Unsection(() => Thread.Sleep(50)); // TODO
+					Thread.Sleep(50); // HACK: 全体止めなくても良くね？
 				}
 			}
 

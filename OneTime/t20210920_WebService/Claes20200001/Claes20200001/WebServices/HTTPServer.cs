@@ -19,21 +19,24 @@ namespace Charlotte.WebServices
 		public HTTPServer()
 		{
 			PortNo = 80;
-			Connected = channel =>
+		}
+
+		public override IEnumerable<int> E_Connected(SockChannel channel)
+		{
+			HTTPServerChannel hsChannel = new HTTPServerChannel();
+
+			hsChannel.Channel = channel;
+			hsChannel.RecvRequest(); // TODO
+
+			SockCommon.NB("svlg", () =>
 			{
-				HTTPServerChannel hsChannel = new HTTPServerChannel();
+				HTTPConnected(hsChannel);
+				return -1; // dummy
+			});
 
-				hsChannel.Channel = channel;
-				hsChannel.RecvRequest();
+			hsChannel.SendResponse(); // TODO
 
-				SockCommon.NB("svlg", () =>
-				{
-					HTTPConnected(hsChannel);
-					return -1; // dummy
-				});
-
-				hsChannel.SendResponse();
-			};
+			yield break; // TODO
 		}
 	}
 }

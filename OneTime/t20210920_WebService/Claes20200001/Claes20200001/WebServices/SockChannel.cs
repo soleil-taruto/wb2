@@ -11,6 +11,9 @@ namespace Charlotte.WebServices
 	public class SockChannel
 	{
 		public Socket Handler;
+		public int ID;
+		public Func<int> Connected;
+		public HTTPBodyOutputStream BodyOutputStream;
 
 		// <---- prm
 
@@ -18,13 +21,6 @@ namespace Charlotte.WebServices
 		{
 			this.Handler.Blocking = false;
 		}
-
-		/// <summary>
-		/// 停止リクエスト
-		/// プロセス終了時の利用を想定
-		/// プロセス内の全てのチャネルが停止することに注意
-		/// </summary>
-		public static bool StopFlag = false;
 
 		/// <summary>
 		/// セッションタイムアウト日時
@@ -40,64 +36,51 @@ namespace Charlotte.WebServices
 
 		private void PreRecvSend()
 		{
-			if (StopFlag)
-			{
-				throw new Exception("停止リクエスト");
-			}
 			if (this.SessionTimeoutTime != null && this.SessionTimeoutTime.Value < DateTime.Now)
 			{
 				throw new Exception("セッション時間切れ");
 			}
 		}
 
-		public byte[] Recv(int size)
+		public IEnumerable<byte[]> Recv(int size)
 		{
+			if (size <= 0)
+				throw null; // never
+
 			byte[] data = new byte[size];
+			int offset = 0;
 
-			this.Recv(data);
-
-			return data;
-		}
-
-		public void Recv(byte[] data, int offset = 0)
-		{
-			this.Recv(data, offset, data.Length - offset);
-		}
-
-		public void Recv(byte[] data, int offset, int size)
-		{
-			while (1 <= size)
+			foreach (int recvSize in this.TryRecv(data, offset, size))
 			{
-				int recvSize = this.TryRecv(data, offset, size);
-
 				size -= recvSize;
 				offset += recvSize;
+
+				if (size <= 0)
+					break;
+
+				yield return null;
 			}
+			yield return data;
 		}
 
-		public void Recv(byte[] buff, SCommon.Write_d writer)
-		{
-			writer(buff, 0, TryRecv(buff, 0, buff.Length));
-		}
-
-		public int TryRecv(byte[] data, int offset, int size)
+		public IEnumerable<int> TryRecv(byte[] data, int offset, int size)
 		{
 			DateTime startedTime = DateTime.Now;
-			int waitMillis = 0;
 
 			for (; ; )
 			{
+				int recvSize = 0;
+
 				this.PreRecvSend();
 
 				try
 				{
-					int recvSize = SockCommon.NB("recv", () => this.Handler.Receive(data, offset, size, SocketFlags.None));
+					recvSize = SockCommon.NB("recv", () => this.Handler.Receive(data, offset, size, SocketFlags.None));
 
 					if (recvSize <= 0)
 					{
 						throw new Exception("受信エラー(切断)");
 					}
-					return recvSize;
 				}
 				catch (SocketException e)
 				{
@@ -110,11 +93,7 @@ namespace Charlotte.WebServices
 				{
 					throw new RecvIdleTimeoutException();
 				}
-
-				if (waitMillis < 100)
-					waitMillis++;
-
-				Thread.Sleep(waitMillis); // TODO: del
+				yield return recvSize;
 			}
 		}
 
@@ -124,40 +103,44 @@ namespace Charlotte.WebServices
 		public class RecvIdleTimeoutException : Exception
 		{ }
 
-		public void Send(byte[] data, int offset = 0)
+		public IEnumerable<bool> Send(byte[] data)
 		{
-			this.Send(data, offset, data.Length - offset);
-		}
+			int offset = 0;
+			int size = data.Length;
 
-		public void Send(byte[] data, int offset, int size)
-		{
-			while (1 <= size)
+			if (size <= 0)
+				throw null; // never
+
+			foreach (int sentSize in this.TrySend(data, offset, Math.Min(4 * 1024 * 1024, size)))
 			{
-				int sentSize = this.TrySend(data, offset, Math.Min(4 * 1024 * 1024, size));
-
 				size -= sentSize;
 				offset += sentSize;
+
+				if (size <= 0)
+					break;
+
+				yield return true;
 			}
 		}
 
-		private int TrySend(byte[] data, int offset, int size)
+		private IEnumerable<int> TrySend(byte[] data, int offset, int size)
 		{
 			DateTime startedTime = DateTime.Now;
-			int waitMillis = 0;
 
 			for (; ; )
 			{
+				int sentSize = 0;
+
 				this.PreRecvSend();
 
 				try
 				{
-					int sentSize = SockCommon.NB("send", () => this.Handler.Send(data, offset, size, SocketFlags.None));
+					sentSize = SockCommon.NB("send", () => this.Handler.Send(data, offset, size, SocketFlags.None));
 
 					if (sentSize <= 0)
 					{
 						throw new Exception("送信エラー(切断)");
 					}
-					return sentSize;
 				}
 				catch (SocketException e)
 				{
@@ -170,11 +153,7 @@ namespace Charlotte.WebServices
 				{
 					throw new Exception("送信の無通信タイムアウト");
 				}
-
-				if (waitMillis < 100)
-					waitMillis++;
-
-				Thread.Sleep(waitMillis); // TODO: del
+				yield return sentSize;
 			}
 		}
 	}

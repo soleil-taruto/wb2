@@ -221,7 +221,7 @@ namespace Charlotte.WebServices
 
 		private void RecvBody()
 		{
-			const int READ_SIZE_MAX = 3000000; // 3 MB
+			const int READ_SIZE_MAX = 2000000; // 2 MB
 
 			using (HTTPBodyOutputStream buff = new HTTPBodyOutputStream())
 			{
