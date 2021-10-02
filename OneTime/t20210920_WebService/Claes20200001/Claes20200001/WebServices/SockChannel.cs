@@ -19,8 +19,6 @@ namespace Charlotte.WebServices
 			this.Handler.Blocking = false;
 		}
 
-		public static SockCommon.Critical Critical = new SockCommon.Critical();
-
 		/// <summary>
 		/// 停止リクエスト
 		/// プロセス終了時の利用を想定
@@ -33,17 +31,6 @@ namespace Charlotte.WebServices
 		/// null == INFINITE
 		/// </summary>
 		public DateTime? SessionTimeoutTime = null;
-
-		/// <summary>
-		/// スレッド占用タイムアウト日時
-		/// null == リセット状態
-		/// </summary>
-		public DateTime? ThreadTimeoutTime = null;
-
-		/// <summary>
-		/// スレッド占用タイムアウト_ミリ秒
-		/// </summary>
-		public static int ThreadTimeoutMillis = 100;
 
 		/// <summary>
 		/// 無通信タイムアウト_ミリ秒
@@ -60,17 +47,6 @@ namespace Charlotte.WebServices
 			if (this.SessionTimeoutTime != null && this.SessionTimeoutTime.Value < DateTime.Now)
 			{
 				throw new Exception("セッション時間切れ");
-			}
-			if (this.ThreadTimeoutTime == null)
-			{
-				this.ThreadTimeoutTime = DateTime.Now + TimeSpan.FromMilliseconds((double)ThreadTimeoutMillis);
-			}
-			else if (this.ThreadTimeoutTime.Value < DateTime.Now)
-			{
-				SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "スレッド占用タイムアウト");
-
-				this.ThreadTimeoutTime = null;
-				Critical.ContextSwitching();
 			}
 		}
 
@@ -135,12 +111,10 @@ namespace Charlotte.WebServices
 					throw new RecvIdleTimeoutException();
 				}
 
-				this.ThreadTimeoutTime = null;
-
 				if (waitMillis < 100)
 					waitMillis++;
 
-				Critical.Unsection(() => Thread.Sleep(waitMillis));
+				Thread.Sleep(waitMillis); // TODO: del
 			}
 		}
 
@@ -197,12 +171,10 @@ namespace Charlotte.WebServices
 					throw new Exception("送信の無通信タイムアウト");
 				}
 
-				this.ThreadTimeoutTime = null;
-
 				if (waitMillis < 100)
 					waitMillis++;
 
-				Critical.Unsection(() => Thread.Sleep(waitMillis));
+				Thread.Sleep(waitMillis); // TODO: del
 			}
 		}
 	}

@@ -46,8 +46,7 @@ namespace Charlotte.WebServices
 
 		public void Perform()
 		{
-			SockChannel.Critical.Section(() =>
-			{
+			{ // TODO del
 				SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "サーバーを開始しています...");
 
 				try
@@ -62,7 +61,7 @@ namespace Charlotte.WebServices
 
 						SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "サーバーを開始しました。");
 
-						DateTime? threadTimeoutTime = null;
+						DateTime? threadTimeoutTime = null; // TODO del
 						int connectWaitMillis = 0;
 
 						while (this.Interlude())
@@ -76,22 +75,10 @@ namespace Charlotte.WebServices
 								if (connectWaitMillis < 100)
 									connectWaitMillis++;
 
-								SockChannel.Critical.Unsection(() => Thread.Sleep(connectWaitMillis));
+								Thread.Sleep(connectWaitMillis); // TODO del
 							}
 							else
 							{
-								if (threadTimeoutTime == null)
-								{
-									threadTimeoutTime = DateTime.Now + TimeSpan.FromMilliseconds((double)SockChannel.ThreadTimeoutMillis);
-								}
-								else if (threadTimeoutTime.Value < DateTime.Now)
-								{
-									SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "スレッド占用タイムアウト(接続)");
-
-									threadTimeoutTime = null;
-									SockChannel.Critical.ContextSwitching();
-								}
-
 								connectWaitMillis = 0;
 
 								SockCommon.TimeWaitMonitor.Connected();
@@ -103,7 +90,7 @@ namespace Charlotte.WebServices
 									handler = null;
 									channel.PostSetHandler();
 
-									Thread th = new Thread(() => SockChannel.Critical.Section(() =>
+									Thread th = new Thread(() => // TODO del Thread
 									{
 										SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "通信開始 " + Thread.CurrentThread.ManagedThreadId + " " + channel.Handler.RemoteEndPoint);
 
@@ -143,7 +130,7 @@ namespace Charlotte.WebServices
 										SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "切断します。" + Thread.CurrentThread.ManagedThreadId);
 										SockCommon.TimeWaitMonitor.Disconnect();
 									}
-									));
+									);
 
 									th.Start();
 
@@ -169,7 +156,7 @@ namespace Charlotte.WebServices
 				this.Stop();
 
 				SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "サーバーを終了しました。");
-			});
+			} // del
 		}
 
 		private Socket Connect(Socket listener) // ret: null == 接続タイムアウト
@@ -198,7 +185,7 @@ namespace Charlotte.WebServices
 		private void WaitToStop()
 		{
 			foreach (Thread connectedTh in this.ConnectedThs)
-				SockChannel.Critical.Unsection(() => connectedTh.Join());
+				connectedTh.Join(); // TODO: del Thread
 
 			this.ConnectedThs.Clear();
 		}

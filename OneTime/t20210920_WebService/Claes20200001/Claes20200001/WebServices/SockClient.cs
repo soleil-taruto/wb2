@@ -13,7 +13,7 @@ namespace Charlotte.WebServices
 	{
 		public SockClient()
 		{
-			SockChannel.Critical.Enter();
+			// noop
 		}
 
 		public void Connect(string domain, int portNo)
@@ -66,15 +66,6 @@ namespace Charlotte.WebServices
 				}
 
 				this.Handler = null;
-
-				try
-				{
-					SockChannel.Critical.Leave();
-				}
-				catch (Exception e)
-				{
-					SockCommon.WriteLog(SockCommon.ErrorLevel_e.FATAL, e);
-				}
 			}
 		}
 	}

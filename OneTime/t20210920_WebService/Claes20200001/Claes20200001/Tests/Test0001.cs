@@ -19,7 +19,9 @@ namespace Charlotte.Tests
 
 		private void Test01a(string url)
 		{
-			HTTPClient hc = new HTTPClient(url);
+			const string RES_FILE = @"C:\temp\Test01a.dat";
+
+			HTTPClient hc = new HTTPClient(url, RES_FILE);
 			hc.Get();
 			string contentType = hc.ResHeaders["Content-Type"];
 			string[] charsetParts = contentType == null ? null : Common.ParseIsland(contentType, "charset=", true);
@@ -37,9 +39,11 @@ namespace Charlotte.Tests
 				encoding = Encoding.UTF8;
 
 			Console.WriteLine(encoding); // cout
-			string resBodyText = encoding.GetString(hc.ResBody);
+			string resBodyText = encoding.GetString(File.ReadAllBytes(RES_FILE));
 			//Console.WriteLine(resBodyText); // cout
 			File.WriteAllText(Common.NextOutputPath() + ".txt", resBodyText, Encoding.UTF8);
+
+			SCommon.DeletePath(RES_FILE);
 		}
 
 		public void Test02()
