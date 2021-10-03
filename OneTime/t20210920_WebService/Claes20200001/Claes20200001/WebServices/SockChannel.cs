@@ -31,16 +31,38 @@ namespace Charlotte.WebServices
 		public DateTime? SessionTimeoutTime = null;
 
 		/// <summary>
+		/// スレッド占用タイムアウト日時
+		/// null == リセット状態
+		/// </summary>
+		public DateTime? ThreadTimeoutTime = null;
+
+		/// <summary>
+		/// スレッド占用タイムアウト_ミリ秒
+		/// </summary>
+		public static int ThreadTimeoutMillis = 100;
+
+		/// <summary>
 		/// 無通信タイムアウト_ミリ秒
 		/// -1 == INFINITE
 		/// </summary>
 		public int IdleTimeoutMillis = -1;
 
-		private void PreRecvSend()
+		private IEnumerable<int> PreRecvSend()
 		{
 			if (this.SessionTimeoutTime != null && this.SessionTimeoutTime.Value < DateTime.Now)
 			{
 				throw new Exception("セッション時間切れ");
+			}
+			if (this.ThreadTimeoutTime == null)
+			{
+				this.ThreadTimeoutTime = DateTime.Now + TimeSpan.FromMilliseconds((double)ThreadTimeoutMillis);
+			}
+			else if (this.ThreadTimeoutTime.Value < DateTime.Now)
+			{
+				SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "スレッド占用タイムアウト");
+
+				this.ThreadTimeoutTime = null;
+				yield return -1;
 			}
 		}
 
@@ -68,7 +90,8 @@ namespace Charlotte.WebServices
 
 			for (; ; )
 			{
-				this.PreRecvSend();
+				foreach (int relay in this.PreRecvSend())
+					yield return relay;
 
 				try
 				{
@@ -92,6 +115,7 @@ namespace Charlotte.WebServices
 				{
 					throw new RecvIdleTimeoutException();
 				}
+				this.ThreadTimeoutTime = null;
 				yield return -1;
 			}
 			yield return 1;
@@ -127,7 +151,8 @@ namespace Charlotte.WebServices
 
 			for (; ; )
 			{
-				this.PreRecvSend();
+				foreach (int relay in this.PreRecvSend())
+					yield return relay;
 
 				try
 				{
@@ -151,6 +176,7 @@ namespace Charlotte.WebServices
 				{
 					throw new Exception("送信の無通信タイムアウト");
 				}
+				this.ThreadTimeoutTime = null;
 				yield return -1;
 			}
 			yield return 1;
