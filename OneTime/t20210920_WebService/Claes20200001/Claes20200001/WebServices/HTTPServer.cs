@@ -24,11 +24,20 @@ namespace Charlotte.WebServices
 		public override IEnumerable<int> E_Connected(SockChannel channel)
 		{
 			HTTPServerChannel hsChannel = new HTTPServerChannel();
+			int retval = 0;
 
 			hsChannel.Channel = channel;
 
-			foreach (var dummy in hsChannel.RecvRequest(() => { }))
-				yield return GetRecvedOrSentReset(channel) ? 1 : 0;
+			foreach (int size in hsChannel.RecvRequest(() => { }))
+			{
+				if (size == 0)
+				{
+					yield return retval;
+					retval = 0;
+				}
+				else
+					retval = 1;
+			}
 
 			SockCommon.NB("svlg", () =>
 			{
@@ -36,18 +45,16 @@ namespace Charlotte.WebServices
 				return -1; // dummy
 			});
 
-			foreach (var dummy in hsChannel.SendResponse(() => { }))
-				yield return GetRecvedOrSentReset(channel) ? 1 : 0;
-		}
-
-		private static bool GetRecvedOrSentReset(SockChannel channel)
-		{
-			if (channel.RecvedOrSent)
+			foreach (int size in hsChannel.SendResponse(() => { }))
 			{
-				channel.RecvedOrSent = false;
-				return true;
+				if (size == 0)
+				{
+					yield return retval;
+					retval = 0;
+				}
+				else
+					retval = 1;
 			}
-			return false;
 		}
 	}
 }

@@ -74,12 +74,6 @@ namespace Charlotte.WebServices
 #endif
 		}
 
-		/// <summary>
-		/// 列挙のダミー戻り値
-		/// </summary>
-		public class ER
-		{ }
-
 		public static class TimeWaitMonitor
 		{
 			// 参考値：

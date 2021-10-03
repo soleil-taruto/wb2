@@ -29,8 +29,8 @@ namespace Charlotte.WebServices
 		/// <summary>
 		/// サーバーロジック
 		/// 通信量：
-		/// -- 0 未満 == 通信終了
-		/// -- 0 == 通信無し
+		/// -- 0 == 通信終了
+		/// -- 0 未満 == 通信無し
 		/// -- 1 以上 == 通信有り
 		/// </summary>
 		/// <param name="channel">接続チャネル</param>
@@ -118,10 +118,10 @@ namespace Charlotte.WebServices
 								else
 									SockCommon.WriteLog(SockCommon.ErrorLevel_e.NETWORK_OR_SERVER_LOGIC, e);
 
-								size = -1;
+								size = 0;
 							}
 
-							if (size < 0) // ? 切断
+							if (size == 0) // ? 切断
 							{
 								SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "通信終了 " + channel.ID);
 
