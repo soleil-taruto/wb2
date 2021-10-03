@@ -47,14 +47,10 @@ namespace Charlotte.WebServices
 			this.Channel.SessionTimeoutTime = TimeoutMillisToDateTime(RequestTimeoutMillis);
 			this.Channel.IdleTimeoutMillis = FirstLineTimeoutMillis;
 
-			{
-				this.Channel.RecvFirstLineFlag = true;
+			foreach (int relay in this.RecvLine(ret => this.FirstLine = ret))
+				yield return relay;
 
-				foreach (var relay in this.RecvLine(ret => this.FirstLine = ret))
-					yield return relay;
-
-				this.Channel.RecvFirstLineFlag = false;
-			}
+			this.Channel.FirstLineRecved = true;
 
 			{
 				string[] tokens = this.FirstLine.Split(' ');
@@ -66,20 +62,20 @@ namespace Charlotte.WebServices
 
 			this.Channel.IdleTimeoutMillis = IdleTimeoutMillis;
 
-			foreach (var relay in this.RecvHeader(() => { }))
+			foreach (int relay in this.RecvHeader(() => { }))
 				yield return relay;
 
 			this.CheckHeader();
 
 			if (this.Expect100Continue)
 			{
-				foreach (var relay in this.SendLine("HTTP/1.1 100 Continue", () => { }))
+				foreach (int relay in this.SendLine("HTTP/1.1 100 Continue", () => { }))
 					yield return relay;
 
-				foreach (var relay in this.SendLine("", () => { }))
+				foreach (int relay in this.SendLine("", () => { }))
 					yield return relay;
 			}
-			foreach (var relay in this.RecvBody(() => { }))
+			foreach (int relay in this.RecvBody(() => { }))
 				yield return relay;
 		}
 
@@ -237,85 +233,46 @@ namespace Charlotte.WebServices
 		{
 			const int READ_SIZE_MAX = 2000000; // 2 MB
 
-			// buff
+			HTTPBodyOutputStream buff = this.Channel.BodyOutputStream;
+
+			if (this.Chunked)
 			{
-				HTTPBodyOutputStream buff = this.Channel.BodyOutputStream;
-
-				if (this.Chunked)
+				for (; ; )
 				{
-					for (; ; )
+					string line = null;
+
+					foreach (int relay in this.RecvLine(ret => line = ret))
+						yield return relay;
+
+					if (line == null)
+						throw null; // never
+
+					// chunk-extension の削除
 					{
-						string line = null;
+						int i = line.IndexOf(';');
 
-						foreach (int relay in this.RecvLine(ret => line = ret))
-							yield return relay;
-
-						if (line == null)
-							throw null; // never
-
-						// chunk-extension の削除
-						{
-							int i = line.IndexOf(';');
-
-							if (i != -1)
-								line = line.Substring(0, i);
-						}
-
-						int size = Convert.ToInt32(line.Trim(), 16);
-
-						if (size == 0)
-							break;
-
-						if (size < 0)
-							throw new Exception("不正なチャンクサイズです。" + size);
-
-						if (BodySizeMax - buff.Count < size)
-							throw new Exception("ボディサイズが大きすぎます。" + buff.Count + " + " + size);
-
-						int chunkEnd = buff.Count + size;
-
-						while (buff.Count < chunkEnd)
-						{
-							byte[] data = null;
-
-							foreach (int relay in this.Channel.Recv(Math.Min(READ_SIZE_MAX, chunkEnd - buff.Count), ret => data = ret))
-								yield return relay;
-
-							if (data == null)
-								throw null; // never
-
-							buff.Write(data);
-						}
-						foreach (int relay in this.Channel.Recv(2, ret => { })) // CR-LF
-							yield return relay;
+						if (i != -1)
+							line = line.Substring(0, i);
 					}
-					for (; ; ) // RFC 7230 4.1.2 Chunked Trailer Part
-					{
-						string line = null;
 
-						foreach (int relay in this.RecvLine(ret => { }))
-							yield return relay;
+					int size = Convert.ToInt32(line.Trim(), 16);
 
-						if (line == null)
-							throw null; // never
+					if (size == 0)
+						break;
 
-						if (line == "")
-							break;
-					}
-				}
-				else
-				{
-					if (this.ContentLength < 0)
-						throw new Exception("不正なボディサイズです。" + this.ContentLength);
+					if (size < 0)
+						throw new Exception("不正なチャンクサイズです。" + size);
 
-					if (BodySizeMax < this.ContentLength)
-						throw new Exception("ボディサイズが大きすぎます。" + this.ContentLength);
+					if (BodySizeMax - buff.Count < size)
+						throw new Exception("ボディサイズが大きすぎます。" + buff.Count + " + " + size);
 
-					while (buff.Count < this.ContentLength)
+					int chunkEnd = buff.Count + size;
+
+					while (buff.Count < chunkEnd)
 					{
 						byte[] data = null;
 
-						foreach (int relay in this.Channel.Recv(Math.Min(READ_SIZE_MAX, this.ContentLength - buff.Count), ret => data = ret))
+						foreach (int relay in this.Channel.Recv(Math.Min(READ_SIZE_MAX, chunkEnd - buff.Count), ret => data = ret))
 							yield return relay;
 
 						if (data == null)
@@ -323,9 +280,46 @@ namespace Charlotte.WebServices
 
 						buff.Write(data);
 					}
+					foreach (int relay in this.Channel.Recv(2, ret => { })) // CR-LF
+						yield return relay;
 				}
-				this.Body = buff.ToByteArray();
+
+				for (; ; ) // RFC 7230 4.1.2 Chunked Trailer Part
+				{
+					string line = null;
+
+					foreach (int relay in this.RecvLine(ret => { }))
+						yield return relay;
+
+					if (line == null)
+						throw null; // never
+
+					if (line == "")
+						break;
+				}
 			}
+			else
+			{
+				if (this.ContentLength < 0)
+					throw new Exception("不正なボディサイズです。" + this.ContentLength);
+
+				if (BodySizeMax < this.ContentLength)
+					throw new Exception("ボディサイズが大きすぎます。" + this.ContentLength);
+
+				while (buff.Count < this.ContentLength)
+				{
+					byte[] data = null;
+
+					foreach (int relay in this.Channel.Recv(Math.Min(READ_SIZE_MAX, this.ContentLength - buff.Count), ret => data = ret))
+						yield return relay;
+
+					if (data == null)
+						throw null; // never
+
+					buff.Write(data);
+				}
+			}
+			this.Body = buff.ToByteArray();
 		}
 
 		// HTTPConnected 内で(必要に応じて)設定しなければならないフィールド -->
@@ -363,58 +357,55 @@ namespace Charlotte.WebServices
 			}
 			else
 			{
-				// TODO: block 除去
+				IEnumerator<byte[]> resBodyIterator = this.ResBody.GetEnumerator();
+
+				if (SockCommon.NB("chu1", () => resBodyIterator.MoveNext()))
 				{
-					IEnumerator<byte[]> resBodyIterator = this.ResBody.GetEnumerator();
+					byte[] first = resBodyIterator.Current;
 
-					if (SockCommon.NB("chu1", () => resBodyIterator.MoveNext()))
+					if (SockCommon.NB("chu2", () => resBodyIterator.MoveNext()))
 					{
-						byte[] first = resBodyIterator.Current;
-
-						if (SockCommon.NB("chu2", () => resBodyIterator.MoveNext()))
-						{
-							foreach (int relay in this.SendLine("Transfer-Encoding: chunked", () => { }))
-								yield return relay;
-
-							foreach (int relay in this.EndHeader(() => { }))
-								yield return relay;
-
-							foreach (int relay in SendChunk(first, () => { }))
-								yield return relay;
-
-							do
-							{
-								foreach (int relay in SendChunk(resBodyIterator.Current, () => { }))
-									yield return relay;
-							}
-							while (SockCommon.NB("chux", () => resBodyIterator.MoveNext()));
-
-							foreach (int relay in this.SendLine("0", () => { }))
-								yield return relay;
-
-							foreach (int relay in this.Channel.Send(CRLF, () => { }))
-								yield return relay;
-						}
-						else
-						{
-							foreach (int relay in this.SendLine("Content-Length: " + first.Length, () => { }))
-								yield return relay;
-
-							foreach (int relay in this.EndHeader(() => { }))
-								yield return relay;
-
-							foreach (int relay in this.Channel.Send(first, () => { }))
-								yield return relay;
-						}
-					}
-					else
-					{
-						foreach (int relay in this.SendLine("Content-Length: 0", () => { }))
+						foreach (int relay in this.SendLine("Transfer-Encoding: chunked", () => { }))
 							yield return relay;
 
 						foreach (int relay in this.EndHeader(() => { }))
 							yield return relay;
+
+						foreach (int relay in this.SendChunk(first, () => { }))
+							yield return relay;
+
+						do
+						{
+							foreach (int relay in this.SendChunk(resBodyIterator.Current, () => { }))
+								yield return relay;
+						}
+						while (SockCommon.NB("chux", () => resBodyIterator.MoveNext()));
+
+						foreach (int relay in this.SendLine("0", () => { }))
+							yield return relay;
+
+						foreach (int relay in this.Channel.Send(CRLF, () => { }))
+							yield return relay;
 					}
+					else
+					{
+						foreach (int relay in this.SendLine("Content-Length: " + first.Length, () => { }))
+							yield return relay;
+
+						foreach (int relay in this.EndHeader(() => { }))
+							yield return relay;
+
+						foreach (int relay in this.Channel.Send(first, () => { }))
+							yield return relay;
+					}
+				}
+				else
+				{
+					foreach (int relay in this.SendLine("Content-Length: 0", () => { }))
+						yield return relay;
+
+					foreach (int relay in this.EndHeader(() => { }))
+						yield return relay;
 				}
 			}
 			a_return();

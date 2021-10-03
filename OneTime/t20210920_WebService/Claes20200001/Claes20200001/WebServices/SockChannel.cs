@@ -22,7 +22,7 @@ namespace Charlotte.WebServices
 			this.Handler.Blocking = false;
 		}
 
-		public bool RecvFirstLineFlag = false;
+		public bool FirstLineRecved = false;
 
 		/// <summary>
 		/// セッションタイムアウト日時
@@ -53,7 +53,7 @@ namespace Charlotte.WebServices
 			{
 				int? recvSize = null;
 
-				foreach (var relay in this.TryRecv(data, offset, size, ret => recvSize = ret))
+				foreach (int relay in this.TryRecv(data, offset, size, ret => recvSize = ret))
 					yield return relay;
 
 				size -= recvSize.Value;
@@ -112,7 +112,7 @@ namespace Charlotte.WebServices
 			{
 				int? sentSize = null;
 
-				foreach (var relay in this.TrySend(data, offset, Math.Min(4 * 1024 * 1024, size), ret => sentSize = ret))
+				foreach (int relay in this.TrySend(data, offset, Math.Min(4 * 1024 * 1024, size), ret => sentSize = ret))
 					yield return relay;
 
 				size -= sentSize.Value;

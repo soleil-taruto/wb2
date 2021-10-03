@@ -78,7 +78,7 @@ namespace Charlotte.WebServices
 
 						if (handler != null)
 						{
-							waitMillis = 0;
+							waitMillis = 0; // reset
 
 							SockCommon.TimeWaitMonitor.Connected();
 
@@ -108,15 +108,15 @@ namespace Charlotte.WebServices
 
 								if (0 < size) // ? 通信有り
 								{
-									waitMillis = 0;
+									waitMillis = 0; // reset
 								}
 							}
 							catch (Exception e)
 							{
-								if (channel.RecvFirstLineFlag)
-									SockCommon.WriteLog(SockCommon.ErrorLevel_e.FIRST_LINE_TIMEOUT, null);
-								else
+								if (channel.FirstLineRecved)
 									SockCommon.WriteLog(SockCommon.ErrorLevel_e.NETWORK_OR_SERVER_LOGIC, e);
+								else
+									SockCommon.WriteLog(SockCommon.ErrorLevel_e.FIRST_LINE_TIMEOUT, null);
 
 								size = 0;
 							}
