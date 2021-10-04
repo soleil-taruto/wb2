@@ -39,7 +39,10 @@ namespace Charlotte
 			"Windows",
 			"Windows.old",
 			"WINNT",
-		};
+			"temp",
+			"tmp",
+		}
+		.Concat(Enumerable.Range(1, 999).Select(v => v.ToString())).ToArray(); // "1" ～ "999"
 
 		/// <summary>
 		/// コピー先で無視するフォルダのローカル名
