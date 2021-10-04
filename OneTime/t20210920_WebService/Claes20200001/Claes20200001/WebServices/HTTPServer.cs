@@ -24,16 +24,19 @@ namespace Charlotte.WebServices
 		protected override IEnumerable<int> E_Connected(SockChannel channel)
 		{
 			HTTPServerChannel hsChannel = new HTTPServerChannel();
-			int retval = 0;
+			int retval = -1;
 
 			hsChannel.Channel = channel;
 
 			foreach (int size in hsChannel.RecvRequest(() => { }))
 			{
-				if (size <= 0)
+				if (size == 0)
+					throw null; // never
+
+				if (size < 0)
 				{
 					yield return retval;
-					retval = 0;
+					retval = -1;
 				}
 				else
 					retval = 1;
@@ -47,10 +50,13 @@ namespace Charlotte.WebServices
 
 			foreach (int size in hsChannel.SendResponse(() => { }))
 			{
-				if (size <= 0)
+				if (size == 0)
+					throw null; // never
+
+				if (size < 0)
 				{
 					yield return retval;
-					retval = 0;
+					retval = -1;
 				}
 				else
 					retval = 1;

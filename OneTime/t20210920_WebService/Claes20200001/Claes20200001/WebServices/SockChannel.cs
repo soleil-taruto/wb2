@@ -62,7 +62,7 @@ namespace Charlotte.WebServices
 				SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "スレッド占用タイムアウト");
 
 				this.ThreadTimeoutTime = null;
-				yield return 0;
+				yield return -1;
 			}
 		}
 
@@ -116,7 +116,7 @@ namespace Charlotte.WebServices
 					throw new RecvIdleTimeoutException();
 				}
 				this.ThreadTimeoutTime = null;
-				yield return 0;
+				yield return -1;
 			}
 			yield return 1;
 		}
@@ -177,7 +177,7 @@ namespace Charlotte.WebServices
 					throw new Exception("送信の無通信タイムアウト");
 				}
 				this.ThreadTimeoutTime = null;
-				yield return 0;
+				yield return -1;
 			}
 			yield return 1;
 		}

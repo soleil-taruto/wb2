@@ -38,7 +38,8 @@ namespace Charlotte.WebServices
 		/// <summary>
 		/// サーバーロジック
 		/// 通信量：
-		/// -- 0 == 通信無し
+		/// -- 0 == 通信終了 -- SCommon.Supplier の最後の要素の次以降 0 (default(int)) になるため
+		/// -- 0 未満 == 通信無し
 		/// -- 1 以上 == 通信有り
 		/// </summary>
 		/// <param name="channel">接続チャネル</param>
@@ -101,13 +102,6 @@ namespace Charlotte.WebServices
 							try
 							{
 								size = channel.Connected();
-
-								// TODO
-								// TODO
-								// TODO
-
-								if (size < 0)
-									throw null; // never
 
 								if (0 < size) // ? 通信有り
 								{
