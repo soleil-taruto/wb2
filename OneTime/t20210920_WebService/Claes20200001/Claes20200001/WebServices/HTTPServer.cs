@@ -21,19 +21,19 @@ namespace Charlotte.WebServices
 			PortNo = 80;
 		}
 
-		public override IEnumerable<int> E_Connected(SockChannel channel)
+		protected override IEnumerable<int> E_Connected(SockChannel channel)
 		{
 			HTTPServerChannel hsChannel = new HTTPServerChannel();
-			int retval = -1;
+			int retval = 0;
 
 			hsChannel.Channel = channel;
 
 			foreach (int size in hsChannel.RecvRequest(() => { }))
 			{
-				if (size < 0)
+				if (size <= 0)
 				{
 					yield return retval;
-					retval = -1;
+					retval = 0;
 				}
 				else
 					retval = 1;
@@ -42,15 +42,15 @@ namespace Charlotte.WebServices
 			SockCommon.NB("svlg", () =>
 			{
 				HTTPConnected(hsChannel);
-				return false; // dummy
+				return -1; // dummy
 			});
 
 			foreach (int size in hsChannel.SendResponse(() => { }))
 			{
-				if (size < 0)
+				if (size <= 0)
 				{
 					yield return retval;
-					retval = -1;
+					retval = 0;
 				}
 				else
 					retval = 1;

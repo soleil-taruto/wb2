@@ -27,17 +27,6 @@ namespace Charlotte.WebServices
 		public int ConnectMax = 100;
 
 		/// <summary>
-		/// サーバーロジック
-		/// 通信量：
-		/// -- 0 == 通信終了
-		/// -- 0 未満 == 通信無し
-		/// -- 1 以上 == 通信有り
-		/// </summary>
-		/// <param name="channel">接続チャネル</param>
-		/// <returns>通信量</returns>
-		public abstract IEnumerable<int> E_Connected(SockChannel channel);
-
-		/// <summary>
 		/// 処理の合間に呼ばれる処理
 		/// 戻り値：
 		/// -- サーバーを継続するか
@@ -45,6 +34,16 @@ namespace Charlotte.WebServices
 		public Func<bool> Interlude = () => !Console.KeyAvailable;
 
 		// <---- prm
+
+		/// <summary>
+		/// サーバーロジック
+		/// 通信量：
+		/// -- 0 == 通信無し
+		/// -- 1 以上 == 通信有り
+		/// </summary>
+		/// <param name="channel">接続チャネル</param>
+		/// <returns>通信量</returns>
+		protected abstract IEnumerable<int> E_Connected(SockChannel channel);
 
 		private List<SockChannel> Channels = new List<SockChannel>();
 
@@ -68,9 +67,6 @@ namespace Charlotte.WebServices
 
 					while (this.Interlude())
 					{
-						if (0 < waitMillis)
-							Thread.Sleep(waitMillis);
-
 						if (waitMillis < 100)
 							waitMillis++;
 
@@ -106,6 +102,13 @@ namespace Charlotte.WebServices
 							{
 								size = channel.Connected();
 
+								// TODO
+								// TODO
+								// TODO
+
+								if (size < 0)
+									throw null; // never
+
 								if (0 < size) // ? 通信有り
 								{
 									waitMillis = 0; // reset
@@ -133,6 +136,9 @@ namespace Charlotte.WebServices
 						}
 
 						//GC.Collect(); // GeoDemo の Server.sln が重くなるため、暫定削除 @ 2019.4.9
+
+						if (0 < waitMillis)
+							Thread.Sleep(waitMillis);
 					}
 
 					SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "サーバーを終了しています...");
