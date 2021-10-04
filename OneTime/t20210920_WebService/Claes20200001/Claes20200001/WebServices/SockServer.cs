@@ -71,10 +71,13 @@ namespace Charlotte.WebServices
 						if (waitMillis < 100)
 							waitMillis++;
 
-						Socket handler = this.Channels.Count < this.ConnectMax ? this.Connect(listener) : null;
-
-						if (handler != null)
+						for (int c = 0; c < 30; c++) // HACK
 						{
+							Socket handler = this.Channels.Count < this.ConnectMax ? this.Connect(listener) : null;
+
+							if (handler == null)
+								break;
+
 							waitMillis = 0; // reset
 
 							SockCommon.TimeWaitMonitor.Connected();
