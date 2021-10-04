@@ -19,7 +19,7 @@ namespace Charlotte.WebServices
 		/// <summary>
 		/// 接続待ちキューの長さ
 		/// </summary>
-		public int Backlog = 200;
+		public int Backlog = 300;
 
 		/// <summary>
 		/// 最大同時接続数
@@ -71,7 +71,7 @@ namespace Charlotte.WebServices
 						if (waitMillis < 100)
 							waitMillis++;
 
-						for (int c = 0; c < 30; c++) // HACK
+						for (int c = 0; c < 30; c++) // HACK: 繰り返し回数_適当
 						{
 							Socket handler = this.Channels.Count < this.ConnectMax ? this.Connect(listener) : null;
 
@@ -88,7 +88,7 @@ namespace Charlotte.WebServices
 								channel.Handler = handler;
 								handler = null;
 								channel.PostSetHandler();
-								channel.ID = channel.GetHashCode(); // HACK
+								channel.ID = SockCommon.IDIssuer.Issue();
 								channel.Connected = SCommon.Supplier(this.E_Connected(channel));
 								channel.BodyOutputStream = new HTTPBodyOutputStream();
 
@@ -195,14 +195,9 @@ namespace Charlotte.WebServices
 				SockCommon.WriteLog(SockCommon.ErrorLevel_e.NETWORK, e);
 			}
 
-			try
-			{
-				channel.BodyOutputStream.Dispose();
-			}
-			catch (Exception e)
-			{
-				SockCommon.WriteLog(SockCommon.ErrorLevel_e.FATAL, e);
-			}
+			channel.BodyOutputStream.Dispose();
+
+			SockCommon.IDIssuer.Discard(channel.ID);
 		}
 	}
 }

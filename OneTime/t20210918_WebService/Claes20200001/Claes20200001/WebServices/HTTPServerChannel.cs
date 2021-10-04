@@ -72,7 +72,7 @@ namespace Charlotte.WebServices
 			if (this.Expect100Continue)
 			{
 				this.SendLine("HTTP/1.1 100 Continue");
-				this.SendLine("");
+				this.Channel.Send(CRLF);
 			}
 			this.RecvBody();
 		}

@@ -69,10 +69,8 @@ namespace Charlotte.WebServices
 
 			if (this.Expect100Continue)
 			{
-				foreach (int relay in this.SendLine("HTTP/1.1 100 Continue"))
-					yield return relay;
-
-				foreach (int relay in this.SendLine(""))
+				foreach (int relay in this.SendLine("HTTP/1.1 100 Continue")
+					.Concat(this.Channel.Send(CRLF)))
 					yield return relay;
 			}
 			foreach (int relay in this.RecvBody())
@@ -335,10 +333,8 @@ namespace Charlotte.WebServices
 			this.Body = null;
 			this.Channel.SessionTimeoutTime = TimeoutMillisToDateTime(ResponseTimeoutMillis);
 
-			foreach (int relay in this.SendLine("HTTP/1.1 " + this.ResStatus + " Heartland"))
-				yield return relay;
-
-			foreach (int relay in this.SendLine("Server: Heartland"))
+			foreach (int relay in this.SendLine("HTTP/1.1 " + this.ResStatus + " Heartland")
+				.Concat(this.SendLine("Server: Heartland")))
 				yield return relay;
 
 			if (this.ResContentType != null)
@@ -364,13 +360,9 @@ namespace Charlotte.WebServices
 
 					if (SockCommon.NB("chu2", () => resBodyIterator.MoveNext()))
 					{
-						foreach (int relay in this.SendLine("Transfer-Encoding: chunked"))
-							yield return relay;
-
-						foreach (int relay in this.EndHeader())
-							yield return relay;
-
-						foreach (int relay in this.SendChunk(first))
+						foreach (int relay in this.SendLine("Transfer-Encoding: chunked")
+							.Concat(this.EndHeader())
+							.Concat(this.SendChunk(first)))
 							yield return relay;
 
 						do
@@ -380,30 +372,22 @@ namespace Charlotte.WebServices
 						}
 						while (SockCommon.NB("chux", () => resBodyIterator.MoveNext()));
 
-						foreach (int relay in this.SendLine("0"))
-							yield return relay;
-
-						foreach (int relay in this.Channel.Send(CRLF))
+						foreach (int relay in this.SendLine("0")
+							.Concat(this.Channel.Send(CRLF)))
 							yield return relay;
 					}
 					else
 					{
-						foreach (int relay in this.SendLine("Content-Length: " + first.Length))
-							yield return relay;
-
-						foreach (int relay in this.EndHeader())
-							yield return relay;
-
-						foreach (int relay in this.Channel.Send(first))
+						foreach (int relay in this.SendLine("Content-Length: " + first.Length)
+							.Concat(this.EndHeader())
+							.Concat(this.Channel.Send(first)))
 							yield return relay;
 					}
 				}
 				else
 				{
-					foreach (int relay in this.SendLine("Content-Length: 0"))
-						yield return relay;
-
-					foreach (int relay in this.EndHeader())
+					foreach (int relay in this.SendLine("Content-Length: 0")
+						.Concat(this.EndHeader()))
 						yield return relay;
 				}
 			}
@@ -411,10 +395,8 @@ namespace Charlotte.WebServices
 
 		private IEnumerable<int> EndHeader()
 		{
-			foreach (int relay in this.SendLine("Connection: close"))
-				yield return relay;
-
-			foreach (int relay in this.Channel.Send(CRLF))
+			foreach (int relay in this.SendLine("Connection: close")
+				.Concat(this.Channel.Send(CRLF)))
 				yield return relay;
 		}
 
@@ -422,23 +404,17 @@ namespace Charlotte.WebServices
 		{
 			if (1 <= chunk.Length)
 			{
-				foreach (int relay in this.SendLine(chunk.Length.ToString("x")))
-					yield return relay;
-
-				foreach (int relay in this.Channel.Send(chunk))
-					yield return relay;
-
-				foreach (int relay in this.Channel.Send(CRLF))
+				foreach (int relay in this.SendLine(chunk.Length.ToString("x"))
+					.Concat(this.Channel.Send(chunk))
+					.Concat(this.Channel.Send(CRLF)))
 					yield return relay;
 			}
 		}
 
 		private IEnumerable<int> SendLine(string line)
 		{
-			foreach (int relay in this.Channel.Send(Encoding.ASCII.GetBytes(line)))
-				yield return relay;
-
-			foreach (int relay in this.Channel.Send(CRLF))
+			foreach (int relay in this.Channel.Send(Encoding.ASCII.GetBytes(line))
+				.Concat(this.Channel.Send(CRLF)))
 				yield return relay;
 		}
 	}

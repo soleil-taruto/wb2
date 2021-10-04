@@ -74,6 +74,25 @@ namespace Charlotte.WebServices
 #endif
 		}
 
+		public static class IDIssuer
+		{
+			private static Queue<int> Stocks = new Queue<int>(Enumerable.Range(1, 9));
+			private static int Counter = 10;
+
+			public static int Issue()
+			{
+				if (Stocks.Count == 0)
+					Stocks.Enqueue(Counter++);
+
+				return Stocks.Dequeue();
+			}
+
+			public static void Discard(int id)
+			{
+				Stocks.Enqueue(id);
+			}
+		}
+
 		public static class TimeWaitMonitor
 		{
 			// 参考値：
@@ -103,7 +122,7 @@ namespace Charlotte.WebServices
 				{
 					SockCommon.WriteLog(SockCommon.ErrorLevel_e.WARNING, "PORT-EXHAUSTION");
 
-					Thread.Sleep(50); // HACK: 全体止めなくても良くね？
+					Thread.Sleep(50); // HACK: 送受信も止める。
 				}
 			}
 
