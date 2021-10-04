@@ -28,7 +28,7 @@ namespace Charlotte.WebServices
 
 			hsChannel.Channel = channel;
 
-			foreach (int size in hsChannel.RecvRequest(() => { }))
+			foreach (int size in hsChannel.RecvRequest())
 			{
 				if (size == 0)
 					throw null; // never
@@ -48,7 +48,7 @@ namespace Charlotte.WebServices
 				return -1; // dummy
 			});
 
-			foreach (int size in hsChannel.SendResponse(() => { }))
+			foreach (int size in hsChannel.SendResponse())
 			{
 				if (size == 0)
 					throw null; // never

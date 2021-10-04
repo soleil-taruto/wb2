@@ -127,7 +127,7 @@ namespace Charlotte.WebServices
 		public class RecvIdleTimeoutException : Exception
 		{ }
 
-		public IEnumerable<int> Send(byte[] data, Action a_return)
+		public IEnumerable<int> Send(byte[] data)
 		{
 			int offset = 0;
 			int size = data.Length;
@@ -142,7 +142,6 @@ namespace Charlotte.WebServices
 				size -= sentSize.Value;
 				offset += sentSize.Value;
 			}
-			a_return();
 		}
 
 		private IEnumerable<int> TrySend(byte[] data, int offset, int size, Action<int> a_return)

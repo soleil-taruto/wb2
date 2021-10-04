@@ -42,7 +42,7 @@ namespace Charlotte.WebServices
 		/// </summary>
 		public static int BodySizeMax = 300000000; // 300 MB
 
-		public IEnumerable<int> RecvRequest(Action a_return)
+		public IEnumerable<int> RecvRequest()
 		{
 			this.Channel.SessionTimeoutTime = TimeoutMillisToDateTime(RequestTimeoutMillis);
 			this.Channel.IdleTimeoutMillis = FirstLineTimeoutMillis;
@@ -62,20 +62,20 @@ namespace Charlotte.WebServices
 
 			this.Channel.IdleTimeoutMillis = IdleTimeoutMillis;
 
-			foreach (int relay in this.RecvHeader(() => { }))
+			foreach (int relay in this.RecvHeader())
 				yield return relay;
 
 			this.CheckHeader();
 
 			if (this.Expect100Continue)
 			{
-				foreach (int relay in this.SendLine("HTTP/1.1 100 Continue", () => { }))
+				foreach (int relay in this.SendLine("HTTP/1.1 100 Continue"))
 					yield return relay;
 
-				foreach (int relay in this.SendLine("", () => { }))
+				foreach (int relay in this.SendLine(""))
 					yield return relay;
 			}
-			foreach (int relay in this.RecvBody(() => { }))
+			foreach (int relay in this.RecvBody())
 				yield return relay;
 		}
 
@@ -155,7 +155,7 @@ namespace Charlotte.WebServices
 			a_return(Encoding.ASCII.GetString(buff.ToArray()));
 		}
 
-		private IEnumerable<int> RecvHeader(Action a_return)
+		private IEnumerable<int> RecvHeader()
 		{
 			const int HEADERS_LEN_MAX = 612000;
 			const int WEIGHT = 1000;
@@ -195,7 +195,6 @@ namespace Charlotte.WebServices
 					});
 				}
 			}
-			a_return();
 		}
 
 		public int ContentLength = 0;
@@ -229,7 +228,7 @@ namespace Charlotte.WebServices
 			}
 		}
 
-		private IEnumerable<int> RecvBody(Action a_return)
+		private IEnumerable<int> RecvBody()
 		{
 			const int READ_SIZE_MAX = 2000000; // 2 MB
 
@@ -331,28 +330,28 @@ namespace Charlotte.WebServices
 
 		// <-- HTTPConnected 内で(必要に応じて)設定しなければならないフィールド
 
-		public IEnumerable<int> SendResponse(Action a_return)
+		public IEnumerable<int> SendResponse()
 		{
 			this.Body = null;
 			this.Channel.SessionTimeoutTime = TimeoutMillisToDateTime(ResponseTimeoutMillis);
 
-			foreach (int relay in this.SendLine("HTTP/1.1 " + this.ResStatus + " Heartland", () => { }))
+			foreach (int relay in this.SendLine("HTTP/1.1 " + this.ResStatus + " Heartland"))
 				yield return relay;
 
-			foreach (int relay in this.SendLine("Server: Heartland", () => { }))
+			foreach (int relay in this.SendLine("Server: Heartland"))
 				yield return relay;
 
 			if (this.ResContentType != null)
-				foreach (int relay in this.SendLine("Content-Type: " + this.ResContentType, () => { }))
+				foreach (int relay in this.SendLine("Content-Type: " + this.ResContentType))
 					yield return relay;
 
 			foreach (string[] pair in this.ResHeaderPairs)
-				foreach (int relay in this.SendLine(pair[0] + ": " + pair[1], () => { }))
+				foreach (int relay in this.SendLine(pair[0] + ": " + pair[1]))
 					yield return relay;
 
 			if (this.ResBody == null)
 			{
-				foreach (int relay in this.EndHeader(() => { }))
+				foreach (int relay in this.EndHeader())
 					yield return relay;
 			}
 			else
@@ -365,88 +364,82 @@ namespace Charlotte.WebServices
 
 					if (SockCommon.NB("chu2", () => resBodyIterator.MoveNext()))
 					{
-						foreach (int relay in this.SendLine("Transfer-Encoding: chunked", () => { }))
+						foreach (int relay in this.SendLine("Transfer-Encoding: chunked"))
 							yield return relay;
 
-						foreach (int relay in this.EndHeader(() => { }))
+						foreach (int relay in this.EndHeader())
 							yield return relay;
 
-						foreach (int relay in this.SendChunk(first, () => { }))
+						foreach (int relay in this.SendChunk(first))
 							yield return relay;
 
 						do
 						{
-							foreach (int relay in this.SendChunk(resBodyIterator.Current, () => { }))
+							foreach (int relay in this.SendChunk(resBodyIterator.Current))
 								yield return relay;
 						}
 						while (SockCommon.NB("chux", () => resBodyIterator.MoveNext()));
 
-						foreach (int relay in this.SendLine("0", () => { }))
+						foreach (int relay in this.SendLine("0"))
 							yield return relay;
 
-						foreach (int relay in this.Channel.Send(CRLF, () => { }))
+						foreach (int relay in this.Channel.Send(CRLF))
 							yield return relay;
 					}
 					else
 					{
-						foreach (int relay in this.SendLine("Content-Length: " + first.Length, () => { }))
+						foreach (int relay in this.SendLine("Content-Length: " + first.Length))
 							yield return relay;
 
-						foreach (int relay in this.EndHeader(() => { }))
+						foreach (int relay in this.EndHeader())
 							yield return relay;
 
-						foreach (int relay in this.Channel.Send(first, () => { }))
+						foreach (int relay in this.Channel.Send(first))
 							yield return relay;
 					}
 				}
 				else
 				{
-					foreach (int relay in this.SendLine("Content-Length: 0", () => { }))
+					foreach (int relay in this.SendLine("Content-Length: 0"))
 						yield return relay;
 
-					foreach (int relay in this.EndHeader(() => { }))
+					foreach (int relay in this.EndHeader())
 						yield return relay;
 				}
 			}
-			a_return();
 		}
 
-		private IEnumerable<int> EndHeader(Action a_return)
+		private IEnumerable<int> EndHeader()
 		{
-			foreach (int relay in this.SendLine("Connection: close", () => { }))
+			foreach (int relay in this.SendLine("Connection: close"))
 				yield return relay;
 
-			foreach (int relay in this.Channel.Send(CRLF, () => { }))
+			foreach (int relay in this.Channel.Send(CRLF))
 				yield return relay;
-
-			a_return();
 		}
 
-		private IEnumerable<int> SendChunk(byte[] chunk, Action a_return)
+		private IEnumerable<int> SendChunk(byte[] chunk)
 		{
 			if (1 <= chunk.Length)
 			{
-				foreach (int relay in this.SendLine(chunk.Length.ToString("x"), () => { }))
+				foreach (int relay in this.SendLine(chunk.Length.ToString("x")))
 					yield return relay;
 
-				foreach (int relay in this.Channel.Send(chunk, () => { }))
+				foreach (int relay in this.Channel.Send(chunk))
 					yield return relay;
 
-				foreach (int relay in this.Channel.Send(CRLF, () => { }))
+				foreach (int relay in this.Channel.Send(CRLF))
 					yield return relay;
 			}
-			a_return();
 		}
 
-		private IEnumerable<int> SendLine(string line, Action a_return)
+		private IEnumerable<int> SendLine(string line)
 		{
-			foreach (int relay in this.Channel.Send(Encoding.ASCII.GetBytes(line), () => { }))
+			foreach (int relay in this.Channel.Send(Encoding.ASCII.GetBytes(line)))
 				yield return relay;
 
-			foreach (int relay in this.Channel.Send(CRLF, () => { }))
+			foreach (int relay in this.Channel.Send(CRLF))
 				yield return relay;
-
-			a_return();
 		}
 	}
 }
