@@ -88,7 +88,7 @@ namespace Charlotte.WebServices
 		public class RecvFirstLineIdleTimeoutException : Exception
 		{ }
 
-		private string DecodeURL(string path)
+		private static string DecodeURL(string path)
 		{
 			byte[] src = Encoding.ASCII.GetBytes(path);
 

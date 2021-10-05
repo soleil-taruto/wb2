@@ -87,7 +87,7 @@ namespace Charlotte.WebServices
 			return DateTime.Now + TimeSpan.FromMilliseconds((double)millis);
 		}
 
-		private string DecodeURL(string path)
+		private static string DecodeURL(string path)
 		{
 			byte[] src = Encoding.ASCII.GetBytes(path);
 
