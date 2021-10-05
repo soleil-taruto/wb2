@@ -22,7 +22,7 @@ namespace Charlotte.Tests
 			HTTPClient hc = new HTTPClient(url);
 			hc.Get();
 			string contentType = hc.ResHeaders["Content-Type"];
-			string[] charsetParts = contentType == null ? null : Common.ParseIsland(contentType, "charset=", true);
+			string[] charsetParts = contentType == null ? null : SCommon.ParseIsland(contentType, "charset=", true);
 			string charset = charsetParts == null ? "none" : charsetParts[2].Trim();
 			Console.WriteLine(charset); // cout
 			Encoding encoding;
