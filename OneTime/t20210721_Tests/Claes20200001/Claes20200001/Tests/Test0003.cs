@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Charlotte.Commons;
 
 namespace Charlotte.Tests
 {
@@ -42,6 +43,16 @@ namespace Charlotte.Tests
 			{
 				throw new Exception("Test02_a_Dispose");
 			}
+		}
+
+		public void Test03()
+		{
+			string[] parts = SCommon.ParseEnclosed("このタグはテキストを<strong>強調</strong>する際に・・・", "<STRong>", "</strONG>", true);
+
+			foreach (string part in parts)
+				Console.WriteLine("part: " + part);
+
+			Common.Pause();
 		}
 	}
 }

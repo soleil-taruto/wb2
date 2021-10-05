@@ -46,7 +46,8 @@ namespace Charlotte
 			//new Test0002().Test01(); // ファイルコピー(ランダム)
 			//new Test0002().Test02(); // ファイルコピー(時間)
 			//new Test0003().Test01();
-			new Test0003().Test02();
+			//new Test0003().Test02();
+			new Test0003().Test03();
 
 			// --
 		}
