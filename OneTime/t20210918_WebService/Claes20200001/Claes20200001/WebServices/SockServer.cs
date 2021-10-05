@@ -69,7 +69,7 @@ namespace Charlotte.WebServices
 						{
 							Socket handler = this.ConnectedThs.Count < this.ConnectMax ? this.Connect(listener) : null;
 
-							if (handler == null)
+							if (handler == null) // ? 接続無し || 最大同時接続数に達している。
 							{
 								threadTimeoutTime = null;
 

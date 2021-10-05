@@ -71,11 +71,11 @@ namespace Charlotte.WebServices
 						if (waitMillis < 100)
 							waitMillis++;
 
-						for (int c = 0; c < 30; c++) // HACK: 繰り返し回数_適当
+						while (this.Channels.Count < this.ConnectMax)
 						{
-							Socket handler = this.Channels.Count < this.ConnectMax ? this.Connect(listener) : null;
+							Socket handler = this.Connect(listener);
 
-							if (handler == null)
+							if (handler == null) // ? 接続無し
 								break;
 
 							waitMillis = 0; // reset
