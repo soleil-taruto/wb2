@@ -14,11 +14,6 @@ namespace Charlotte.WebServices
 
 		// <---- prm
 
-		public void PostSetHandler()
-		{
-			this.Handler.Blocking = false;
-		}
-
 		public static SockCommon.Critical Critical = new SockCommon.Critical();
 
 		/// <summary>

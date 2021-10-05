@@ -86,8 +86,8 @@ namespace Charlotte.WebServices
 								SockChannel channel = new SockChannel();
 
 								channel.Handler = handler;
-								handler = null;
-								channel.PostSetHandler();
+								handler = null; // もう使わない。
+								channel.Handler.Blocking = false;
 								channel.ID = SockCommon.IDIssuer.Issue();
 								channel.Connected = SCommon.Supplier(this.E_Connected(channel));
 								channel.BodyOutputStream = new HTTPBodyOutputStream();
@@ -113,10 +113,10 @@ namespace Charlotte.WebServices
 							}
 							catch (Exception e)
 							{
-								if (channel.FirstLineRecved)
-									SockCommon.WriteLog(SockCommon.ErrorLevel_e.NETWORK_OR_SERVER_LOGIC, e);
-								else
+								if (channel.FirstLineRecving && e is SockChannel.RecvIdleTimeoutException)
 									SockCommon.WriteLog(SockCommon.ErrorLevel_e.FIRST_LINE_TIMEOUT, null);
+								else
+									SockCommon.WriteLog(SockCommon.ErrorLevel_e.NETWORK_OR_SERVER_LOGIC, e);
 
 								size = 0;
 							}

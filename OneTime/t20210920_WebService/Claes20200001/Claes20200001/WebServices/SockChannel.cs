@@ -17,12 +17,7 @@ namespace Charlotte.WebServices
 
 		// <---- prm
 
-		public void PostSetHandler()
-		{
-			this.Handler.Blocking = false;
-		}
-
-		public bool FirstLineRecved = false;
+		public bool FirstLineRecving = false;
 
 		/// <summary>
 		/// セッションタイムアウト日時

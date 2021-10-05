@@ -24,8 +24,7 @@ namespace Charlotte.WebServices
 
 			this.Handler = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			this.Handler.Connect(endPoint);
-
-			this.PostSetHandler();
+			this.Handler.Blocking = false;
 		}
 
 		private static IPAddress GetFairAddress(IPAddress[] addresses)

@@ -47,10 +47,12 @@ namespace Charlotte.WebServices
 			this.Channel.SessionTimeoutTime = TimeoutMillisToDateTime(RequestTimeoutMillis);
 			this.Channel.IdleTimeoutMillis = FirstLineTimeoutMillis;
 
+			this.Channel.FirstLineRecving = true;
+
 			foreach (int relay in this.RecvLine(ret => this.FirstLine = ret))
 				yield return relay;
 
-			this.Channel.FirstLineRecved = true;
+			this.Channel.FirstLineRecving = false;
 
 			{
 				string[] tokens = this.FirstLine.Split(' ');

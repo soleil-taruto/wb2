@@ -100,8 +100,8 @@ namespace Charlotte.WebServices
 									SockChannel channel = new SockChannel();
 
 									channel.Handler = handler;
-									handler = null;
-									channel.PostSetHandler();
+									handler = null; // もう使わない。
+									channel.Handler.Blocking = false;
 
 									Thread th = new Thread(() => SockChannel.Critical.Section(() =>
 									{
