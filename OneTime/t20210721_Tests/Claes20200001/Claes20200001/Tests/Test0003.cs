@@ -54,5 +54,34 @@ namespace Charlotte.Tests
 
 			Common.Pause();
 		}
+
+		public void Test04()
+		{
+			UInt16[] chrs_A = SCommon.GetJCharCodes().ToArray();
+			UInt16[] chrs_B = SCommon.GetJChars().ToCharArray()
+				.Select(chr => SCommon.ENCODING_SJIS.GetBytes(new string(new char[] { chr })))
+				.Select(bytes => (UInt16)(bytes[0] << 8 | bytes[1]))
+				.ToArray();
+
+			if (chrs_A.Length != chrs_B.Length)
+				throw null; // never
+
+			int count = chrs_A.Length;
+
+			for (int index = 0; index < count; index++)
+			{
+				if (chrs_A[index] != chrs_B[index])
+				{
+					Console.WriteLine(
+						((int)chrs_A[index]).ToString("x") + " -> " +
+						((int)chrs_B[index]).ToString("x") + " == " +
+						SCommon.GetJCharCodes().Contains(chrs_B[index]));
+
+					if (!SCommon.GetJCharCodes().Contains(chrs_B[index]))
+						throw null; // 想定外
+				}
+			}
+			Common.Pause();
+		}
 	}
 }
