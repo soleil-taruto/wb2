@@ -9,6 +9,7 @@ using System.Drawing.Imaging;
 using System.Windows.Forms;
 using Charlotte.Commons;
 using Charlotte.Tests;
+using Charlotte.WebServices;
 
 namespace Charlotte
 {
@@ -36,7 +37,7 @@ namespace Charlotte
 		{
 			// -- choose one --
 
-			Main4(new ArgsReader(new string[] { "80", @"C:\temp" }));
+			Main4(new ArgsReader(new string[] { @"C:\temp" }));
 			//new Test0001().Test01();
 			//new Test0001().Test02();
 			//new Test0001().Test03();
@@ -48,7 +49,40 @@ namespace Charlotte
 
 		private void Main4(ArgsReader ar)
 		{
+			HTTPServer hs = new HTTPServer()
+			{
+				HTTPConnected = P_Connected,
+			};
 
+			if (ar.HasArgs())
+			{
+				this.DocRoot = SCommon.MakeFullPath(ar.NextArg());
+
+				if (!Directory.Exists(this.DocRoot))
+					throw new Exception("ドキュメントルートが見つかりません");
+
+				if (ar.HasArgs())
+				{
+					hs.PortNo = int.Parse(ar.NextArg());
+
+					if (hs.PortNo < 1 || 65535 < hs.PortNo)
+						throw new Exception("不正なポート番号");
+				}
+			}
+
+			hs.Perform();
+		}
+
+		private string DocRoot = ".";
+
+		private void P_Connected(HTTPServerChannel channel)
+		{
+			if (channel.Method != "GET")
+				throw new Exception("Method Ignore: " + channel.Method);
+
+			// TODO
+			// TODO
+			// TODO
 		}
 	}
 }

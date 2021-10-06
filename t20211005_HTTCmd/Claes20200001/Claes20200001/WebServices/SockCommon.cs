@@ -74,6 +74,31 @@ namespace Charlotte.WebServices
 #endif
 		}
 
+		public static UTF8SJIS P_UTF8SJIS = new UTF8SJIS();
+
+		public class UTF8SJIS
+		{
+			private List<byte[]> UTF8Chrs = new List<byte[]>(); // TODO
+
+			public UTF8SJIS()
+			{
+				for (byte chr = 0x20; chr <= 0x7e; chr++) // ASCII
+					this.UTF8Chrs.Add(new byte[] { chr });
+
+				for (byte chr = 0xa1; chr <= 0xdf; chr++) // 半角カナ
+					this.UTF8Chrs.Add(new byte[] { chr });
+
+				foreach (char chr in SCommon.GetJChars())
+					this.UTF8Chrs.Add(Encoding.UTF8.GetBytes(new string(new char[] { chr })));
+
+				// TODO
+			}
+
+			// TODO
+			// TODO
+			// TODO
+		}
+
 		public static class IDIssuer
 		{
 			private static Queue<int> Stocks = new Queue<int>(Enumerable.Range(1, 9));

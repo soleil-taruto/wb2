@@ -150,6 +150,9 @@ namespace Charlotte.WebServices
 				if (LINE_LEN_MAX < buff.Count)
 					throw new OverflowException();
 
+				if (chr < 0x20 || 0x7e < chr) // ? not ASCII -> SPACE
+					chr = 0x20;
+
 				buff.Add(chr);
 			}
 			a_return(Encoding.ASCII.GetString(buff.ToArray()));
