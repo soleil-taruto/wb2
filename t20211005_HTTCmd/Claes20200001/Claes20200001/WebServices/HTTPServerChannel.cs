@@ -109,7 +109,12 @@ namespace Charlotte.WebServices
 						dest.WriteByte(src[index]);
 					}
 				}
-				return Encoding.UTF8.GetString(dest.ToArray());
+
+				byte[] bytes = dest.ToArray();
+
+				SockCommon.P_UTF8Check.Check(bytes);
+
+				return Encoding.UTF8.GetString(bytes);
 			}
 		}
 

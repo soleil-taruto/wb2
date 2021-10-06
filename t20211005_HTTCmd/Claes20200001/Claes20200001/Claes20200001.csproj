@@ -67,6 +67,7 @@
     <Compile Include="Commons\SCommon.cs" />
     <Compile Include="Commons\WorkingDir.cs" />
     <Compile Include="Consts.cs" />
+    <Compile Include="ContentTypeCollection.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="WebServices\HTTPBodyOutputStream.cs" />
     <Compile Include="WebServices\HTTPServer.cs" />

@@ -78,11 +78,62 @@ namespace Charlotte
 		private void P_Connected(HTTPServerChannel channel)
 		{
 			if (channel.Method != "GET")
-				throw new Exception("Method Ignore: " + channel.Method);
+				throw new Exception("対応していないメソッド：" + channel.Method);
 
-			// TODO
-			// TODO
-			// TODO
+			string[] pTkns = channel.Path.Split('/').Where(v => v != "").Select(v => Common.ToFairLocalPath(v, 0)).ToArray();
+			string path = Path.Combine(new string[] { this.DocRoot }.Concat(pTkns).ToArray());
+
+			if (channel.Path.EndsWith("/"))
+			{
+				path = Path.Combine(path, "index.htm");
+
+				if (!File.Exists(path))
+					path += "l";
+			}
+			else if (Directory.Exists(path))
+			{
+				channel.ResStatus = 301;
+				channel.ResHeaderPairs.Add(new string[] { "Location", "http://" + GetHeaderValue(channel, "Host") + "/" + string.Join("/", pTkns) + "/" });
+				return;
+			}
+			if (File.Exists(path))
+			{
+				channel.ResContentType = ContentTypeCollection.I.GetContentType(Path.GetExtension(path));
+				channel.ResBody = E_ReadFile(path);
+			}
+			else
+			{
+				channel.ResStatus = 404;
+			}
+		}
+
+		private static string GetHeaderValue(HTTPServerChannel channel, string name)
+		{
+			foreach (string[] pair in channel.HeaderPairs)
+				if (SCommon.EqualsIgnoreCase(pair[0], name))
+					return pair[1];
+
+			throw new Exception();
+		}
+
+		private static IEnumerable<byte[]> E_ReadFile(string file)
+		{
+			long fileSize = new FileInfo(file).Length;
+
+			for (long offset = 0L; offset < fileSize; )
+			{
+				int readSize = (int)Math.Min(fileSize - offset, 2000000L);
+				byte[] buff = new byte[readSize];
+
+				using (FileStream reader = new FileStream(file, FileMode.Open, FileAccess.Read))
+				{
+					reader.Seek(offset, SeekOrigin.Begin);
+					reader.Read(buff, 0, readSize);
+				}
+				yield return buff;
+
+				offset += (long)readSize;
+			}
 		}
 	}
 }
