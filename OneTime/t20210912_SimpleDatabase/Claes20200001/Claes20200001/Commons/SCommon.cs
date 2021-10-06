@@ -753,6 +753,39 @@ namespace Charlotte.Commons
 			}
 		}
 
+		/// <summary>
+		/// SJIS(CP-932)の2バイト文字を全て返す。
+		/// </summary>
+		/// <returns>SJIS(CP-932)の2バイト文字の文字列</returns>
+		public static string GetJChars()
+		{
+			return ENCODING_SJIS.GetString(GetJCharBytes().ToArray());
+		}
+
+		/// <summary>
+		/// SJIS(CP-932)の2バイト文字を全て返す。
+		/// </summary>
+		/// <returns>SJIS(CP-932)の2バイト文字のバイト列</returns>
+		public static IEnumerable<byte> GetJCharBytes()
+		{
+			foreach (UInt16 chr in GetJCharCodes())
+			{
+				yield return (byte)(chr >> 8);
+				yield return (byte)(chr & 0xff);
+			}
+		}
+
+		/// <summary>
+		/// SJIS(CP-932)の2バイト文字を全て返す。
+		/// </summary>
+		/// <returns>SJIS(CP-932)の2バイト文字の列挙</returns>
+		public static IEnumerable<UInt16> GetJCharCodes()
+		{
+			for (UInt16 chr = S_JChar.CHR_MIN; chr <= S_JChar.CHR_MAX; chr++)
+				if (S_JChar.I.Contains(chr))
+					yield return chr;
+		}
+
 		private class S_JChar
 		{
 			private static S_JChar _i = null;
@@ -774,6 +807,9 @@ namespace Charlotte.Commons
 			{
 				this.Add();
 			}
+
+			public const UInt16 CHR_MIN = 0x8140;
+			public const UInt16 CHR_MAX = 0xfc4b;
 
 			#region Add Method
 
