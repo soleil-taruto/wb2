@@ -93,7 +93,7 @@ namespace Charlotte
 			else if (Directory.Exists(path))
 			{
 				channel.ResStatus = 301;
-				channel.ResHeaderPairs.Add(new string[] { "Location", "http://" + GetHeaderValue(channel, "Host") + "/" + string.Join("/", pTkns) + "/" });
+				channel.ResHeaderPairs.Add(new string[] { "Location", "http://" + GetHeaderValue(channel, "Host") + "/" + string.Join("", pTkns.Select(v => EncodeUrl(v) + "/")) });
 				return;
 			}
 			if (File.Exists(path))
@@ -114,6 +114,18 @@ namespace Charlotte
 					return pair[1];
 
 			throw new Exception();
+		}
+
+		private static string EncodeUrl(string str)
+		{
+			StringBuilder buff = new StringBuilder();
+
+			foreach (byte chr in Encoding.UTF8.GetBytes(str))
+			{
+				buff.Append('%');
+				buff.Append(chr.ToString("x2"));
+			}
+			return buff.ToString();
 		}
 
 		private static IEnumerable<byte[]> E_ReadFile(string file)
