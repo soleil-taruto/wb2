@@ -16,23 +16,42 @@ namespace Charlotte.WebServices
 
 		// <---- prm
 
+		/// <summary>
+		/// Keep-Alive-タイムアウト_ミリ秒
+		/// -1 == INFINITE
+		/// </summary>
+		public static int KeepAliveTimeoutMillis = 5000;
+
 		public HTTPServer()
 		{
 			PortNo = 80;
 			Connected = channel =>
 			{
-				HTTPServerChannel hsChannel = new HTTPServerChannel();
+				DateTime startedTime = DateTime.Now;
 
-				hsChannel.Channel = channel;
-				hsChannel.RecvRequest();
-
-				SockCommon.NB("svlg", () =>
+				for (; ; )
 				{
-					HTTPConnected(hsChannel);
-					return -1; // dummy
-				});
+					HTTPServerChannel hsChannel = new HTTPServerChannel();
 
-				hsChannel.SendResponse();
+					hsChannel.Channel = channel;
+					hsChannel.RecvRequest();
+
+					SockCommon.NB("svlg", () =>
+					{
+						HTTPConnected(hsChannel);
+						return -1; // dummy
+					});
+
+					if (KeepAliveTimeoutMillis != -1 && KeepAliveTimeoutMillis < (DateTime.Now - startedTime).TotalMilliseconds)
+					{
+						hsChannel.KeepAlive = false;
+					}
+
+					hsChannel.SendResponse();
+
+					if (!hsChannel.KeepAlive)
+						break;
+				}
 			};
 		}
 	}
