@@ -50,31 +50,36 @@ namespace Charlotte
 
 		private void Main4(ArgsReader ar)
 		{
-			using (EventWaitHandle evStop = new EventWaitHandle(false, EventResetMode.AutoReset, Consts.STOP_EVENT_NAME))
+			using (EventWaitHandle evStop = new EventWaitHandle(false, EventResetMode.ManualReset, Consts.STOP_EVENT_NAME))
 			{
+				HTTPServer hs = new HTTPServer()
+				{
+					//PortNo = 80,
+					//Backlog = 300,
+					//ConnectMax = 100,
+					Interlude = () => !evStop.WaitOne(0),
+					HTTPConnected = P_Connected,
+				};
+
+				//SockChannel.ThreadTimeoutMillis = 100;
+
+				//HTTPServer.KeepAliveTimeoutMillis = 5000;
+
+				HTTPServerChannel.RequestTimeoutMillis = 10000; // 10 sec
+				//HTTPServerChannel.ResponseTimeoutMillis = -1;
+				//HTTPServerChannel.FirstLineTimeoutMillis = 2000;
+				HTTPServerChannel.IdleTimeoutMillis = 600000; // 10 min
+				HTTPServerChannel.BodySizeMax = 0;
+
+				// サーバーの設定ここまで
+
+				if (ar.ArgIs("/S"))
+				{
+					evStop.Set();
+					return;
+				}
 				if (ar.HasArgs())
 				{
-					HTTPServer hs = new HTTPServer()
-					{
-						//PortNo = 80,
-						//Backlog = 300,
-						//ConnectMax = 100,
-						Interlude = () => !evStop.WaitOne(0),
-						HTTPConnected = P_Connected,
-					};
-
-					//SockChannel.ThreadTimeoutMillis = 100;
-
-					//HTTPServer.KeepAliveTimeoutMillis = 5000;
-
-					HTTPServerChannel.RequestTimeoutMillis = 10000; // 10 sec
-					//HTTPServerChannel.ResponseTimeoutMillis = -1;
-					//HTTPServerChannel.FirstLineTimeoutMillis = 2000;
-					HTTPServerChannel.IdleTimeoutMillis = 600000; // 10 min
-					HTTPServerChannel.BodySizeMax = 0;
-
-					// サーバーの設定ここまで
-
 					this.DocRoot = SCommon.MakeFullPath(ar.NextArg());
 
 					if (!Directory.Exists(this.DocRoot))
@@ -87,12 +92,12 @@ namespace Charlotte
 						if (hs.PortNo < 1 || 65535 < hs.PortNo)
 							throw new Exception("不正なポート番号");
 					}
-					hs.Perform();
 				}
 				else
 				{
-					evStop.Set();
+					this.DocRoot = Directory.GetCurrentDirectory();
 				}
+				hs.Perform();
 			}
 		}
 
@@ -100,6 +105,8 @@ namespace Charlotte
 
 		private void P_Connected(HTTPServerChannel channel)
 		{
+			SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "クライント：" + channel.Channel.Handler.RemoteEndPoint);
+
 			if (channel.Method != "GET")
 				throw new Exception("対応していないメソッド：" + channel.Method);
 
