@@ -21,45 +21,64 @@ namespace Charlotte.WebServices
 			PortNo = 80;
 		}
 
+		/// <summary>
+		/// Keep-Alive-タイムアウト_ミリ秒
+		/// -1 == INFINITE
+		/// </summary>
+		public static int KeepAliveTimeoutMillis = 5000;
+
 		protected override IEnumerable<int> E_Connected(SockChannel channel)
 		{
-			HTTPServerChannel hsChannel = new HTTPServerChannel();
-			int retval = -1;
+			DateTime startedTime = DateTime.Now;
 
-			hsChannel.Channel = channel;
-
-			foreach (int size in hsChannel.RecvRequest())
+			for (; ; )
 			{
-				if (size == 0)
-					throw null; // never
+				HTTPServerChannel hsChannel = new HTTPServerChannel();
+				int retval = -1;
 
-				if (size < 0)
+				hsChannel.Channel = channel;
+
+				foreach (int size in hsChannel.RecvRequest())
 				{
-					yield return retval;
-					retval = -1;
+					if (size == 0)
+						throw null; // never
+
+					if (size < 0)
+					{
+						yield return retval;
+						retval = -1;
+					}
+					else
+						retval = 1;
 				}
-				else
-					retval = 1;
-			}
 
-			SockCommon.NB("svlg", () =>
-			{
-				HTTPConnected(hsChannel);
-				return -1; // dummy
-			});
-
-			foreach (int size in hsChannel.SendResponse())
-			{
-				if (size == 0)
-					throw null; // never
-
-				if (size < 0)
+				SockCommon.NB("svlg", () =>
 				{
-					yield return retval;
-					retval = -1;
+					HTTPConnected(hsChannel);
+					return -1; // dummy
+				});
+
+				if (KeepAliveTimeoutMillis != -1 && KeepAliveTimeoutMillis < (DateTime.Now - startedTime).TotalMilliseconds)
+				{
+					hsChannel.KeepAlive = false;
 				}
-				else
-					retval = 1;
+
+				foreach (int size in hsChannel.SendResponse())
+				{
+					if (size == 0)
+						throw null; // never
+
+					if (size < 0)
+					{
+						yield return retval;
+						retval = -1;
+					}
+					else
+						retval = 1;
+				}
+
+				if (!hsChannel.KeepAlive)
+					break;
 			}
 		}
 	}
