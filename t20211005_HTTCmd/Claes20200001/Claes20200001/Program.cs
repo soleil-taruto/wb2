@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.IO;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Threading;
 using System.Windows.Forms;
 using Charlotte.Commons;
 using Charlotte.Tests;
@@ -49,31 +50,53 @@ namespace Charlotte
 
 		private void Main4(ArgsReader ar)
 		{
-			HTTPServer hs = new HTTPServer()
+			using (EventWaitHandle evStop = new EventWaitHandle(false, EventResetMode.AutoReset, Consts.STOP_EVENT_NAME))
 			{
-				HTTPConnected = P_Connected,
-			};
-
-			if (ar.HasArgs())
-			{
-				this.DocRoot = SCommon.MakeFullPath(ar.NextArg());
-
-				if (!Directory.Exists(this.DocRoot))
-					throw new Exception("ドキュメントルートが見つかりません");
-
 				if (ar.HasArgs())
 				{
-					hs.PortNo = int.Parse(ar.NextArg());
+					HTTPServer hs = new HTTPServer()
+					{
+						//PortNo = 80,
+						//Backlog = 300,
+						//ConnectMax = 100,
+						Interlude = () => !evStop.WaitOne(0),
+						HTTPConnected = P_Connected,
+					};
 
-					if (hs.PortNo < 1 || 65535 < hs.PortNo)
-						throw new Exception("不正なポート番号");
+					//SockChannel.ThreadTimeoutMillis = 100;
+
+					//HTTPServer.KeepAliveTimeoutMillis = 5000;
+
+					HTTPServerChannel.RequestTimeoutMillis = 10000;
+					//HTTPServerChannel.ResponseTimeoutMillis = -1;
+					//HTTPServerChannel.FirstLineTimeoutMillis = 2000;
+					HTTPServerChannel.IdleTimeoutMillis = 10000;
+					HTTPServerChannel.BodySizeMax = 0;
+
+					// 設定ここまで
+
+					this.DocRoot = SCommon.MakeFullPath(ar.NextArg());
+
+					if (!Directory.Exists(this.DocRoot))
+						throw new Exception("ドキュメントルートが見つかりません");
+
+					if (ar.HasArgs())
+					{
+						hs.PortNo = int.Parse(ar.NextArg());
+
+						if (hs.PortNo < 1 || 65535 < hs.PortNo)
+							throw new Exception("不正なポート番号");
+					}
+					hs.Perform();
+				}
+				else
+				{
+					evStop.Set();
 				}
 			}
-
-			hs.Perform();
 		}
 
-		private string DocRoot = ".";
+		private string DocRoot;
 
 		private void P_Connected(HTTPServerChannel channel)
 		{
@@ -83,6 +106,8 @@ namespace Charlotte
 			string urlPath = channel.PathQuery.Split('?')[0];
 			string[] pTkns = urlPath.Split('/').Where(v => v != "").Select(v => Common.ToFairLocalPath(v, 0)).ToArray();
 			string path = Path.Combine(new string[] { this.DocRoot }.Concat(pTkns).ToArray());
+
+			SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "目的パス：" + path);
 
 			if (urlPath.EndsWith("/"))
 			{
@@ -94,17 +119,24 @@ namespace Charlotte
 			else if (Directory.Exists(path))
 			{
 				channel.ResStatus = 301;
+				//channel.ResContentType = null;
 				channel.ResHeaderPairs.Add(new string[] { "Location", "http://" + GetHeaderValue(channel, "Host") + "/" + string.Join("", pTkns.Select(v => EncodeUrl(v) + "/")) });
+				//channel.ResBody = null;
 				return;
 			}
 			if (File.Exists(path))
 			{
+				//channel.ResStatus = 200;
 				channel.ResContentType = ContentTypeCollection.I.GetContentType(Path.GetExtension(path));
+				//channel.ResHeaderPairs.Add();
 				channel.ResBody = E_ReadFile(path);
 			}
 			else
 			{
 				channel.ResStatus = 404;
+				//channel.ResContentType = null;
+				//channel.ResHeaderPairs.Add();
+				//channel.ResBody = null;
 			}
 		}
 
