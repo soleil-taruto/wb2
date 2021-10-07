@@ -110,6 +110,8 @@ namespace Charlotte
 			if (channel.Method != "GET")
 				throw new Exception("対応していないメソッド：" + channel.Method);
 
+			SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "要求パス：" + channel.PathQuery);
+
 			string urlPath = channel.PathQuery.Split('?')[0];
 			string[] pTkns = urlPath.Split('/').Where(v => v != "").Select(v => Common.ToFairLocalPath(v, 0)).ToArray();
 			string path = Path.Combine(new string[] { this.DocRoot }.Concat(pTkns).ToArray());

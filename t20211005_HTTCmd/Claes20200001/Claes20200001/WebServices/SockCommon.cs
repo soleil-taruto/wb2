@@ -21,6 +21,9 @@ namespace Charlotte.WebServices
 
 		public static void WriteLog(ErrorLevel_e errorLevel, object message)
 		{
+			if (message is Exception)
+				message = ((Exception)message).Message;
+
 			switch (errorLevel)
 			{
 				case ErrorLevel_e.INFO:
