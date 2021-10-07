@@ -58,7 +58,7 @@ namespace Charlotte.WebServices
 				string[] tokens = this.FirstLine.Split(' ');
 
 				this.Method = tokens[0];
-				this.Path = DecodeURL(tokens[1]);
+				this.PathQuery = DecodeURL(tokens[1]);
 				this.HTTPVersion = tokens[2];
 			}
 
@@ -120,7 +120,7 @@ namespace Charlotte.WebServices
 
 		public string FirstLine;
 		public string Method;
-		public string Path;
+		public string PathQuery;
 		public string HTTPVersion;
 		public string Schema;
 		public List<string[]> HeaderPairs = new List<string[]>();
@@ -221,17 +221,17 @@ namespace Charlotte.WebServices
 				{
 					this.ContentLength = int.Parse(value);
 				}
-				else if (SCommon.EqualsIgnoreCase(key, "Transfer-Encoding") && SCommon.EqualsIgnoreCase(value, "chunked"))
+				else if (SCommon.EqualsIgnoreCase(key, "Transfer-Encoding"))
 				{
-					this.Chunked = true;
+					this.Chunked = SCommon.ContainsIgnoreCase(value, "chunked");
 				}
 				else if (SCommon.EqualsIgnoreCase(key, "Content-Type"))
 				{
 					this.ContentType = value;
 				}
-				else if (SCommon.EqualsIgnoreCase(key, "Expect") && SCommon.EqualsIgnoreCase(value, "100-continue"))
+				else if (SCommon.EqualsIgnoreCase(key, "Expect"))
 				{
-					this.Expect100Continue = true;
+					this.Expect100Continue = SCommon.ContainsIgnoreCase(value, "100-continue");
 				}
 			}
 		}

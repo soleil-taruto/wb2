@@ -80,10 +80,11 @@ namespace Charlotte
 			if (channel.Method != "GET")
 				throw new Exception("対応していないメソッド：" + channel.Method);
 
-			string[] pTkns = channel.Path.Split('/').Where(v => v != "").Select(v => Common.ToFairLocalPath(v, 0)).ToArray();
+			string urlPath = channel.PathQuery.Split('?')[0];
+			string[] pTkns = urlPath.Split('/').Where(v => v != "").Select(v => Common.ToFairLocalPath(v, 0)).ToArray();
 			string path = Path.Combine(new string[] { this.DocRoot }.Concat(pTkns).ToArray());
 
-			if (channel.Path.EndsWith("/"))
+			if (urlPath.EndsWith("/"))
 			{
 				path = Path.Combine(path, "index.htm");
 

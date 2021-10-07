@@ -122,7 +122,7 @@ namespace Charlotte
 
 			int localPathSizeMax = Math.Max(0, MY_PATH_MAX - dirSize);
 
-			if (localPathSizeMax < str.Length)
+			if (localPathSizeMax < str.Length) // HACK: 元にしたコードではバイト列の長さで判定している。
 				str = str.Substring(0, localPathSizeMax);
 
 			str = SCommon.ToJString(SCommon.ENCODING_SJIS.GetBytes(str), true, false, false, true);
