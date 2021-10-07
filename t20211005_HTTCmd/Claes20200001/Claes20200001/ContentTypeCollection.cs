@@ -23,6 +23,9 @@ namespace Charlotte
 
 		#region Extension2ContentTypeResource
 
+		/// <summary>
+		/// https://github.com/stackprobe/HTT/blob/master/doc/MimeType.tsv
+		/// </summary>
 		private static string[] Extension2ContentTypeResource = new string[]
 		{
 			".323", "text/h323",
