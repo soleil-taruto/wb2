@@ -33,13 +33,13 @@ namespace Charlotte.WebServices
 
 		/// <summary>
 		/// スレッド占用タイムアウト_ミリ秒
-		/// -1 == INFINITE 
+		/// -1 == INFINITE
 		/// </summary>
 		public static int ThreadTimeoutMillis = 100;
 
 		/// <summary>
 		/// 無通信タイムアウト_ミリ秒
-		/// -1 == INFINITE 
+		/// -1 == INFINITE
 		/// </summary>
 		public int IdleTimeoutMillis = -1;
 
