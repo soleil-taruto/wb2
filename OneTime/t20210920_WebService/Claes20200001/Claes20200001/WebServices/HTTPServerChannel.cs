@@ -209,6 +209,7 @@ namespace Charlotte.WebServices
 		public bool Chunked = false;
 		public string ContentType = null;
 		public bool Expect100Continue = false;
+		public bool KeepAlive = false;
 
 		private void CheckHeader()
 		{
@@ -232,6 +233,10 @@ namespace Charlotte.WebServices
 				else if (SCommon.EqualsIgnoreCase(key, "Expect"))
 				{
 					this.Expect100Continue = SCommon.ContainsIgnoreCase(value, "100-continue");
+				}
+				else if (SCommon.EqualsIgnoreCase(key, "Connection"))
+				{
+					this.KeepAlive = SCommon.ContainsIgnoreCase(value, "keep-alive");
 				}
 			}
 		}
@@ -405,7 +410,7 @@ namespace Charlotte.WebServices
 
 		private IEnumerable<int> EndHeader()
 		{
-			foreach (int relay in this.SendLine("Connection: close")
+			foreach (int relay in this.SendLine("Connection: " + (this.KeepAlive ? "keep-alive" : "close"))
 				.Concat(this.Channel.Send(CRLF)))
 				yield return relay;
 		}
