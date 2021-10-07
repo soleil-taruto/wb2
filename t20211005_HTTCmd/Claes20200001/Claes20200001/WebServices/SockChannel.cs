@@ -56,7 +56,7 @@ namespace Charlotte.WebServices
 			}
 			else if (this.ThreadTimeoutTime.Value < DateTime.Now)
 			{
-				SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "スレッド占用タイムアウト");
+				//SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "スレッド占用タイムアウト"); // 頻出するので抑止
 
 				this.ThreadTimeoutTime = null;
 				yield return -1;

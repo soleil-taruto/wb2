@@ -187,6 +187,8 @@ namespace Charlotte
 				int readSize = (int)Math.Min(fileSize - offset, 2000000L);
 				byte[] buff = new byte[readSize];
 
+				//SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "READ " + offset + " " + readSize + " " + fileSize + " " + (offset * 100.0 / fileSize).ToString("F2") + " " + ((offset + readSize) * 100.0 / fileSize).ToString("F2")); // 頻出するので抑止
+
 				using (FileStream reader = new FileStream(file, FileMode.Open, FileAccess.Read))
 				{
 					reader.Seek(offset, SeekOrigin.Begin);
