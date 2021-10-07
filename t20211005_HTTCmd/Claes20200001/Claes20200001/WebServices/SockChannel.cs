@@ -98,6 +98,10 @@ namespace Charlotte.WebServices
 					{
 						throw new Exception("受信エラー(切断)");
 					}
+					if (10.0 <= (DateTime.Now - startedTime).TotalSeconds) // 長い無通信時間をモニタする。
+					{
+						SockCommon.WriteLog(SockCommon.ErrorLevel_e.WARNING, "IDLE-RECV " + (DateTime.Now - startedTime).TotalSeconds.ToString("F3"));
+					}
 					a_return(recvSize);
 					break;
 				}
@@ -157,6 +161,10 @@ namespace Charlotte.WebServices
 					if (sentSize <= 0)
 					{
 						throw new Exception("送信エラー(切断)");
+					}
+					if (10.0 <= (DateTime.Now - startedTime).TotalSeconds) // 長い無通信時間をモニタする。
+					{
+						SockCommon.WriteLog(SockCommon.ErrorLevel_e.WARNING, "IDLE-SEND " + (DateTime.Now - startedTime).TotalSeconds.ToString("F3"));
 					}
 					a_return(sentSize);
 					break;

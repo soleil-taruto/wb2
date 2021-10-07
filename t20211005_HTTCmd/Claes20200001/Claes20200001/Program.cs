@@ -67,13 +67,13 @@ namespace Charlotte
 
 					//HTTPServer.KeepAliveTimeoutMillis = 5000;
 
-					HTTPServerChannel.RequestTimeoutMillis = 10000;
+					HTTPServerChannel.RequestTimeoutMillis = 10000; // 10 sec
 					//HTTPServerChannel.ResponseTimeoutMillis = -1;
 					//HTTPServerChannel.FirstLineTimeoutMillis = 2000;
-					HTTPServerChannel.IdleTimeoutMillis = 10000;
+					HTTPServerChannel.IdleTimeoutMillis = 600000; // 10 min
 					HTTPServerChannel.BodySizeMax = 0;
 
-					// 設定ここまで
+					// サーバーの設定ここまで
 
 					this.DocRoot = SCommon.MakeFullPath(ar.NextArg());
 
@@ -122,7 +122,10 @@ namespace Charlotte
 				//channel.ResContentType = null;
 				channel.ResHeaderPairs.Add(new string[] { "Location", "http://" + GetHeaderValue(channel, "Host") + "/" + string.Join("", pTkns.Select(v => EncodeUrl(v) + "/")) });
 				//channel.ResBody = null;
-				return;
+
+				SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "転送先：" + channel.ResHeaderPairs[0][1]);
+
+				goto endFunc;
 			}
 			if (File.Exists(path))
 			{
@@ -130,6 +133,8 @@ namespace Charlotte
 				channel.ResContentType = ContentTypeCollection.I.GetContentType(Path.GetExtension(path));
 				//channel.ResHeaderPairs.Add();
 				channel.ResBody = E_ReadFile(path);
+
+				SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "ファイルタイプ：" + channel.ResContentType);
 			}
 			else
 			{
@@ -138,6 +143,9 @@ namespace Charlotte
 				//channel.ResHeaderPairs.Add();
 				//channel.ResBody = null;
 			}
+
+		endFunc:
+			SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "ステータス：" + channel.ResStatus);
 		}
 
 		private static string GetHeaderValue(HTTPServerChannel channel, string name)
