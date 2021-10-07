@@ -74,6 +74,72 @@ namespace Charlotte.WebServices
 #endif
 		}
 
+		public static UTF8Check P_UTF8Check = new UTF8Check();
+
+		public class UTF8Check
+		{
+			private object[] Home = CreateByteCodeBranchTable();
+
+			public UTF8Check()
+			{
+				for (byte chr = 0x20; chr <= 0x7e; chr++) // ASCII
+					this.Add(new byte[] { chr });
+
+				for (byte chr = 0xa1; chr <= 0xdf; chr++) // 半角カナ
+					this.Add(Encoding.UTF8.GetBytes(SCommon.ENCODING_SJIS.GetString(new byte[] { chr })));
+
+				foreach (char chr in SCommon.GetJChars()) // 2バイト文字
+					this.Add(Encoding.UTF8.GetBytes(new string(new char[] { chr })));
+			}
+
+			private void Add(byte[] bytes)
+			{
+				if (bytes.Length < 1)
+					throw null; // never
+
+				object[] curr = this.Home;
+
+				foreach (byte bChr in bytes.Take(bytes.Length - 1))
+				{
+					int index = (int)bChr;
+
+					if (curr[index] == null)
+						curr[index] = CreateByteCodeBranchTable();
+
+					curr = (object[])curr[index];
+
+					if (curr == this.Home)
+						throw null; // never
+				}
+
+				{
+					int index = (int)bytes[bytes.Length - 1];
+
+					if (curr[index] != null)
+						if (curr[index] != this.Home) // 同じ文字が追加されることがある。
+							throw null; // never
+
+					curr[index] = this.Home;
+				}
+			}
+
+			private static object[] CreateByteCodeBranchTable()
+			{
+				return new object[256];
+			}
+
+			public void Check(byte[] bytes)
+			{
+				object[] curr = this.Home;
+
+				foreach (byte bChr in bytes)
+					curr = (object[])curr[(int)bChr];
+
+				if (curr != this.Home)
+					throw new Exception();
+			}
+		}
+
 		public static class IDIssuer
 		{
 			private static Queue<int> Stocks = new Queue<int>(Enumerable.Range(1, 9));
