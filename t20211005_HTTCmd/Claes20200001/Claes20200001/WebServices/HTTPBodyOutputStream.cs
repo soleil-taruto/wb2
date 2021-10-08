@@ -9,6 +9,24 @@ namespace Charlotte.WebServices
 {
 	public class HTTPBodyOutputStream : IDisposable
 	{
+#if true
+		public void Write(byte[] data)
+		{
+			throw new Exception("REJECT-BODY");
+		}
+
+		public readonly int Count = 0;
+
+		public byte[] ToByteArray()
+		{
+			return SCommon.EMPTY_BYTES;
+		}
+
+		public void Dispose()
+		{
+			// noop
+		}
+#else
 		private WorkingDir WD = null;
 		private string BuffFile = null;
 		private int WroteSize = 0;
@@ -70,5 +88,6 @@ namespace Charlotte.WebServices
 				this.WD = null;
 			}
 		}
+#endif
 	}
 }
