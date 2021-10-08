@@ -154,6 +154,8 @@ namespace Charlotte
 			}
 
 		endFunc:
+			channel.ResHeaderPairs.Add(new string[] { "Server", "HTTCmd" });
+
 			SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "ステータス：" + channel.ResStatus);
 		}
 
