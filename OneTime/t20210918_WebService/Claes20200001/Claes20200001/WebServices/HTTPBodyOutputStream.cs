@@ -47,7 +47,19 @@ namespace Charlotte.WebServices
 
 		public byte[] ToByteArray()
 		{
-			return this.WroteSize == 0 ? SCommon.EMPTY_BYTES : File.ReadAllBytes(this.GetBuffFile());
+			byte[] data;
+
+			if (this.WroteSize == 0)
+			{
+				data = SCommon.EMPTY_BYTES;
+			}
+			else
+			{
+				data = File.ReadAllBytes(this.BuffFile);
+				File.WriteAllBytes(this.BuffFile, SCommon.EMPTY_BYTES);
+				this.WroteSize = 0;
+			}
+			return data;
 		}
 
 		public void Dispose()
