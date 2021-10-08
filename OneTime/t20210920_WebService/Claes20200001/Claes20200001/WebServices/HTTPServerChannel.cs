@@ -113,7 +113,7 @@ namespace Charlotte.WebServices
 				byte[] bytes = dest.ToArray();
 
 				if (!SockCommon.P_UTF8Check.Check(bytes))
-					throw new Exception("URL is not UTF-8");
+					throw new Exception("URL is not Japanese UTF-8");
 
 				return Encoding.UTF8.GetString(bytes);
 			}
