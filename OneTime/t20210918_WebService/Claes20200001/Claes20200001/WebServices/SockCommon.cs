@@ -128,15 +128,21 @@ namespace Charlotte.WebServices
 				return new object[256];
 			}
 
-			public void Check(byte[] bytes)
+			public bool Check(byte[] bytes)
 			{
 				object[] curr = this.Home;
 
-				foreach (byte bChr in bytes)
-					curr = (object[])curr[(int)bChr];
+				try
+				{
+					foreach (byte bChr in bytes)
+						curr = (object[])curr[(int)bChr];
+				}
+				catch
+				{
+					return false;
+				}
 
-				if (curr != this.Home)
-					throw new Exception();
+				return curr == this.Home;
 			}
 		}
 

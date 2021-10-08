@@ -113,7 +113,8 @@ namespace Charlotte.WebServices
 
 				byte[] bytes = dest.ToArray();
 
-				SockCommon.P_UTF8Check.Check(bytes);
+				if (!SockCommon.P_UTF8Check.Check(bytes))
+					throw new Exception("URL is not UTF-8");
 
 				return Encoding.UTF8.GetString(bytes);
 			}
@@ -123,7 +124,6 @@ namespace Charlotte.WebServices
 		public string Method;
 		public string PathQuery;
 		public string HTTPVersion;
-		public string Schema;
 		public List<string[]> HeaderPairs = new List<string[]>();
 		public byte[] Body;
 

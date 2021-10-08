@@ -163,7 +163,7 @@ namespace Charlotte
 				if (SCommon.EqualsIgnoreCase(pair[0], name))
 					return pair[1];
 
-			throw new Exception();
+			throw new Exception("NO-HEADER-KEY: " + name);
 		}
 
 		private static string EncodeUrl(string str)
