@@ -107,7 +107,7 @@ namespace Charlotte
 		{
 			SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "クライアント：" + channel.Channel.Handler.RemoteEndPoint);
 
-			if (10 < channel.Method.Length)
+			if (10 < channel.Method.Length) // HACK: ラフなしきい値
 				throw new Exception("Bad method length");
 
 			SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "要求メソッド：" + channel.Method);
@@ -120,12 +120,17 @@ namespace Charlotte
 			else
 				throw new Exception("Unsupported method: " + channel.Method);
 
-			if (10000 < channel.PathQuery.Length)
-				throw new Exception("Bad path and query length");
+			string urlPath = channel.PathQuery;
 
-			string urlPath = channel.PathQuery.Split('?')[0];
+			// クエリ除去
+			{
+				int ques = urlPath.IndexOf('?');
 
-			if (300 < urlPath.Length)
+				if (ques != -1)
+					urlPath = urlPath.Substring(0, ques);
+			}
+
+			if (300 < urlPath.Length) // HACK: ラフなしきい値
 				throw new Exception("Bad path length");
 
 			SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "要求パス：" + urlPath);
