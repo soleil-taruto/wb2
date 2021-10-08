@@ -39,6 +39,7 @@ namespace Charlotte.WebServices
 
 		/// <summary>
 		/// リクエストのボディの最大サイズ_バイト数
+		/// -1 == INFINITE
 		/// </summary>
 		public static int BodySizeMax = 300000000; // 300 MB
 
@@ -149,7 +150,7 @@ namespace Charlotte.WebServices
 						break;
 
 					if (LINE_LEN_MAX < buff.Length)
-						throw new OverflowException();
+						throw new OverflowException("Received line is too long");
 
 					if (chr < 0x20 || 0x7e < chr) // ? not ASCII -> SPACE
 						chr = 0x20;
@@ -177,7 +178,7 @@ namespace Charlotte.WebServices
 				roughHeaderLength += line.Length + WEIGHT;
 
 				if (HEADERS_LEN_MAX < roughHeaderLength)
-					throw new OverflowException();
+					throw new OverflowException("Received header is too long");
 
 				if (line[0] <= ' ')
 				{
@@ -211,6 +212,9 @@ namespace Charlotte.WebServices
 
 				if (SCommon.EqualsIgnoreCase(key, "Content-Length"))
 				{
+					if (10 < value.Length)
+						throw new Exception("Bad Content-Length value");
+
 					this.ContentLength = int.Parse(value);
 				}
 				else if (SCommon.EqualsIgnoreCase(key, "Transfer-Encoding"))
@@ -260,7 +264,7 @@ namespace Charlotte.WebServices
 						if (size < 0)
 							throw new Exception("不正なチャンクサイズです。" + size);
 
-						if (BodySizeMax - buff.Count < size)
+						if (BodySizeMax != -1 && BodySizeMax - buff.Count < size)
 							throw new Exception("ボディサイズが大きすぎます。" + buff.Count + " + " + size);
 
 						int chunkEnd = buff.Count + size;
@@ -278,7 +282,7 @@ namespace Charlotte.WebServices
 					if (this.ContentLength < 0)
 						throw new Exception("不正なボディサイズです。" + this.ContentLength);
 
-					if (BodySizeMax < this.ContentLength)
+					if (BodySizeMax != -1 && BodySizeMax < this.ContentLength)
 						throw new Exception("ボディサイズが大きすぎます。" + this.ContentLength);
 
 					while (buff.Count < this.ContentLength)
