@@ -352,8 +352,7 @@ namespace Charlotte.WebServices
 			this.Body = null;
 			this.Channel.SessionTimeoutTime = TimeoutMillisToDateTime(ResponseTimeoutMillis);
 
-			foreach (int relay in this.SendLine("HTTP/1.1 " + this.ResStatus + " Heartland")
-				.Concat(this.SendLine("Server: Heartland")))
+			foreach (int relay in this.SendLine("HTTP/1.1 " + this.ResStatus + " Happy Tea Time"))
 				yield return relay;
 
 			if (this.ResContentType != null)

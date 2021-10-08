@@ -307,8 +307,7 @@ namespace Charlotte.WebServices
 			this.Channel.SessionTimeoutTime = TimeoutMillisToDateTime(ResponseTimeoutMillis);
 			this.Channel.ThreadTimeoutTime = null;
 
-			this.SendLine("HTTP/1.1 " + this.ResStatus + " Heartland");
-			this.SendLine("Server: Heartland");
+			this.SendLine("HTTP/1.1 " + this.ResStatus + " Happy Tea Time");
 
 			if (this.ResContentType != null)
 				this.SendLine("Content-Type: " + this.ResContentType);
