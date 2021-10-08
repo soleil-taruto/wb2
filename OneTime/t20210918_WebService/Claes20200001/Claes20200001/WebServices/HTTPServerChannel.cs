@@ -188,6 +188,9 @@ namespace Charlotte.WebServices
 				{
 					int colon = line.IndexOf(':');
 
+					if (colon == -1)
+						throw new Exception("Bad header line (no colon)");
+
 					this.HeaderPairs.Add(new string[]
 					{
 						line.Substring(0, colon).Trim(),
@@ -295,7 +298,6 @@ namespace Charlotte.WebServices
 		// HTTPConnected 内で(必要に応じて)設定しなければならないフィールド -->
 
 		public int ResStatus = 200;
-		public string ResContentType = null;
 		public List<string[]> ResHeaderPairs = new List<string[]>();
 		public IEnumerable<byte[]> ResBody = null;
 
@@ -308,9 +310,6 @@ namespace Charlotte.WebServices
 			this.Channel.ThreadTimeoutTime = null;
 
 			this.SendLine("HTTP/1.1 " + this.ResStatus + " Happy Tea Time");
-
-			if (this.ResContentType != null)
-				this.SendLine("Content-Type: " + this.ResContentType);
 
 			foreach (string[] pair in this.ResHeaderPairs)
 				this.SendLine(pair[0] + ": " + pair[1]);

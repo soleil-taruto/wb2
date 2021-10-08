@@ -49,7 +49,7 @@ namespace Charlotte.Tests
 				HTTPConnected = channel =>
 				{
 					//channel.ResStatus = 200;
-					channel.ResContentType = "text/plain; charset=US-ASCII";
+					channel.ResHeaderPairs.Add(new string[] { "Content-Type", "text/plain; charset=US-ASCII" });
 					//channel.ResHeaderPairs.Add(new string[] { "X-Key-01", "Value-01" });
 					//channel.ResHeaderPairs.Add(new string[] { "X-Key-02", "Value-02" });
 					//channel.ResHeaderPairs.Add(new string[] { "X-Key-03", "Value-03" });
@@ -69,7 +69,7 @@ namespace Charlotte.Tests
 			{
 				HTTPConnected = channel =>
 				{
-					channel.ResContentType = "text/plain; charset=US-ASCII";
+					channel.ResHeaderPairs.Add(new string[] { "Content-Type", "text/plain; charset=US-ASCII" });
 					channel.ResHeaderPairs.Add(new string[] { "Content-Disposition", "attachment" }); // ダウンロードさせる。
 					channel.ResBody = Test03_E_ResBody();
 				},

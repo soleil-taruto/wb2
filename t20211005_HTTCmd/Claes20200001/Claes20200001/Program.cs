@@ -105,14 +105,31 @@ namespace Charlotte
 
 		private void P_Connected(HTTPServerChannel channel)
 		{
-			SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "クライント：" + channel.Channel.Handler.RemoteEndPoint);
+			SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "クライアント：" + channel.Channel.Handler.RemoteEndPoint);
 
-			if (channel.Method != "GET")
-				throw new Exception("対応していないメソッド：" + channel.Method);
+			if (10 < channel.Method.Length)
+				throw new Exception("Bad method length");
 
-			SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "要求パス：" + channel.PathQuery);
+			SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "要求メソッド：" + channel.Method);
+
+			bool head;
+			if (channel.Method == "GET")
+				head = false;
+			else if (channel.Method == "HEAD")
+				head = true;
+			else
+				throw new Exception("Unsupported method: " + channel.Method);
+
+			if (10000 < channel.PathQuery.Length)
+				throw new Exception("Bad path and query length");
 
 			string urlPath = channel.PathQuery.Split('?')[0];
+
+			if (300 < urlPath.Length)
+				throw new Exception("Bad path length");
+
+			SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "要求パス：" + urlPath);
+
 			string[] pTkns = urlPath.Split('/').Where(v => v != "").Select(v => Common.ToFairLocalPath(v, 0)).ToArray();
 			string path = Path.Combine(new string[] { this.DocRoot }.Concat(pTkns).ToArray());
 
@@ -128,27 +145,20 @@ namespace Charlotte
 			else if (Directory.Exists(path))
 			{
 				channel.ResStatus = 301;
-				//channel.ResContentType = null;
 				channel.ResHeaderPairs.Add(new string[] { "Location", "http://" + GetHeaderValue(channel, "Host") + "/" + string.Join("", pTkns.Select(v => EncodeUrl(v) + "/")) });
 				//channel.ResBody = null;
-
-				SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "転送先：" + channel.ResHeaderPairs[0][1]);
 
 				goto endFunc;
 			}
 			if (File.Exists(path))
 			{
 				//channel.ResStatus = 200;
-				channel.ResContentType = ContentTypeCollection.I.GetContentType(Path.GetExtension(path));
-				//channel.ResHeaderPairs.Add();
+				channel.ResHeaderPairs.Add(new string[] { "Content-Type", ContentTypeCollection.I.GetContentType(Path.GetExtension(path)) });
 				channel.ResBody = E_ReadFile(path);
-
-				SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "ファイルタイプ：" + channel.ResContentType);
 			}
 			else
 			{
 				channel.ResStatus = 404;
-				//channel.ResContentType = null;
 				//channel.ResHeaderPairs.Add();
 				//channel.ResBody = null;
 			}
@@ -156,7 +166,22 @@ namespace Charlotte
 		endFunc:
 			channel.ResHeaderPairs.Add(new string[] { "Server", "HTTCmd" });
 
-			SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "ステータス：" + channel.ResStatus);
+			if (head && channel.ResBody != null)
+			{
+				FileInfo fileInfo = new FileInfo(path);
+
+				channel.ResHeaderPairs.Add(new string[] { "Content-Length", fileInfo.Length.ToString() });
+				channel.ResHeaderPairs.Add(new string[] { "X-Last-Modified-Time", new SCommon.SimpleDateTime(fileInfo.LastWriteTime).ToString("{0}/{1:D2}/{2:D2} {4:D2}:{5:D2}:{6:D2}") });
+
+				channel.ResBody = null;
+			}
+
+			SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "RES-STATUS " + channel.ResStatus);
+
+			foreach (string[] pair in channel.ResHeaderPairs)
+				SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "RES-HEADER " + pair[0] + " = " + pair[1]);
+
+			SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "RES-BODY " + (channel.ResBody != null));
 		}
 
 		private static string GetHeaderValue(HTTPServerChannel channel, string name)
@@ -165,7 +190,7 @@ namespace Charlotte
 				if (SCommon.EqualsIgnoreCase(pair[0], name))
 					return pair[1];
 
-			throw new Exception("NO-HEADER-KEY: " + name);
+			throw new Exception("No header key: " + name);
 		}
 
 		private static string EncodeUrl(string str)
