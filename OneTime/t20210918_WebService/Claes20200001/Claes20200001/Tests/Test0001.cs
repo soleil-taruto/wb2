@@ -114,5 +114,38 @@ namespace Charlotte.Tests
 				yield return Encoding.ASCII.GetBytes(count + "\r\n");
 			}
 		}
+
+		public void Test04()
+		{
+			new HTTPServer()
+			{
+				HTTPConnected = channel =>
+				{
+					List<string> dest = new List<string>();
+
+					dest.Add(channel.FirstLine);
+					dest.Add(channel.Method);
+					dest.Add(channel.PathQuery);
+					dest.Add(channel.HTTPVersion);
+
+					foreach (string[] pair in channel.HeaderPairs)
+					{
+						dest.Add(pair[0]);
+						dest.Add(pair[1]);
+					}
+					dest.Add("END-HEADER / BODY-SIZE = " + channel.Body.Length.ToString());
+					dest.Add(channel.Body == null ? "<none>" : SCommon.Hex.ToString(channel.Body));
+					dest.Add(channel.ContentLength.ToString());
+					dest.Add(channel.Chunked.ToString());
+					dest.Add(channel.ContentType == null ? "<none>" : channel.ContentType);
+					dest.Add(channel.Expect100Continue.ToString());
+					dest.Add(channel.KeepAlive.ToString());
+
+					channel.ResHeaderPairs.Add(new string[] { "Content-Type", "text/plain; charset=UTF-8" });
+					channel.ResBody = new byte[][] { Encoding.UTF8.GetBytes(SCommon.LinesToText(dest)) };
+				},
+			}
+			.Perform();
+		}
 	}
 }

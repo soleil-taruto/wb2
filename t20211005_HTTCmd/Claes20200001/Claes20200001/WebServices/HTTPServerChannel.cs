@@ -224,7 +224,7 @@ namespace Charlotte.WebServices
 
 				if (SCommon.EqualsIgnoreCase(key, "Content-Length"))
 				{
-					if (10 < value.Length)
+					if (value.Length < 1 || 10 < value.Length)
 						throw new Exception("Bad Content-Length value");
 
 					this.ContentLength = int.Parse(value);
@@ -274,7 +274,12 @@ namespace Charlotte.WebServices
 							line = line.Substring(0, i);
 					}
 
-					int size = Convert.ToInt32(line.Trim(), 16);
+					line = line.Trim();
+
+					if (line.Length < 1 || 8 < line.Length)
+						throw new Exception("Bad chunk-size line");
+
+					int size = Convert.ToInt32(line, 16);
 
 					if (size == 0)
 						break;
@@ -307,7 +312,7 @@ namespace Charlotte.WebServices
 				{
 					string line = null;
 
-					foreach (int relay in this.RecvLine(ret => { }))
+					foreach (int relay in this.RecvLine(ret => line = ret))
 						yield return relay;
 
 					if (line == null)
