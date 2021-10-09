@@ -245,7 +245,7 @@ namespace Charlotte
 			if (this.Extension2ContentType.ContainsKey(ext))
 				return this.Extension2ContentType[ext];
 
-			return "application/octet-stream";
+			return "application/octet-stream"; // デフォルト
 		}
 	}
 }
