@@ -108,7 +108,7 @@ namespace Charlotte
 			SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "クライアント：" + channel.Channel.Handler.RemoteEndPoint);
 
 			if (10 < channel.Method.Length) // HACK: ラフなしきい値
-				throw new Exception("Bad method length");
+				throw new Exception("Received method is too long");
 
 			SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "要求メソッド：" + channel.Method);
 
@@ -130,8 +130,8 @@ namespace Charlotte
 					urlPath = urlPath.Substring(0, ques);
 			}
 
-			if (300 < urlPath.Length) // HACK: ラフなしきい値
-				throw new Exception("Bad path length");
+			if (1000 < urlPath.Length) // HACK: ラフなしきい値
+				throw new Exception("Received path is too long");
 
 			SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "要求パス：" + urlPath);
 
