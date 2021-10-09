@@ -194,5 +194,35 @@ namespace Charlotte.Tests
 			}
 			Common.Pause();
 		}
+
+		public void Test05_2()
+		{
+			List<string> dest = new List<string>();
+
+			foreach (UInt16 code in SCommon.GetJCharCodes())
+			{
+				char[] chrs = SCommon.ENCODING_SJIS.GetString(new byte[] { (byte)(code >> 8), (byte)(code & 0xff) }).ToArray();
+
+				if (chrs.Length != 1)
+					throw null;
+
+				char chr = chrs[0];
+
+				dest.Add(((int)code).ToString("x4"));
+				dest.Add(((int)chr).ToString("x4"));
+			}
+
+			// 連結して行数を減らす。
+			for (int c = 0; c < 6; c++)
+			{
+				for (int index = 0; index + 1 < dest.Count; index++)
+				{
+					dest[index] = dest[index] + dest[index + 1];
+					dest.RemoveAt(index + 1);
+				}
+			}
+
+			File.WriteAllLines(@"C:\temp\SJIS_Unicode.txt", dest, Encoding.ASCII);
+		}
 	}
 }
