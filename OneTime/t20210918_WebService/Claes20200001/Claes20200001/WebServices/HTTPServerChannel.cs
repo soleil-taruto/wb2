@@ -213,6 +213,12 @@ namespace Charlotte.WebServices
 				string key = pair[0];
 				string value = pair[1];
 
+				if (1000 < key.Length || 1000 < value.Length) // ラフなしきい値
+				{
+					SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "Ignore gen-header key and value (too long)");
+					continue;
+				}
+
 				if (SCommon.EqualsIgnoreCase(key, "Content-Length"))
 				{
 					if (value.Length < 1 || 10 < value.Length)

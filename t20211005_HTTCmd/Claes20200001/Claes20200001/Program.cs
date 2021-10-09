@@ -50,6 +50,7 @@ namespace Charlotte
 
 		private void Main4(ArgsReader ar)
 		{
+			// 複数のサーバーを起動していた場合、全て停止出来るようにマニュアル・リセットとする。
 			using (EventWaitHandle evStop = new EventWaitHandle(false, EventResetMode.ManualReset, Consts.STOP_EVENT_NAME))
 			{
 				HTTPServer hs = new HTTPServer()
@@ -97,7 +98,14 @@ namespace Charlotte
 				{
 					this.DocRoot = Directory.GetCurrentDirectory();
 				}
+
+				ProcMain.WriteLog("HTTCmd-Start");
+				ProcMain.WriteLog("DocRoot: " + this.DocRoot);
+				ProcMain.WriteLog("PortNo: " + hs.PortNo);
+
 				hs.Perform();
+
+				ProcMain.WriteLog("HTTCmd-End");
 			}
 		}
 
@@ -107,7 +115,7 @@ namespace Charlotte
 		{
 			SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "クライアント：" + channel.Channel.Handler.RemoteEndPoint);
 
-			if (10 < channel.Method.Length) // HACK: ラフなしきい値
+			if (10 < channel.Method.Length) // ラフなしきい値
 				throw new Exception("Received method is too long");
 
 			SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "要求メソッド：" + channel.Method);
@@ -130,7 +138,7 @@ namespace Charlotte
 					urlPath = urlPath.Substring(0, ques);
 			}
 
-			if (1000 < urlPath.Length) // HACK: ラフなしきい値
+			if (1000 < urlPath.Length) // ラフなしきい値
 				throw new Exception("Received path is too long");
 
 			SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "要求パス：" + urlPath);
