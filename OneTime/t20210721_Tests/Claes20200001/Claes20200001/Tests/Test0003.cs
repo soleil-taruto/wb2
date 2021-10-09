@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Charlotte.Commons;
+using System.IO;
 
 namespace Charlotte.Tests
 {
@@ -110,6 +111,85 @@ namespace Charlotte.Tests
 
 					if (!SCommon.GetJCharCodes().Contains(chrs_B[index]))
 						throw null; // 想定外
+				}
+			}
+			Common.Pause();
+		}
+
+		public void Test05()
+		{
+			List<string> dest = new List<string>();
+
+			foreach (UInt16 code in SCommon.GetJCharCodes())
+			{
+				char[] chrs = SCommon.ENCODING_SJIS.GetString(new byte[] { (byte)(code >> 8), (byte)(code & 0xff) }).ToArray();
+
+				if (chrs.Length != 1)
+					throw null;
+
+				char chr = chrs[0];
+
+				if ((int)chr < 1 || 65535 < (int)chr)
+					throw null;
+
+				// 逆変換
+				{
+					byte[] bytes = SCommon.ENCODING_SJIS.GetBytes(new string(new char[] { chr }));
+
+					if (bytes.Length != 2)
+						throw null;
+
+					UInt16 revCode = (UInt16)(((int)bytes[0] << 8) | bytes[1]);
+
+					if (revCode != code) // 対応しないのはある。
+						if (!SCommon.GetJCharCodes().Contains(revCode)) // JChar に戻れば良しとする。
+							throw null;
+				}
+
+				dest.Add("this.Add(" + (int)code + ", " + (int)chr + ");");
+			}
+
+			// 連結して行数を減らす。
+			for (int c = 0; c < 3; c++)
+			{
+				for (int index = 0; index + 1 < dest.Count; index++)
+				{
+					dest[index] = dest[index] + " " + dest[index + 1];
+					dest.RemoveAt(index + 1);
+				}
+			}
+
+			File.WriteAllLines(@"C:\temp\SJIS_Unicode.txt", dest, Encoding.ASCII);
+
+			// ----
+
+			for (int code = 0xa1; code <= 0xdf; code++) // 半角カナ
+			{
+				char[] chrs = SCommon.ENCODING_SJIS.GetString(new byte[] { (byte)code }).ToArray();
+
+				if (chrs.Length != 1)
+					throw null;
+
+				char chr = chrs[0];
+
+				Console.WriteLine(code + " ==> " + (int)chr + " " + ((int)chr - code));
+
+				// 半角カナ(SJIS) -> Unicode は 65216 足すだけで良いっぽい。
+
+				if ((int)chr != code + 65216)
+					throw null;
+
+				// 逆変換
+				{
+					byte[] bytes = SCommon.ENCODING_SJIS.GetBytes(new string(new char[] { chr }));
+
+					if (bytes.Length != 1)
+						throw null;
+
+					UInt16 revCode = (UInt16)bytes[0];
+
+					if (revCode != code)
+						throw null;
 				}
 			}
 			Common.Pause();
