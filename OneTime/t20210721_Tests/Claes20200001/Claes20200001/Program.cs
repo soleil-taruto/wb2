@@ -51,7 +51,9 @@ namespace Charlotte
 			//new Test0003().Test04();
 			//new Test0003().Test04_2();
 			//new Test0003().Test05();
-			new Test0003().Test05_2();
+			//new Test0003().Test05_2();
+			//new Test0003().Test05_3();
+			new Test0003().Test05_4();
 
 			// --
 		}

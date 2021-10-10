@@ -118,6 +118,8 @@ namespace Charlotte.Tests
 
 		public void Test05()
 		{
+			// ---- 2-バイト文字 ----
+
 			List<string> dest = new List<string>();
 
 			foreach (UInt16 code in SCommon.GetJCharCodes())
@@ -161,7 +163,7 @@ namespace Charlotte.Tests
 
 			File.WriteAllLines(@"C:\temp\SJIS_Unicode.txt", dest, Encoding.ASCII);
 
-			// ----
+			// ---- 半角カナ ----
 
 			for (int code = 0xa1; code <= 0xdf; code++) // 半角カナ
 			{
@@ -192,6 +194,9 @@ namespace Charlotte.Tests
 						throw null;
 				}
 			}
+
+			// ----
+
 			Common.Pause();
 		}
 
@@ -223,6 +228,68 @@ namespace Charlotte.Tests
 			}
 
 			File.WriteAllLines(@"C:\temp\SJIS_Unicode.txt", dest, Encoding.ASCII);
+		}
+
+		public void Test05_3()
+		{
+			List<int[]> ranges = new List<int[]>();
+
+			foreach (char chr in SCommon.GetJChars().DistinctOrderBy((a, b) => (int)a - (int)b))
+			{
+				ranges.Add(new int[] { (int)chr, (int)chr });
+			}
+
+			for (; ; )
+			{
+				bool finished = true;
+
+				for (int index = 1; index < ranges.Count; index++)
+				{
+					if (ranges[index - 1][1] + 1 == ranges[index][0])
+					{
+						ranges[index - 1][1] = ranges[index][1];
+						ranges.RemoveAt(index);
+						finished = false;
+					}
+				}
+				if (finished)
+					break;
+			}
+
+			List<string> dest = new List<string>();
+
+			foreach (int[] range in ranges)
+			{
+				dest.Add(range[0].ToString("x4"));
+				dest.Add(range[1].ToString("x4"));
+			}
+
+			// 連結して行数を減らす。
+			for (int c = 0; c < 6; c++)
+			{
+				for (int index = 0; index + 1 < dest.Count; index++)
+				{
+					dest[index] = dest[index] + dest[index + 1];
+					dest.RemoveAt(index + 1);
+				}
+			}
+
+			File.WriteAllLines(@"C:\temp\SJIS_Unicode.txt", dest, Encoding.ASCII);
+		}
+
+		public void Test05_4()
+		{
+			char[] chrs = SCommon.GetJChars().ToArray();
+
+			for (int row = 0; row < 256; row++)
+			{
+				for (int col = 0; col < 256; col++)
+				{
+					Console.Write(chrs.Contains((char)(row * 256 + col)) ? "*" : "-");
+				}
+				Console.WriteLine("");
+			}
+			Common.Pause();
 		}
 	}
 }
