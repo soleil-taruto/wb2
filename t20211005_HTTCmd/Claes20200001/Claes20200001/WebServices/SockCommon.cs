@@ -135,16 +135,13 @@ namespace Charlotte.WebServices
 			{
 				object[] curr = this.Home;
 
-				try
+				foreach (byte bChr in bytes)
 				{
-					foreach (byte bChr in bytes)
-						curr = (object[])curr[(int)bChr];
-				}
-				catch
-				{
-					return false;
-				}
+					curr = (object[])curr[(int)bChr];
 
+					if (curr == null)
+						return false;
+				}
 				return curr == this.Home;
 			}
 		}
