@@ -46,7 +46,7 @@ namespace Charlotte.WebServices
 		public IEnumerable<int> RecvRequest()
 		{
 			this.Channel.SessionTimeoutTime = TimeoutMillisToDateTime(RequestTimeoutMillis);
-			this.Channel.IdleTimeoutMillis = FirstLineTimeoutMillis;
+			this.Channel.P_IdleTimeoutMillis = FirstLineTimeoutMillis;
 
 			this.Channel.FirstLineRecving = true;
 
@@ -63,7 +63,7 @@ namespace Charlotte.WebServices
 				this.HTTPVersion = tokens[2];
 			}
 
-			this.Channel.IdleTimeoutMillis = IdleTimeoutMillis;
+			this.Channel.P_IdleTimeoutMillis = IdleTimeoutMillis;
 
 			foreach (int relay in this.RecvHeader())
 				yield return relay;

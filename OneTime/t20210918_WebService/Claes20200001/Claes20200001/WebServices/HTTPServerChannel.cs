@@ -46,7 +46,7 @@ namespace Charlotte.WebServices
 		public void RecvRequest()
 		{
 			this.Channel.SessionTimeoutTime = TimeoutMillisToDateTime(RequestTimeoutMillis);
-			this.Channel.IdleTimeoutMillis = FirstLineTimeoutMillis;
+			this.Channel.P_IdleTimeoutMillis = FirstLineTimeoutMillis;
 
 			try
 			{
@@ -65,7 +65,7 @@ namespace Charlotte.WebServices
 				this.HTTPVersion = tokens[2];
 			}
 
-			this.Channel.IdleTimeoutMillis = IdleTimeoutMillis;
+			this.Channel.P_IdleTimeoutMillis = IdleTimeoutMillis;
 
 			this.RecvHeader();
 			this.CheckHeader();

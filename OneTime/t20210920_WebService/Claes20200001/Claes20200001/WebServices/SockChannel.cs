@@ -41,7 +41,7 @@ namespace Charlotte.WebServices
 		/// 無通信タイムアウト_ミリ秒
 		/// -1 == INFINITE
 		/// </summary>
-		public int IdleTimeoutMillis = -1;
+		public int P_IdleTimeoutMillis = -1;
 
 		private IEnumerable<int> PreRecvSend()
 		{
@@ -112,7 +112,7 @@ namespace Charlotte.WebServices
 						throw new Exception("受信エラー", e);
 					}
 				}
-				if (this.IdleTimeoutMillis != -1 && this.IdleTimeoutMillis < (DateTime.Now - startedTime).TotalMilliseconds)
+				if (this.P_IdleTimeoutMillis != -1 && this.P_IdleTimeoutMillis < (DateTime.Now - startedTime).TotalMilliseconds)
 				{
 					throw new RecvIdleTimeoutException();
 				}
@@ -176,7 +176,7 @@ namespace Charlotte.WebServices
 						throw new Exception("送信エラー", e);
 					}
 				}
-				if (this.IdleTimeoutMillis != -1 && this.IdleTimeoutMillis < (DateTime.Now - startedTime).TotalMilliseconds)
+				if (this.P_IdleTimeoutMillis != -1 && this.P_IdleTimeoutMillis < (DateTime.Now - startedTime).TotalMilliseconds)
 				{
 					throw new Exception("送信の無通信タイムアウト");
 				}
