@@ -634,5 +634,114 @@ eeefeefcfa40fa7efa80fafcfb40fb7efb80fbfcfc40fc4b
 			}
 		}
 #endif
+
+		public void Test06()
+		{
+			using (HTTPBodyOutputStream hbos = new HTTPBodyOutputStream())
+			{
+				ProcMain.WriteLog(hbos.Count); // 0
+				hbos.Write(Encoding.ASCII.GetBytes("123456789"));
+				ProcMain.WriteLog(hbos.Count); // 9
+				hbos.Write(Encoding.ASCII.GetBytes("_ABCDEF"));
+				ProcMain.WriteLog(hbos.Count); // 16
+				hbos.Write(Encoding.ASCII.GetBytes("/xxx"));
+				ProcMain.WriteLog(hbos.Count); // 20
+
+				byte[] buff = hbos.ToByteArray();
+
+				ProcMain.WriteLog(hbos.Count); // 0
+
+				byte[] buff2 = hbos.ToByteArray();
+
+				ProcMain.WriteLog(hbos.Count); // 0
+
+				if (SCommon.Comp(buff, Encoding.ASCII.GetBytes("123456789_ABCDEF/xxx")) != 0)
+					throw null;
+
+				if (SCommon.Comp(buff2, SCommon.EMPTY_BYTES) != 0)
+					throw null;
+			}
+			Common.Pause();
+		}
+
+		private class HTTPBodyOutputStream : IDisposable
+		{
+#if !true
+			public void Write(byte[] data)
+			{
+				throw new Exception("Request-Body is not supported");
+			}
+
+			public int Count
+			{
+				get
+				{
+					return 0;
+				}
+			}
+
+			public byte[] ToByteArray()
+			{
+				return new byte[0];
+			}
+
+			public void Dispose()
+			{
+				// noop
+			}
+#else
+			private static long Counter = 0L;
+			private string BuffFile;
+			private int Size = 0;
+
+			public HTTPBodyOutputStream()
+			{
+				this.BuffFile = Path.Combine(@"C:\temp", (Counter++) + ".tmp");
+				File.WriteAllBytes(this.BuffFile, new byte[0]);
+			}
+
+			public void Write(byte[] data)
+			{
+				using (FileStream writer = new FileStream(this.BuffFile, FileMode.Append, FileAccess.Write))
+				{
+					writer.Write(data, 0, data.Length);
+				}
+				this.Size += data.Length;
+			}
+
+			public int Count
+			{
+				get
+				{
+					return this.Size;
+				}
+			}
+
+			public byte[] ToByteArray()
+			{
+				byte[] data = File.ReadAllBytes(this.BuffFile);
+
+				File.WriteAllBytes(this.BuffFile, new byte[0]);
+				this.Size = 0;
+
+				return data;
+			}
+
+			public void Dispose()
+			{
+				if (this.BuffFile != null)
+				{
+					try
+					{
+						File.Delete(this.BuffFile);
+					}
+					catch
+					{ }
+
+					this.BuffFile = null;
+				}
+			}
+#endif
+		}
 	}
 }
