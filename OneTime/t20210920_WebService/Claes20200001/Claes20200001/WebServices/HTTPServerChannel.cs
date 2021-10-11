@@ -222,7 +222,7 @@ namespace Charlotte.WebServices
 				string key = pair[0];
 				string value = pair[1];
 
-				if (1000 < key.Length || 1000 < value.Length) // ラフなしきい値
+				if (1000 < key.Length || 1000 < value.Length) // rough limit
 				{
 					SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "Ignore gen-header key and value (too long)");
 					continue;
