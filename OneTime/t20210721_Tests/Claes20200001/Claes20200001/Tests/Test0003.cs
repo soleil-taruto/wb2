@@ -666,30 +666,6 @@ eeefeefcfa40fa7efa80fafcfb40fb7efb80fbfcfc40fc4b
 
 		private class HTTPBodyOutputStream : IDisposable
 		{
-#if !true
-			public void Write(byte[] data)
-			{
-				throw new Exception("Request-Body is not supported");
-			}
-
-			public int Count
-			{
-				get
-				{
-					return 0;
-				}
-			}
-
-			public byte[] ToByteArray()
-			{
-				return new byte[0];
-			}
-
-			public void Dispose()
-			{
-				// noop
-			}
-#else
 			private static long Counter = 0L;
 			private string BuffFile;
 			private int Size = 0;
@@ -741,7 +717,6 @@ eeefeefcfa40fa7efa80fafcfb40fb7efb80fbfcfc40fc4b
 					this.BuffFile = null;
 				}
 			}
-#endif
 		}
 	}
 }
