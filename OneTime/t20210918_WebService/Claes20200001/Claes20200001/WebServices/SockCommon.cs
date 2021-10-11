@@ -248,15 +248,16 @@ namespace Charlotte.WebServices
 			private const int COUNTER_NUM = 5;
 			private const int COUNT_LIMIT = 10000;
 
-			private static int[] Counters = new int[COUNTER_NUM]; // 直近数分間に発生した切断(TIME_WAIT)の回数
-			private static int CounterIndex = 0;
+			private static int ConnectedCount = 0;
+			private static int[] TWCounters = new int[COUNTER_NUM]; // 直近数分間に発生した切断(TIME_WAIT)の回数
+			private static int TWCounterIndex = 0;
 			private static DateTime NextRotateTime = GetNextRotateTime();
 
 			public static void Connected()
 			{
-				KickCounter(0);
+				KickCounter(1, 0);
 
-				if (COUNT_LIMIT < Counters.Sum()) // ? TIME_WAIT 多すぎ -> 時間当たりの接続数を制限する。-- TIME_WAIT を減らす。
+				if (COUNT_LIMIT < ConnectedCount + TWCounters.Sum()) // ? TIME_WAIT 多すぎ -> 時間当たりの接続数を制限する。-- TIME_WAIT を減らす。
 				{
 					SockCommon.WriteLog(SockCommon.ErrorLevel_e.WARNING, "PORT-EXHAUSTION");
 
@@ -266,22 +267,24 @@ namespace Charlotte.WebServices
 
 			public static void Disconnect()
 			{
-				KickCounter(1);
+				KickCounter(-1, 1);
 			}
 
-			private static void KickCounter(int valAdd)
+			private static void KickCounter(int connAdd, int twAdd)
 			{
+				ConnectedCount += connAdd;
+
 				if (NextRotateTime < DateTime.Now)
 				{
-					CounterIndex++;
-					CounterIndex %= Counters.Length;
-					Counters[CounterIndex] = valAdd;
+					TWCounterIndex++;
+					TWCounterIndex %= TWCounters.Length;
+					TWCounters[TWCounterIndex] = twAdd;
 					NextRotateTime = GetNextRotateTime();
 				}
 				else
-					Counters[CounterIndex] += valAdd;
+					TWCounters[TWCounterIndex] += twAdd;
 
-				SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "TIME-WAIT-MONITOR: " + valAdd + ", " + Counters.Sum());
+				SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "TIME-WAIT-MONITOR: " + twAdd + ", " + ConnectedCount + " + " + TWCounters.Sum() + " = " + (ConnectedCount + TWCounters.Sum()));
 			}
 
 			private static DateTime GetNextRotateTime()
