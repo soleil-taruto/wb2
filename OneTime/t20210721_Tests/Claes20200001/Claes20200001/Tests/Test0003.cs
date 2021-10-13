@@ -688,13 +688,25 @@ eeefeefcfa40fa7efa80fafcfb40fb7efb80fbfcfc40fc4b
 
 		private class HTTPBodyOutputStream : IDisposable
 		{
-			private static long Counter = 0L;
+			private static string TMP_Dir = null;
 			private string BuffFile;
 			private int Size = 0;
 
 			public HTTPBodyOutputStream()
 			{
-				this.BuffFile = Path.Combine(@"C:\temp", (Counter++) + ".tmp");
+				if (TMP_Dir == null)
+				{
+					string dir = Environment.GetEnvironmentVariable("TMP");
+
+					if (string.IsNullOrEmpty(dir))
+						throw new Exception("TMP is empty");
+
+					if (!Directory.Exists(dir))
+						throw new Exception("TMP does not exists");
+
+					TMP_Dir = dir;
+				}
+				this.BuffFile = Path.Combine(TMP_Dir, "HTTP-Body-Output_" + Guid.NewGuid().ToString() + ".tmp");
 				File.WriteAllBytes(this.BuffFile, new byte[0]);
 			}
 
