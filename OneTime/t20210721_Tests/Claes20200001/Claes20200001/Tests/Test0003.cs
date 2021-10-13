@@ -664,6 +664,28 @@ eeefeefcfa40fa7efa80fafcfb40fb7efb80fbfcfc40fc4b
 			Common.Pause();
 		}
 
+		public void Test06_2()
+		{
+			using (HTTPBodyOutputStream a = new HTTPBodyOutputStream())
+			using (HTTPBodyOutputStream b = new HTTPBodyOutputStream())
+			using (HTTPBodyOutputStream c = new HTTPBodyOutputStream())
+			{
+				a.Write(Encoding.ASCII.GetBytes("AAA"));
+				b.Write(Encoding.ASCII.GetBytes("BBB"));
+				c.Write(Encoding.ASCII.GetBytes("CCC"));
+
+				if (SCommon.Comp(a.ToByteArray(), Encoding.ASCII.GetBytes("AAA")) != 0)
+					throw null;
+
+				if (SCommon.Comp(b.ToByteArray(), Encoding.ASCII.GetBytes("BBB")) != 0)
+					throw null;
+
+				if (SCommon.Comp(c.ToByteArray(), Encoding.ASCII.GetBytes("CCC")) != 0)
+					throw null;
+			}
+			Common.Pause();
+		}
+
 		private class HTTPBodyOutputStream : IDisposable
 		{
 			private static long Counter = 0L;
