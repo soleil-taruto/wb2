@@ -86,7 +86,7 @@ namespace Charlotte
 
 		private void MainTimer_Tick(object sender, EventArgs e)
 		{
-			this.EM.TimerEventHandler(() =>
+			this.EM.EventHandlerForTimer(() =>
 			{
 				this.UpdateSubStatus();
 			});

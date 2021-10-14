@@ -35,7 +35,7 @@ namespace Charlotte
 			/// タイマーのイベント実行
 			/// </summary>
 			/// <param name="routine">イベントロジック</param>
-			public void TimerEventHandler(Action routine)
+			public void EventHandlerForTimer(Action routine)
 			{
 				if (this.TimerStarted)
 					this.EventHandler(true, routine);
