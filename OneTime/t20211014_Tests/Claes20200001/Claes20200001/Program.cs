@@ -35,7 +35,7 @@ namespace Charlotte
 		private void Main3()
 		{
 			Main4();
-			//Common.Pause();
+			Common.Pause();
 		}
 
 		private void Main4()
