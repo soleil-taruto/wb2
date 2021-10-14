@@ -20,7 +20,7 @@ namespace Charlotte.Commons
 			: this(file, append, SCommon.ENCODING_SJIS)
 		{ }
 
-		public CsvFileWriter(string file, bool append, Encoding encoding) // 難読化のため、デフォルト引数にしない。
+		public CsvFileWriter(string file, bool append, Encoding encoding)
 			: this(file, append, encoding, DELIMITER_COMMA)
 		{ }
 
