@@ -19,7 +19,7 @@ namespace Charlotte.Commons
 			: this(file, SCommon.ENCODING_SJIS)
 		{ }
 
-		public CsvFileReader(string file, Encoding encoding) // 難読化のため、デフォルト引数にしない。
+		public CsvFileReader(string file, Encoding encoding)
 			: this(file, encoding, DELIMITER_COMMA)
 		{ }
 
