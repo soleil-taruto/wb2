@@ -73,5 +73,60 @@ namespace Charlotte
 		{
 			return Math.Sqrt(pt.X * pt.X + pt.Y * pt.Y);
 		}
+
+		public class RecursiveSearch
+		{
+			// TODO
+			// TODO
+			// TODO
+
+
+
+			public Func<int, bool> IsInvalid = count => true;
+
+			public Func<int, bool> IsEnd = count => true;
+
+			public Action<int> Ended = count => { };
+
+			public Action<int> MoveFirstOrNext = index => { };
+
+			public Action<int> CreateElement = index => { };
+
+			public Func<int, bool> SetFirstOrNextElement = index => true;
+
+			public Action<int> ReleaseElement = index => { };
+
+			public Action<int> MovePrevious = index => { };
+
+			public void Perform()
+			{
+				int index = -1;
+
+			forward:
+				this.MoveFirstOrNext(++index);
+
+				if (this.IsInvalid(index))
+					goto back;
+
+				if (this.IsEnd(index))
+				{
+					this.Ended(index);
+					goto back;
+				}
+				this.CreateElement(index);
+
+			next:
+				if (this.SetFirstOrNextElement(index))
+					goto forward;
+
+				this.ReleaseElement(index);
+
+			back:
+				this.MovePrevious(index--);
+
+				if (0 <= index)
+					goto next;
+			}
+		}
 	}
 }

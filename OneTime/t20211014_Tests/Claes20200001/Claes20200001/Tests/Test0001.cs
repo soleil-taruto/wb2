@@ -48,5 +48,18 @@ namespace Charlotte.Tests
 
 			Console.WriteLine(sayLiarCount + ", " + humans.Length);
 		}
+
+		public void Test02()
+		{
+			for (int color = 1; color <= 10; color++)
+			{
+				Test02_a(color);
+			}
+		}
+
+		private void Test02_a(int color)
+		{
+			// TODO
+		}
 	}
 }
