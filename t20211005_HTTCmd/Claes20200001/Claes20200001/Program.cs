@@ -49,12 +49,8 @@ namespace Charlotte
 			Common.Pause();
 		}
 
-		private bool PortNoSpecified = false;
-
 		private void Main4(ArgsReader ar)
 		{
-			DateTime startedTime = DateTime.Now;
-
 			try
 			{
 				Main5(ar);
@@ -66,14 +62,7 @@ namespace Charlotte
 
 			// 実行ファイルのダブルクリックやドキュメントルート(フォルダ)のドラッグアンドドロップで起動して
 			// エラーになった場合、一瞬でコンソールが閉じてしまうので、少しだけ待つ。
-			// また、サーバー終了時にエラーになっても見えないので、常に少しだけ待つ。
-			// 但し、コマンド引数にポート番号も指定された場合、バッチやコマンド直入力による起動と見なし、待たない。
-			if (!this.PortNoSpecified)
-			{
-				SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "_1");
-				Thread.Sleep(2000);
-				SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "_2");
-			}
+			Thread.Sleep(500);
 		}
 
 		private void Main5(ArgsReader ar)
@@ -111,22 +100,21 @@ namespace Charlotte
 				{
 					this.DocRoot = SCommon.MakeFullPath(ar.NextArg());
 
+					if (!Directory.Exists(this.DocRoot))
+						throw new Exception("ドキュメントルートが見つかりません");
+
 					if (ar.HasArgs())
 					{
 						hs.PortNo = int.Parse(ar.NextArg());
-						this.PortNoSpecified = true;
+
+						if (hs.PortNo < 1 || 65535 < hs.PortNo)
+							throw new Exception("不正なポート番号");
 					}
 				}
 				else
 				{
 					this.DocRoot = Directory.GetCurrentDirectory();
 				}
-
-				if (!Directory.Exists(this.DocRoot))
-					throw new Exception("ドキュメントルートが見つかりません");
-
-				if (hs.PortNo < 1 || 65535 < hs.PortNo)
-					throw new Exception("不正なポート番号");
 
 				ProcMain.WriteLog("HTTCmd-Start");
 				ProcMain.WriteLog("DocRoot: " + this.DocRoot);
