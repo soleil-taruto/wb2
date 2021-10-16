@@ -64,7 +64,7 @@ namespace Charlotte.WebServices
 					}
 					catch (Exception e)
 					{
-						throw new Exception("バインドに失敗しました。ポート番号 " + this.PortNo + " が使用中でないか確認して下さい。" + e.Message, e);
+						throw new Exception(string.Format("バインド失敗 - ポート番号 {0} は使用中です。", this.PortNo), e);
 					}
 					listener.Listen(this.Backlog);
 					listener.Blocking = false;

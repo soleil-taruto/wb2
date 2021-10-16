@@ -22,7 +22,7 @@ namespace Charlotte.WebServices
 		public static void WriteLog(ErrorLevel_e errorLevel, object message)
 		{
 			if (message is Exception)
-				message = ((Exception)message).Message; // スタックトレース_他のメッセージが見えなくなるので抑止
+				message = ((Exception)message).Message; // 他のメッセージが見えなくなるのでスタックトレースを抑止
 
 			switch (errorLevel)
 			{
