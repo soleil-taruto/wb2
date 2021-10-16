@@ -106,12 +106,10 @@ namespace Charlotte.Tests
 
 			answer[0] = true; // 正直者と仮定
 
-			for (int index = 3; index <= 99; index += 3)
-			{
-				answer[index] = answer[index - 3] ^ ask(index, index - 3) ^ true;
-				answer[index - 2] = answer[index] ^ ask(index, index - 2) ^ true;
-				answer[index - 1] = answer[index] ^ ask(index, index - 1) ^ true;
-			}
+			for (int index = 0; index <= 96; index += 3)
+				for (int c = 1; c <= 3; c++)
+					answer[index + c] = answer[index] ^ ask(index, index + c) ^ true;
+
 			if (0 <= answer.Select(v => v ? 1 : -1).Sum()) // ? 同数 || 正直者の方が多い -> 仮定が間違っているので反転
 				answer = answer.Select(v => !v).ToArray();
 
