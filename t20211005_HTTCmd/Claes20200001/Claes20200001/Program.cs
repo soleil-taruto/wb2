@@ -39,6 +39,7 @@ namespace Charlotte
 			// -- choose one --
 
 			Main4(new ArgsReader(new string[] { @"C:\temp" }));
+			//Main4(new ArgsReader(new string[] { @"C:\temp", "80" }));
 			//new Test0001().Test01();
 			//new Test0001().Test02();
 			//new Test0001().Test03();
@@ -48,7 +49,34 @@ namespace Charlotte
 			Common.Pause();
 		}
 
+		private bool PortNoSpecified = false;
+
 		private void Main4(ArgsReader ar)
+		{
+			DateTime startedTime = DateTime.Now;
+
+			try
+			{
+				Main5(ar);
+			}
+			catch (Exception e)
+			{
+				SockCommon.WriteLog(SockCommon.ErrorLevel_e.FATAL, e);
+			}
+
+			// 実行ファイルのダブルクリックやドキュメントルート(フォルダ)のドラッグアンドドロップで起動して
+			// エラーになった場合、一瞬でコンソールが閉じてしまうので、少しだけ待つ。
+			// また、サーバー終了時にエラーになっても見えないので、常に少しだけ待つ。
+			// 但し、コマンド引数にポート番号も指定された場合、バッチやコマンド直入力による起動と見なし、待たない。
+			if (!this.PortNoSpecified)
+			{
+				SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "_1");
+				Thread.Sleep(2000);
+				SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "_2");
+			}
+		}
+
+		private void Main5(ArgsReader ar)
 		{
 			// 複数のサーバーを起動していた場合、全て停止出来るようにマニュアル・リセットとする。
 			using (EventWaitHandle evStop = new EventWaitHandle(false, EventResetMode.ManualReset, Consts.STOP_EVENT_NAME))
@@ -83,21 +111,22 @@ namespace Charlotte
 				{
 					this.DocRoot = SCommon.MakeFullPath(ar.NextArg());
 
-					if (!Directory.Exists(this.DocRoot))
-						throw new Exception("ドキュメントルートが見つかりません");
-
 					if (ar.HasArgs())
 					{
 						hs.PortNo = int.Parse(ar.NextArg());
-
-						if (hs.PortNo < 1 || 65535 < hs.PortNo)
-							throw new Exception("不正なポート番号");
+						this.PortNoSpecified = true;
 					}
 				}
 				else
 				{
 					this.DocRoot = Directory.GetCurrentDirectory();
 				}
+
+				if (!Directory.Exists(this.DocRoot))
+					throw new Exception("ドキュメントルートが見つかりません");
+
+				if (hs.PortNo < 1 || 65535 < hs.PortNo)
+					throw new Exception("不正なポート番号");
 
 				ProcMain.WriteLog("HTTCmd-Start");
 				ProcMain.WriteLog("DocRoot: " + this.DocRoot);

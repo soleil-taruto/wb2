@@ -58,7 +58,14 @@ namespace Charlotte.WebServices
 				{
 					IPEndPoint endPoint = new IPEndPoint(0L, this.PortNo);
 
-					listener.Bind(endPoint);
+					try
+					{
+						listener.Bind(endPoint);
+					}
+					catch (Exception e)
+					{
+						throw new Exception("バインドに失敗しました。ポート番号 " + this.PortNo + " が使用中でないか確認して下さい。" + e.Message, e);
+					}
 					listener.Listen(this.Backlog);
 					listener.Blocking = false;
 
