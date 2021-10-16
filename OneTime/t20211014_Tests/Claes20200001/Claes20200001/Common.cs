@@ -81,32 +81,21 @@ namespace Charlotte
 		public class RecursiveSearch<T>
 		{
 			/// <summary>
-			/// 途中までのリストが間違っているか判定する。
-			/// </summary>
-			public Func<List<T>, bool> IsInvalid = list => false;
-
-			/// <summary>
-			/// リストが完成しているか判定する。
+			/// これ以上リストを延長する必要が無いか判定する。
+			/// 或いは ( 途中までのリストが間違っている || リストが完成している ) を返す。
 			/// </summary>
 			public Func<List<T>, bool> IsEnd = list => false;
 
 			/// <summary>
-			/// 完成したリストに対するリアクション
-			/// 戻り値：探索を終了するか
-			/// </summary>
-			public Func<List<T>, bool> Ended = list => false;
-
-			/// <summary>
 			/// 要素を生成する。
-			/// 要素の取り得る値を e(1), e(2), e(3), ... e(N - 2), e(N - 1), e(N) とすると e(0) を返す。
+			/// 最初の値ではないことに注意！
 			/// </summary>
 			public Func<List<T>, T> CreateZeroThElement = list => default(T);
 
 			/// <summary>
-			/// 要素の取り得る値を e(1), e(2), e(3), ... e(N - 2), e(N - 1), e(N) とする。
-			/// - - -
-			/// 要素の現在値 != e(N) --> 要素の現在値 == e(i) -- setter(e(i + 1)); return true;
-			/// 要素の現在値 == e(N) --> return false;
+			/// 初回：最初の値へ移動する。return true;
+			/// 2回目以降：次の値へ移動する。return true;
+			/// 最後(次の値は無い)：return false;
 			/// </summary>
 			public Func<List<T>, T, Action<T>, bool> MoveToFirstOrNextElement = (list, element, setter) => { setter(element); return true; };
 
@@ -123,28 +112,20 @@ namespace Charlotte
 				List<T> list = new List<T>();
 
 			forward:
-				if (this.IsInvalid(list))
-					goto back;
-
-				if (this.IsEnd(list))
-				{
-					if (this.Ended(list))
-						return;
-
-					goto back;
-				}
 				list.Add(this.CreateZeroThElement(list));
 
 			next:
 				if (this.MoveToFirstOrNextElement(list, list[list.Count - 1], element => list[list.Count - 1] = element))
-					goto forward;
-
-			back:
-				if (1 <= list.Count)
 				{
-					this.ReleaseElement(list, SCommon.UnaddElement(list));
-					goto next;
+					if (this.IsEnd(list))
+						goto next;
+
+					goto forward;
 				}
+				this.ReleaseElement(list, SCommon.UnaddElement(list));
+
+				if (1 <= list.Count)
+					goto next;
 			}
 		}
 	}
