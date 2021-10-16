@@ -88,11 +88,11 @@ namespace Charlotte
 
 			public Action<List<T>> Ended = list => { };
 
-			public Action<List<T>> AddElementNew = list => list.Add(default(T));
+			public Func<List<T>, T> CreateElement = list => default(T);
 
-			public Func<List<T>, bool> MoveNextLastElement = list => true;
+			public Func<List<T>, T, Action<T>, bool> MoveFirstOrNextElement = (list, element, setter) => { setter(element); return true; };
 
-			public Action<List<T>> RemoveLastElement = list => SCommon.UnaddElement(list);
+			public Action<List<T>, T> ReleaseElement = (list, element) => { };
 
 			public void Perform()
 			{
@@ -107,16 +107,16 @@ namespace Charlotte
 					this.Ended(list);
 					goto back;
 				}
-				this.AddElementNew(list);
+				list.Add(this.CreateElement(list));
 
 			next:
-				if (this.MoveNextLastElement(list))
+				if (this.MoveFirstOrNextElement(list, list[list.Count - 1], element => list[list.Count - 1] = element))
 					goto forward;
 
 			back:
 				if (1 <= list.Count)
 				{
-					this.RemoveLastElement(list);
+					this.ReleaseElement(list, SCommon.UnaddElement(list));
 					goto next;
 				}
 			}
