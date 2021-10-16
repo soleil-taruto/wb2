@@ -61,6 +61,8 @@
 
 ■補足
 
+　本プログラムは HTTCmd.exe 単体で動作します。
+
 　ソースがこの辺にあります。
 
 　　https://github.com/soleil-taruto/wb2/tree/main/t20211005_HTTCmd
