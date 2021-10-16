@@ -115,5 +115,93 @@ namespace Charlotte.Tests
 
 			return answer;
 		}
+
+		public void Test03()
+		{
+			for (int testcnt = 0; testcnt < 10000; testcnt++)
+			{
+				Test03_a();
+				ProcMain.WriteLog("Test03 OK " + testcnt);
+			}
+			ProcMain.WriteLog("Test03 OK!");
+		}
+
+		private void Test03_a()
+		{
+			bool[] humans = new bool[100]; // { (? not liar) ... }
+
+			do
+			{
+				for (int index = 0; index < humans.Length; index++)
+					humans[index] = SCommon.CRandom.GetInt(2) == 0; // ランダムに設定
+			}
+			while (0 <= humans.Select(v => v ? 1 : -1).Sum()); // ? 同数 || 正直者の方が多い -- 嘘つきの方が多くなければならない。
+
+			int[] askedCounts = new int[humans.Length];
+
+			Func<int, int, bool> ask = (from, dest) =>
+			{
+				askedCounts[from]++;
+
+				if (3 < askedCounts[from]) // 質問回数制限
+					throw null;
+
+				// 質問者数制限_無し
+
+				if (humans[from]) // ? not liar
+				{
+					return humans[dest];
+				}
+				else // ? liar
+				{
+					return !humans[dest];
+				}
+			};
+
+			bool[] answer = Test03_FindAnswer(ask);
+
+			ProcMain.WriteLog("質問者数：" + askedCounts.Where(v => 1 <= v).Count());
+
+			if (SCommon.Comp(humans, answer, (a, b) => (a ? 1 : 0) - (b ? 1 : 0)) != 0) // ? 不正解
+				throw null;
+		}
+
+		private bool[] Test03_FindAnswer(Func<int, int, bool> ask)
+		{
+			int[] answer = new int[100]; // { (0 == 未確定, 1 == 嘘つき, 2 == 正直者) ... }
+			int index;
+
+			for (index = 1; ; index++)
+			{
+				answer[index] = ask(index, 0) ? 2 : 1;
+
+				if (49 <= answer.Where(v => v == 2).Count())
+				{
+					answer[0] = 1;
+
+					for (int c = 1; c <= index; c++)
+						answer[c] ^= 3;
+
+					break;
+				}
+				if (50 <= answer.Where(v => v == 1).Count())
+				{
+					answer[0] = 2;
+					break;
+				}
+			}
+			int d = 0;
+			while (++index < 100)
+			{
+				int c = 1 + d / 2;
+				d++;
+
+				if (ask(c, index) ^ (answer[c] == 1))
+					answer[index] = 2;
+				else
+					answer[index] = 1;
+			}
+			return answer.Select(v => v == 2).ToArray();
+		}
 	}
 }
