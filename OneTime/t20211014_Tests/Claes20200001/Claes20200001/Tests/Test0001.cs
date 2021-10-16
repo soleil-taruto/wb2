@@ -108,9 +108,9 @@ namespace Charlotte.Tests
 
 			for (int index = 3; index <= 99; index += 3)
 			{
-				answer[index] = true ^ answer[index - 3] ^ ask(index, index - 3);
-				answer[index - 1] = true ^ answer[index] ^ ask(index, index - 1);
-				answer[index - 2] = true ^ answer[index] ^ ask(index, index - 2);
+				answer[index] = answer[index - 3] ^ ask(index, index - 3) ^ true;
+				answer[index - 2] = answer[index] ^ ask(index, index - 2) ^ true;
+				answer[index - 1] = answer[index] ^ ask(index, index - 1) ^ true;
 			}
 			if (0 <= answer.Select(v => v ? 1 : -1).Sum()) // ? 同数 || 正直者の方が多い -> 仮定が間違っているので反転
 				answer = answer.Select(v => !v).ToArray();
