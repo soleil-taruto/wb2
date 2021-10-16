@@ -74,7 +74,7 @@ namespace Charlotte
 			return Math.Sqrt(pt.X * pt.X + pt.Y * pt.Y);
 		}
 
-		public class RecursiveSearch
+		public class RecursiveSearch<T>
 		{
 			// TODO
 			// TODO
@@ -82,50 +82,43 @@ namespace Charlotte
 
 
 
-			public Func<int, bool> IsInvalid = count => true;
+			public Func<List<T>, bool> IsInvalid = list => false;
 
-			public Func<int, bool> IsEnd = count => true;
+			public Func<List<T>, bool> IsEnd = list => false;
 
-			public Action<int> Ended = count => { };
+			public Action<List<T>> Ended = list => { };
 
-			public Action<int> MoveFirstOrNext = index => { };
+			public Action<List<T>> AddElementNew = list => list.Add(default(T));
 
-			public Action<int> CreateElement = index => { };
+			public Func<List<T>, bool> MoveNextLastElement = list => true;
 
-			public Func<int, bool> SetFirstOrNextElement = index => true;
-
-			public Action<int> ReleaseElement = index => { };
-
-			public Action<int> MovePrevious = index => { };
+			public Action<List<T>> RemoveLastElement = list => SCommon.UnaddElement(list);
 
 			public void Perform()
 			{
-				int index = -1;
+				List<T> list = new List<T>();
 
 			forward:
-				this.MoveFirstOrNext(++index);
-
-				if (this.IsInvalid(index))
+				if (this.IsInvalid(list))
 					goto back;
 
-				if (this.IsEnd(index))
+				if (this.IsEnd(list))
 				{
-					this.Ended(index);
+					this.Ended(list);
 					goto back;
 				}
-				this.CreateElement(index);
+				this.AddElementNew(list);
 
 			next:
-				if (this.SetFirstOrNextElement(index))
+				if (this.MoveNextLastElement(list))
 					goto forward;
 
-				this.ReleaseElement(index);
-
 			back:
-				this.MovePrevious(index--);
-
-				if (0 <= index)
+				if (1 <= list.Count)
+				{
+					this.RemoveLastElement(list);
 					goto next;
+				}
 			}
 		}
 	}
