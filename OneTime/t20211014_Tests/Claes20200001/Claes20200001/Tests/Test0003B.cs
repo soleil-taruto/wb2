@@ -6,7 +6,7 @@ using Charlotte.Commons;
 
 namespace Charlotte.Tests
 {
-	public class Test0003
+	public class Test0003B
 	{
 		public void Test01()
 		{
@@ -35,10 +35,8 @@ namespace Charlotte.Tests
 			public int Queen;
 			public int Answer = 0;
 
-			protected override bool IsEnd(List<int> list)
+			protected override bool IsInvalid(List<int> list)
 			{
-				// 間違っているかチェック
-
 				int ex = list[list.Count - 1];
 				int ey = list.Count - 1;
 				int ep = ex + ey;
@@ -57,18 +55,21 @@ namespace Charlotte.Tests
 						)
 						return true;
 				}
+				return false;
+			}
 
-				// 完成しているかチェック
-
+			protected override bool IsEnd(List<int> list)
+			{
 				if (this.Queen <= list.Count)
 				{
-					this.Answer++;
 					return true;
 				}
-
-				// 継続
-
 				return false;
+			}
+
+			protected override void Ended(List<int> list)
+			{
+				this.Answer++;
 			}
 
 			protected override IEnumerable<int> E_GetElements(List<int> list)
@@ -79,8 +80,35 @@ namespace Charlotte.Tests
 
 		public abstract class RecursiveSearch<T>
 		{
+			/// <summary>
+			/// リストが間違っているか判定する。
+			/// 途中までのリストである場合がある。
+			/// 長さが2以上の場合 !IsInvalid(list.Take(list.Count - 1).AsList()) であったことが保証されるので
+			/// リストの最後の要素についてチェックすれば良い。
+			/// </summary>
+			/// <param name="list">リスト</param>
+			/// <returns>判定</returns>
+			protected abstract bool IsInvalid(List<T> list);
+
+			/// <summary>
+			/// リストが完成しているか判定する。
+			/// 完成した場合、これ以上リストを延長しない。
+			/// </summary>
+			/// <param name="list">リスト</param>
+			/// <returns>判定</returns>
 			protected abstract bool IsEnd(List<T> list);
 
+			/// <summary>
+			/// 完成したリストに対するリアクション
+			/// </summary>
+			/// <param name="list">リスト</param>
+			protected abstract void Ended(List<T> list);
+
+			/// <summary>
+			/// 要素の値を列挙する。
+			/// </summary>
+			/// <param name="list">リスト</param>
+			/// <returns>値の列挙</returns>
 			protected abstract IEnumerable<T> E_GetElements(List<T> list);
 
 			public void Perform()
@@ -99,9 +127,14 @@ namespace Charlotte.Tests
 				{
 					list[index] = ites[index].Current;
 
-					if (this.IsEnd(list))
+					if (this.IsInvalid(list))
 						goto next;
 
+					if (this.IsEnd(list))
+					{
+						this.Ended(list);
+						goto next;
+					}
 					goto forward;
 				}
 				ites.RemoveAt(index);
