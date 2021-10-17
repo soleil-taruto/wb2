@@ -38,8 +38,10 @@ namespace Charlotte
 		{
 			// -- choose one --
 
-			Main4(new ArgsReader(new string[] { @"C:\temp" }));
+			//Main4(new ArgsReader(new string[] { }));
+			//Main4(new ArgsReader(new string[] { @"C:\temp" }));
 			//Main4(new ArgsReader(new string[] { @"C:\temp", "80" }));
+			Main4(new ArgsReader(new string[] { @"C:\temp", "80", "/K" }));
 			//new Test0001().Test01();
 			//new Test0001().Test02();
 			//new Test0001().Test03();
@@ -68,7 +70,7 @@ namespace Charlotte
 		private void Main5(ArgsReader ar)
 		{
 			// 複数のサーバーを起動していた場合、全て停止出来るようにマニュアル・リセットとする。
-			using (EventWaitHandle evStop = new EventWaitHandle(false, EventResetMode.ManualReset, Consts.STOP_EVENT_NAME))
+			using (EventWaitHandle evStop = new EventWaitHandle(false, EventResetMode.ManualReset, Consts.SERVER_STOP_EVENT_NAME))
 			{
 				HTTPServer hs = new HTTPServer()
 				{
@@ -109,6 +111,23 @@ namespace Charlotte
 
 						if (hs.PortNo < 1 || 65535 < hs.PortNo)
 							throw new Exception("不正なポート番号");
+
+						for (; ; ) // 拡張オプション・隠しオプション
+						{
+							if (ar.ArgIs("/K"))
+							{
+								Func<bool> orig = hs.Interlude;
+								hs.Interlude = () => orig() && !Console.KeyAvailable;
+								ProcMain.WriteLog("キー入力を検出するとサーバーは停止します。");
+								continue;
+							}
+							if (ar.ArgIs("/T"))
+							{
+								ContentTypeCollection.I.AddContentTypesByTsvFile(ar.NextArg());
+								continue;
+							}
+							break;
+						}
 					}
 				}
 				else

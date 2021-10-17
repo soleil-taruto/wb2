@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
 using Charlotte.Commons;
+using Charlotte.WebServices;
 
 namespace Charlotte
 {
@@ -238,6 +240,25 @@ namespace Charlotte
 		{
 			for (int index = 0; index < Extension2ContentTypeResource.Length; index += 2)
 				this.Extension2ContentType.Add(Extension2ContentTypeResource[index], Extension2ContentTypeResource[index + 1]);
+		}
+
+		public void AddContentTypesByTsvFile(string tsvFile)
+		{
+			using (CsvFileReader reader = new CsvFileReader(tsvFile, Encoding.ASCII, CsvFileReader.DELIMITER_TAB))
+			{
+				foreach (string[] row in reader.ReadToEnd())
+				{
+					string ext = row[0];
+					string contentType = row[1];
+
+					SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, string.Format("Add Content-Type: {0} = {1}", ext, contentType));
+
+					if (this.Extension2ContentType.ContainsKey(ext))
+						this.Extension2ContentType.Remove(ext);
+
+					this.Extension2ContentType.Add(ext, contentType);
+				}
+			}
 		}
 
 		public string GetContentType(string ext)

@@ -8,6 +8,6 @@ namespace Charlotte
 {
 	public static class Consts
 	{
-		public const string STOP_EVENT_NAME = ProcMain.APP_IDENT + "_STOP_EVENT";
+		public const string SERVER_STOP_EVENT_NAME = ProcMain.APP_IDENT + "_SERVER_STOP_EVENT";
 	}
 }
