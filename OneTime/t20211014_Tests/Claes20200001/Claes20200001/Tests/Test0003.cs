@@ -78,6 +78,78 @@ namespace Charlotte.Tests
 			}
 		}
 
+		public void Test02()
+		{
+			for (int queen = 1; queen <= 18; queen++)
+			{
+				Test02_a(queen);
+			}
+		}
+
+		private void Test02_a(int queen)
+		{
+			// n-クイーン問題
+
+			Test02_Search search = new Test02_Search()
+			{
+				Queen = queen,
+				XMap = new bool[queen],
+				PMap = new bool[queen * 2 - 1],
+				RMap = new bool[queen * 2 - 1],
+			};
+			search.Perform();
+			int answer = search.Answer;
+
+			ProcMain.WriteLog(queen + " ==> " + answer);
+		}
+
+		private class Test02_Search : RecursiveSearch<int>
+		{
+			public int Queen;
+			public bool[] XMap;
+			public bool[] PMap;
+			public bool[] RMap;
+			public int Answer = 0;
+
+			protected override bool IsEnd(List<int> list)
+			{
+				if (this.Queen <= list.Count)
+				{
+					this.Answer++;
+					return true;
+				}
+				return false;
+			}
+
+			protected override IEnumerable<int> E_GetElements(List<int> list)
+			{
+				int y = list.Count - 1;
+
+				for (int x = 0; x < this.Queen; x++)
+				{
+					int p = x + y;
+					int r = x - y + (this.Queen - 1);
+
+					if (
+						!this.XMap[x] &&
+						!this.PMap[p] &&
+						!this.RMap[r]
+						)
+					{
+						this.XMap[x] = true;
+						this.PMap[p] = true;
+						this.RMap[r] = true;
+
+						yield return x;
+
+						this.XMap[x] = false;
+						this.PMap[p] = false;
+						this.RMap[r] = false;
+					}
+				}
+			}
+		}
+
 		/// <summary>
 		/// 深さ優先探索によるリストの生成
 		/// </summary>
