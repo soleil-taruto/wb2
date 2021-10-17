@@ -26,6 +26,8 @@ namespace Charlotte.Tests
 			{
 				IsEnd = list =>
 				{
+					// 間違っているかチェック
+
 					int ex = list[list.Count - 1];
 					int ey = list.Count - 1;
 					int ep = ex + ey;
@@ -44,11 +46,17 @@ namespace Charlotte.Tests
 							)
 							return true;
 					}
+
+					// 完成しているかチェック
+
 					if (queen <= list.Count)
 					{
 						answer++;
 						return true;
 					}
+
+					// 継続
+
 					return false;
 				},
 				CreateZeroThElement = list => -1,
