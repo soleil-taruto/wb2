@@ -27,6 +27,7 @@ namespace Charlotte.Tests
 				IsEnd = list =>
 				{
 					// 間違っているかチェック
+					// -- 最後の要素についてのみチェックすれば良い。
 
 					int ex = list[list.Count - 1];
 					int ey = list.Count - 1;

@@ -38,6 +38,7 @@ namespace Charlotte.Tests
 			protected override bool IsEnd(List<int> list)
 			{
 				// 間違っているかチェック
+				// -- 最後の要素についてのみチェックすれば良い。
 
 				int ex = list[list.Count - 1];
 				int ey = list.Count - 1;
@@ -77,12 +78,30 @@ namespace Charlotte.Tests
 			}
 		}
 
+		/// <summary>
+		/// 深さ優先探索によるリストの生成
+		/// </summary>
+		/// <typeparam name="T">要素の型</typeparam>
 		public abstract class RecursiveSearch<T>
 		{
+			/// <summary>
+			/// これ以上リストを延長する必要が無いか判定する。
+			/// 或いは ( 途中までのリストが間違っている || リストが完成している ) を返す。
+			/// </summary>
+			/// <param name="list">リスト</param>
+			/// <returns>これ以上リストを延長する必要が無いか</returns>
 			protected abstract bool IsEnd(List<T> list);
 
+			/// <summary>
+			/// 要素の値を列挙する。
+			/// </summary>
+			/// <param name="list">リスト</param>
+			/// <returns>要素の値の列挙</returns>
 			protected abstract IEnumerable<T> E_GetElements(List<T> list);
 
+			/// <summary>
+			/// 探索実行
+			/// </summary>
 			public void Perform()
 			{
 				List<IEnumerator<T>> ites = new List<IEnumerator<T>>();
