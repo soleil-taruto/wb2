@@ -73,7 +73,7 @@
 　　　⇒ ファイル拡張子と Content-Type の組み合わせを追加(デフォルト設定を上書き)します。
 　　　　TSV-FILE には以下の内容のファイルを指定して下さい。
 
-　　　　　ファイル形式：TSV (Tab-separated values)
+　　　　　ファイル形式：Tab-Separated Values (TSV)
 　　　　　文字コード：US-ASCII
 　　　　　改行コード：CR-LF または LF
 
