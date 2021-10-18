@@ -62,7 +62,7 @@
 
 ■拡張オプション
 
-　以下のオプションを順不同に指定します。
+　以下のオプションを順不同に指定して下さい。
 
 　　/K
 
@@ -71,20 +71,20 @@
 　　/T [TSV-FILE]
 
 　　　⇒ ファイル拡張子と Content-Type の組み合わせを追加(デフォルト設定を上書き)します。
-　　　　TSV-FILE には以下の内容のファイル名を指定します。
+　　　　TSV-FILE には以下の内容のファイルを指定して下さい。
 
-　　　　　ファイル形式：tsv
+　　　　　ファイル形式：TSV (Tab-separated values)
 　　　　　文字コード：US-ASCII
-　　　　　改行コード：CR-LF
+　　　　　改行コード：CR-LF または LF
 
 　　　　　ｎ行２列、１列目に拡張子、２列目に Content-Type を記述します。
 　　　　　拡張子はドットから始まることに注意して下さい。
 
 　　　　　記述例：
 
-　　　　　　.html【タブ空白】text/html【改行】
-　　　　　　.xlsx【タブ空白】application/vnd.openxmlformats-officedocument.spreadsheetml.sheet【改行】
-　　　　　　.pdf【タブ空白】application/pdf【改行】
+　　　　　　.html【水平タブ】text/html【改行】
+　　　　　　.xlsx【水平タブ】application/vnd.openxmlformats-officedocument.spreadsheetml.sheet【改行】
+　　　　　　.pdf【水平タブ】application/pdf【改行】
 
 
 ■補足
