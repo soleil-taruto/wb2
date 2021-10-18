@@ -42,6 +42,9 @@ namespace Charlotte
 			//Main4(new ArgsReader(new string[] { @"C:\temp" }));
 			//Main4(new ArgsReader(new string[] { @"C:\temp", "80" }));
 			Main4(new ArgsReader(new string[] { @"C:\temp", "80", "/K" }));
+			//Main4(new ArgsReader(new string[] { @"C:\temp", "80", "/T", @"C:\temp\1.tsv" }));
+			//Main4(new ArgsReader(new string[] { @"C:\temp", "80", "/T", @"C:\temp\1.tsv", "/K" }));
+			//Main4(new ArgsReader(new string[] { @"C:\temp", "80", "/K", "/T", @"C:\temp\1.tsv" }));
 			//new Test0001().Test01();
 			//new Test0001().Test02();
 			//new Test0001().Test03();
