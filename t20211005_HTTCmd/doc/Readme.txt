@@ -31,10 +31,11 @@
 
 　コマンドライン
 
-　　HTTCmd.exe [DOC-ROOT [PORT-NO]]
+　　HTTCmd.exe [DOC-ROOT [PORT-NO [OPTIONS...]]]
 
 　　　DOC-ROOT ⇒ ドキュメントルートのフォルダ (省略時：カレントディレクトリ)
 　　　PORT-NO  ⇒ ポート番号 (省略時：80)
+　　　OPTIONS  ⇒ 拡張オプションを参照
 
 
 　実行例
@@ -57,6 +58,33 @@
 　以下の引数で起動して下さい。実行中のサーバーが停止します。
 
 　　HTTCmd.exe /S
+
+
+■拡張オプション
+
+　以下のオプションを順不同に指定します。
+
+　　/K
+
+　　　⇒ 非シフト系キー入力でサーバーを停止できるようになります。
+
+　　/T [TSV-FILE]
+
+　　　⇒ ファイル拡張子と Content-Type の組み合わせを追加(デフォルト設定を上書き)します。
+　　　　TSV-FILE には以下の内容のファイル名を指定します。
+
+　　　　　ファイル形式：tsv
+　　　　　文字コード：US-ASCII
+　　　　　改行コード：CR-LF
+
+　　　　　ｎ行２列、１列目に拡張子、２列目に Content-Type を記述します。
+　　　　　拡張子はドットから始まることに注意して下さい。
+
+　　　　　記述例：
+
+　　　　　　.html【タブ空白】text/html【改行】
+　　　　　　.xlsx【タブ空白】application/vnd.openxmlformats-officedocument.spreadsheetml.sheet【改行】
+　　　　　　.pdf【タブ空白】application/pdf【改行】
 
 
 ■補足

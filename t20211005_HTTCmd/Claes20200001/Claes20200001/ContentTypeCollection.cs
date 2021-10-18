@@ -248,6 +248,9 @@ namespace Charlotte
 			{
 				foreach (string[] row in reader.ReadToEnd())
 				{
+					if (row.Length != 2)
+						continue;
+
 					string ext = row[0];
 					string contentType = row[1];
 

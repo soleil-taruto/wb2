@@ -112,7 +112,7 @@ namespace Charlotte
 						if (hs.PortNo < 1 || 65535 < hs.PortNo)
 							throw new Exception("不正なポート番号");
 
-						for (; ; ) // 拡張オプション・隠しオプション
+						for (; ; ) // 拡張オプション
 						{
 							if (ar.ArgIs("/K"))
 							{
