@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Xml;
+using Charlotte.Commons;
 
 namespace Charlotte
 {
@@ -117,48 +118,28 @@ namespace Charlotte
 				value = EncodeXML(value);
 			}
 
-			Indent(writer, depth);
-
 			if (this.Children.Count != 0)
 			{
-				writer.Write('<');
-				writer.Write(this.Name);
-				writer.Write('>');
-				writer.WriteLine(this.Value);
+				writer.WriteLine(Indent(depth) + "<" + name + ">" + value);
 
 				foreach (XMLNode child in this.Children)
 					child.WriteTo(writer, depth + 1);
 
-				Indent(writer, depth);
-				writer.Write('<');
-				writer.Write('/');
-				writer.Write(this.Name);
-				writer.WriteLine('>');
+				writer.WriteLine(Indent(depth) + "</" + name + ">");
 			}
-			else if (this.Value != "")
+			else if (value != "")
 			{
-				writer.Write('<');
-				writer.Write(this.Name);
-				writer.Write('>');
-				writer.Write(this.Value);
-				writer.Write('<');
-				writer.Write('/');
-				writer.Write(this.Name);
-				writer.WriteLine('>');
+				writer.WriteLine(Indent(depth) + "<" + name + ">" + value + "</" + name + ">");
 			}
 			else
 			{
-				writer.Write('<');
-				writer.Write(this.Name);
-				writer.Write('/');
-				writer.WriteLine('>');
+				writer.WriteLine(Indent(depth) + "<" + name + "/>");
 			}
 		}
 
-		private static void Indent(StreamWriter writer, int depth)
+		private static string Indent(int depth)
 		{
-			for (int index = 0; index < depth; index++)
-				writer.Write('\t');
+			return new string(Enumerable.Repeat('\t', depth).ToArray());
 		}
 
 #if false // 不要
