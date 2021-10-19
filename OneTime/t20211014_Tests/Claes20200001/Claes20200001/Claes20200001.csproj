@@ -61,11 +61,14 @@
     <Compile Include="Commons\I3Color.cs" />
     <Compile Include="Commons\I4Color.cs" />
     <Compile Include="Commons\I4Rect.cs" />
+    <Compile Include="Commons\JsonFileReader.cs" />
+    <Compile Include="Commons\JsonFileWriter.cs" />
     <Compile Include="Commons\P4Poly.cs" />
     <Compile Include="Commons\ProcMain.cs" />
     <Compile Include="Commons\RandomUnit.cs" />
     <Compile Include="Commons\SCommon.cs" />
     <Compile Include="Commons\WorkingDir.cs" />
+    <Compile Include="Commons\XMLNode.cs" />
     <Compile Include="Consts.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Program.cs" />
@@ -73,6 +76,7 @@
     <Compile Include="Tests\Test0001.cs" />
     <Compile Include="Tests\Test0002.cs" />
     <Compile Include="Tests\Test0003.cs" />
+    <Compile Include="Tests\Test0004.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
