@@ -10,7 +10,8 @@ namespace Charlotte.Tests
 	{
 		public void Test01()
 		{
-			XMLNode.LoadFromFile(@"C:\temp\1.xml");
+			XMLNode.LoadFromFile(@"C:\temp\1.xml").WriteToFile(@"C:\temp\2.xml");
+			XMLNode.LoadFromFile(@"C:\temp\2.xml").WriteToFile(@"C:\temp\3.xml");
 		}
 	}
 }
