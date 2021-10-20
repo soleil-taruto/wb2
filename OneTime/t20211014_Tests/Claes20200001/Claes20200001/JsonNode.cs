@@ -253,100 +253,152 @@ namespace Charlotte
 			}
 		}
 
-		private const string NEW_LINE = "\r\n";
+		public void WriteToFile(string file)
+		{
+			this.WriteToFile(file, Encoding.UTF8);
+		}
+
+		public void WriteToFile(string file, Encoding encoding)
+		{
+			File.WriteAllText(file, this.GetString(), encoding);
+		}
 
 		public string GetString()
 		{
 			StringBuilder buff = new StringBuilder();
-			this.WriteTo(buff, 0);
-			buff.Append(NEW_LINE);
+			new Writer() { Buff = buff }.Write(this);
 			return buff.ToString();
 		}
 
-		private void WriteTo(StringBuilder buff, int depth)
+		public static bool ShortMode = false;
+
+		private class Writer
 		{
-			if (this.Array != null) // ? Array
-			{
-				buff.Append('[');
-				buff.Append(NEW_LINE);
+			public StringBuilder Buff;
+			public int Depth = 0;
 
-				for (int index = 0; index < this.Array.Count; index++)
+			// <---- prm
+
+			public void Write(JsonNode node)
+			{
+				if (node.Array != null) // ? Array
 				{
-					buff.Append(Indent(depth + 1));
-					this.Array[index].WriteTo(buff, depth + 1);
-					buff.Append(index < this.Array.Count - 1 ? "," : "");
-					buff.Append(NEW_LINE);
-				}
-				buff.Append(Indent(depth));
-				buff.Append(']');
-			}
-			else if (this.Map != null) // ? Map
-			{
-				buff.Append('{');
-				buff.Append(NEW_LINE);
+					this.Write('[');
+					this.WriteNewLine();
+					this.Depth++;
 
-				for (int index = 0; index < this.Map.Count; index++)
+					for (int index = 0; index < node.Array.Count; index++)
+					{
+						this.WriteIndent();
+						this.Write(node.Array[index]);
+
+						if (index < node.Array.Count - 1)
+							this.Write(',');
+
+						this.WriteNewLine();
+					}
+					this.Depth--;
+					this.WriteIndent();
+					this.Write(']');
+				}
+				else if (node.Map != null) // ? Map
 				{
-					buff.Append(Indent(depth + 1));
-					buff.Append(this.Map[index].Name);
-					buff.Append(": ");
-					this.Map[index].Value.WriteTo(buff, depth + 1);
-					buff.Append(index < this.Array.Count - 1 ? "," : "");
-					buff.Append(NEW_LINE);
-				}
-				buff.Append(Indent(depth));
-				buff.Append('}');
-			}
-			else if (this.WordFlag) // ? Word (number || true || false || null)
-			{
-				buff.Append(this.Value);
-			}
-			else // ? String
-			{
-				buff.Append("\"");
+					this.Write('{');
+					this.WriteNewLine();
+					this.Depth++;
 
-				foreach (char chr in this.Value)
+					for (int index = 0; index < node.Map.Count; index++)
+					{
+						this.WriteIndent();
+						this.Write(node.Map[index].Name);
+						this.Write(':');
+						this.WriteSpace();
+						this.Write(node.Map[index].Value);
+
+						if (index < node.Map.Count - 1)
+							this.Write(',');
+
+						this.WriteNewLine();
+					}
+					this.Depth--;
+					this.WriteIndent();
+					this.Write('}');
+				}
+				else if (node.WordFlag) // ? Word (number || true || false || null)
 				{
-					if (chr == '"')
-					{
-						buff.Append("\\\"");
-					}
-					else if (chr == '\\')
-					{
-						buff.Append("\\\\");
-					}
-					else if (chr == '\b')
-					{
-						buff.Append("\\b");
-					}
-					else if (chr == '\f')
-					{
-						buff.Append("\\f");
-					}
-					else if (chr == '\n')
-					{
-						buff.Append("\\n");
-					}
-					else if (chr == '\r')
-					{
-						buff.Append("\\r");
-					}
-					else if (chr == '\t')
-					{
-						buff.Append("\\t");
-					}
-					else
-					{
-						buff.Append(chr);
-					}
+					this.Write(node.Value);
 				}
-				buff.Append("\"");
-			}
-		}
+				else // ? String
+				{
+					this.Write('"');
 
-		private static string Indent(int depth)
-		{
-			return new string(Enumerable.Repeat('\t', depth).ToArray());
+					foreach (char chr in node.Value)
+					{
+						if (chr == '"')
+						{
+							this.Write("\\\"");
+						}
+						else if (chr == '\\')
+						{
+							this.Write("\\\\");
+						}
+						else if (chr == '\b')
+						{
+							this.Write("\\b");
+						}
+						else if (chr == '\f')
+						{
+							this.Write("\\f");
+						}
+						else if (chr == '\n')
+						{
+							this.Write("\\n");
+						}
+						else if (chr == '\r')
+						{
+							this.Write("\\r");
+						}
+						else if (chr == '\t')
+						{
+							this.Write("\\t");
+						}
+						else
+						{
+							this.Write(chr);
+						}
+					}
+					this.Write('"');
+				}
+			}
+
+			private void WriteIndent()
+			{
+				if (!ShortMode)
+					for (int index = 0; index < this.Depth; index++)
+						this.Write('\t');
+			}
+
+			private void WriteNewLine()
+			{
+				if (!ShortMode)
+					this.Write("\r\n");
+			}
+
+			private void WriteSpace()
+			{
+				if (!ShortMode)
+					this.Write(' ');
+			}
+
+			private void Write(string str)
+			{
+				this.Buff.Append(str);
+			}
+
+			private void Write(char chr)
+			{
+				this.Buff.Append(chr);
+			}
 		}
 	}
 }
