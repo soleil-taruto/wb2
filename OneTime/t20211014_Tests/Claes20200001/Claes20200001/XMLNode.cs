@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Xml;
-using Charlotte.Commons;
 
 namespace Charlotte
 {
@@ -75,6 +74,8 @@ namespace Charlotte
 				{
 					node.Name = node.Name ?? "";
 					node.Value = node.Value ?? "";
+
+					// XmlReader が &xxx; を変換(復元)してくれるので DecodeXML() は不要である。
 
 					//node.Name = DecodeXML(node.Name); // 不要
 					//node.Value = DecodeXML(node.Value); // 不要

@@ -61,13 +61,12 @@
     <Compile Include="Commons\I3Color.cs" />
     <Compile Include="Commons\I4Color.cs" />
     <Compile Include="Commons\I4Rect.cs" />
-    <Compile Include="JsonFileReader.cs" />
-    <Compile Include="JsonFileWriter.cs" />
     <Compile Include="Commons\P4Poly.cs" />
     <Compile Include="Commons\ProcMain.cs" />
     <Compile Include="Commons\RandomUnit.cs" />
     <Compile Include="Commons\SCommon.cs" />
     <Compile Include="Commons\WorkingDir.cs" />
+    <Compile Include="JsonNode.cs" />
     <Compile Include="XMLNode.cs" />
     <Compile Include="Consts.cs" />
     <Compile Include="Extensions.cs" />
