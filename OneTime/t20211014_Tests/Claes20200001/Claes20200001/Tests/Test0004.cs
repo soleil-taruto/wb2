@@ -17,7 +17,10 @@ namespace Charlotte.Tests
 		public void Test02()
 		{
 			JsonNode.LoadFromFile(@"C:\temp\1.json").WriteToFile(@"C:\temp\2.json");
+			JsonNode.ShortMode = true;
 			JsonNode.LoadFromFile(@"C:\temp\2.json").WriteToFile(@"C:\temp\3.json");
+			JsonNode.ShortMode = false;
+			JsonNode.LoadFromFile(@"C:\temp\3.json").WriteToFile(@"C:\temp\4.json");
 		}
 	}
 }
