@@ -481,6 +481,9 @@ namespace Charlotte.Commons
 			if (path == "")
 				throw new Exception("パスが定義されていません。(空文字列)");
 
+			if (path.Replace("\u0020", "") == "")
+				throw new Exception("パスが定義されていません。(空白のみ)");
+
 			path = Path.GetFullPath(path);
 
 			if (path.Contains('/')) // Path.GetFullPath が '/' を '\\' に置換するはず。
