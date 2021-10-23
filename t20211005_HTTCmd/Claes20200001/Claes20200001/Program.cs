@@ -107,7 +107,7 @@ namespace Charlotte
 				}
 				if (ar.HasArgs())
 				{
-					this.DocRoot = SCommon.MakeFullPath(ar.NextArg());
+					this.DocRoot = SCommon.ToFullPath(ar.NextArg());
 
 					if (!Directory.Exists(this.DocRoot))
 						throw new Exception("ドキュメントルートが見つかりません");
@@ -169,7 +169,7 @@ namespace Charlotte
 						continue;
 
 					string host = row[0];
-					string docRoot = SCommon.MakeFullPath(row[1]);
+					string docRoot = SCommon.ToFullPath(row[1]);
 
 					SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, string.Format("Add Host-DocRoot Pair: {0} = {1}", host, docRoot));
 
