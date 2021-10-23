@@ -74,7 +74,7 @@
 　　　　TSV-FILE には以下の内容のファイルを指定して下さい。
 
 　　　　　ファイル形式：Tab-Separated Values (TSV)
-　　　　　文字コード：US-ASCII
+　　　　　文字コード：US-ASCII (UTF-8でも良い)
 　　　　　改行コード：CR-LF または LF
 
 　　　　　ｎ行２列、１列目に拡張子、２列目に Content-Type を記述します。
@@ -85,6 +85,28 @@
 　　　　　　.html【水平タブ】text/html【改行】
 　　　　　　.xlsx【水平タブ】application/vnd.openxmlformats-officedocument.spreadsheetml.sheet【改行】
 　　　　　　.pdf【水平タブ】application/pdf【改行】
+
+　　/H [TSV-FILE]
+
+　　　⇒ リクエストヘッダの Host の値によってドキュメントルートを切り替えたい場合に使用します。
+　　　　TSV-FILE には以下の内容のファイルを指定して下さい。
+
+　　　　　ファイル形式：Tab-Separated Values (TSV)
+　　　　　文字コード：UTF-8
+　　　　　改行コード：CR-LF または LF
+
+　　　　　ｎ行２列、１列目にホスト名、２列目にドキュメントルートを記述します。
+　　　　　どのホスト名にも一致しなかった場合は、コマンド引数に指定されたドキュメントルートを使用します。
+
+　　　　　記述例：
+
+　　　　　　happy-tea-time.test【水平タブ】C:\HTT\DocRoot【改行】
+　　　　　　darjeeling-tea.test【水平タブ】D:\Assam\orange-pekoe【改行】
+			earlgrey.test【水平タブ】E:\Earl Grey【改行】
+			localhost【水平タブ】C:\HTT\DocRoot【改行】
+			127.0.0.1【水平タブ】C:\HTT\DocRoot【改行】
+			127.0.0.2【水平タブ】C:\test2【改行】
+			127.0.0.3【水平タブ】C:\test3【改行】
 
 
 ■補足

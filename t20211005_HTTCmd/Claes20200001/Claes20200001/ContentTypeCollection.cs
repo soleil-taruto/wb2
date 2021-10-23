@@ -244,7 +244,7 @@ namespace Charlotte
 
 		public void AddContentTypesByTsvFile(string tsvFile)
 		{
-			using (CsvFileReader reader = new CsvFileReader(tsvFile, Encoding.ASCII, CsvFileReader.DELIMITER_TAB))
+			using (CsvFileReader reader = new CsvFileReader(tsvFile, Encoding.UTF8, CsvFileReader.DELIMITER_TAB))
 			{
 				foreach (string[] row in reader.ReadToEnd())
 				{

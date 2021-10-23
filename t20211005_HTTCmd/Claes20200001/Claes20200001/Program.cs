@@ -45,6 +45,10 @@ namespace Charlotte
 			//Main4(new ArgsReader(new string[] { @"C:\temp", "80", "/T", @"C:\temp\1.tsv" }));
 			//Main4(new ArgsReader(new string[] { @"C:\temp", "80", "/T", @"C:\temp\1.tsv", "/K" }));
 			//Main4(new ArgsReader(new string[] { @"C:\temp", "80", "/K", "/T", @"C:\temp\1.tsv" }));
+			//Main4(new ArgsReader(new string[] { @"C:\temp", "80", "/K", "/T", @"C:\temp\1.tsv" }));
+			//Main4(new ArgsReader(new string[] { @"C:\temp", "80", "/K", "/T", @"C:\temp\1.tsv", "/H", @"C:\temp\2.tsv" }));
+			//Main4(new ArgsReader(new string[] { @"C:\temp", "80", "/K", "/H", @"C:\temp\2.tsv" }));
+			//Main4(new ArgsReader(new string[] { @"C:\temp", "8080", "/K", "/T", @"C:\temp\1.tsv", "/H", @"C:\temp\2.tsv" }));
 			//new Test0001().Test01();
 			//new Test0001().Test02();
 			//new Test0001().Test03();
@@ -129,6 +133,11 @@ namespace Charlotte
 								ContentTypeCollection.I.AddContentTypesByTsvFile(ar.NextArg());
 								continue;
 							}
+							if (ar.ArgIs("/H"))
+							{
+								LoadHost2DocRoot(ar.NextArg());
+								continue;
+							}
 							break;
 						}
 					}
@@ -148,7 +157,32 @@ namespace Charlotte
 			}
 		}
 
+		private void LoadHost2DocRoot(string tsvFile)
+		{
+			this.Host2DocRoot = SCommon.CreateDictionaryIgnoreCase<string>();
+
+			using (CsvFileReader reader = new CsvFileReader(tsvFile, Encoding.UTF8, CsvFileReader.DELIMITER_TAB))
+			{
+				foreach (string[] row in reader.ReadToEnd())
+				{
+					if (row.Length != 2)
+						continue;
+
+					string host = row[0];
+					string docRoot = SCommon.MakeFullPath(row[1]);
+
+					SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, string.Format("Add Host-DocRoot Pair: {0} = {1}", host, docRoot));
+
+					if (!Directory.Exists(docRoot))
+						throw new Exception("ドキュメントルートが見つかりません(Host2DocRoot)");
+
+					this.Host2DocRoot.Add(host, docRoot);
+				}
+			}
+		}
+
 		private string DocRoot;
+		private Dictionary<string, string> Host2DocRoot = null;
 
 		private void P_Connected(HTTPServerChannel channel)
 		{
@@ -167,6 +201,24 @@ namespace Charlotte
 			else
 				throw new Exception("Unsupported method: " + channel.Method);
 
+			string docRoot = this.DocRoot;
+			string host = GetHeaderValue(channel, "Host");
+			if (host != null && this.Host2DocRoot != null)
+			{
+				string hostName = host;
+
+				// ポート番号除去
+				{
+					int colon = hostName.IndexOf(':');
+
+					if (colon != -1)
+						hostName = hostName.Substring(0, colon);
+				}
+
+				if (this.Host2DocRoot.ContainsKey(hostName))
+					docRoot = this.Host2DocRoot[hostName];
+			}
+
 			string urlPath = channel.PathQuery;
 
 			// クエリ除去
@@ -183,7 +235,7 @@ namespace Charlotte
 			SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "要求パス：" + urlPath);
 
 			string[] pTkns = urlPath.Split('/').Where(v => v != "").Select(v => Common.ToFairLocalPath(v, 0)).ToArray();
-			string path = Path.Combine(new string[] { this.DocRoot }.Concat(pTkns).ToArray());
+			string path = Path.Combine(new string[] { docRoot }.Concat(pTkns).ToArray());
 
 			SockCommon.WriteLog(SockCommon.ErrorLevel_e.INFO, "目的パス：" + path);
 
@@ -196,8 +248,11 @@ namespace Charlotte
 			}
 			else if (Directory.Exists(path))
 			{
+				if (host == null)
+					throw new Exception("No HOST header value");
+
 				channel.ResStatus = 301;
-				channel.ResHeaderPairs.Add(new string[] { "Location", "http://" + GetHeaderValue(channel, "Host") + "/" + string.Join("", pTkns.Select(v => EncodeUrl(v) + "/")) });
+				channel.ResHeaderPairs.Add(new string[] { "Location", "http://" + host + "/" + string.Join("", pTkns.Select(v => EncodeUrl(v) + "/")) });
 				//channel.ResBody = null;
 
 				goto endFunc;
@@ -242,7 +297,7 @@ namespace Charlotte
 				if (SCommon.EqualsIgnoreCase(pair[0], name))
 					return pair[1];
 
-			throw new Exception("No header key: " + name);
+			return null;
 		}
 
 		private static string EncodeUrl(string str)
