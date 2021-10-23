@@ -102,11 +102,11 @@
 
 　　　　　　happy-tea-time.test【水平タブ】C:\HTT\DocRoot【改行】
 　　　　　　darjeeling-tea.test【水平タブ】D:\Assam\orange-pekoe【改行】
-			earlgrey.test【水平タブ】E:\Earl Grey【改行】
-			localhost【水平タブ】C:\HTT\DocRoot【改行】
-			127.0.0.1【水平タブ】C:\HTT\DocRoot【改行】
-			127.0.0.2【水平タブ】C:\test2【改行】
-			127.0.0.3【水平タブ】C:\test3【改行】
+　　　　　　earlgrey.test【水平タブ】E:\Earl Grey【改行】
+　　　　　　localhost【水平タブ】C:\HTT\DocRoot【改行】
+　　　　　　127.0.0.1【水平タブ】C:\HTT\DocRoot【改行】
+　　　　　　127.0.0.2【水平タブ】C:\test2【改行】
+　　　　　　127.0.0.3【水平タブ】C:\test3【改行】
 
 
 ■補足
