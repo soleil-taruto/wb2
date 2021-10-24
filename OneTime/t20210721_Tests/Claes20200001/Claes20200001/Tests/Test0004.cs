@@ -54,7 +54,7 @@ namespace Charlotte.Tests
 			//Console.WriteLine(SCommon.MakeFullPath("ttttt\tttttt")); // 例外
 			//Console.WriteLine(SCommon.MakeFullPath("rrrrr\rrrrrr")); // 例外
 			//Console.WriteLine(SCommon.MakeFullPath("nnnnn\nnnnnn")); // 例外
-			Console.WriteLine(SCommon.MakeFullPath("ttttt\nrrrrr\rrrrrrnnnnn\nxxxxx")); // 例外
+			//Console.WriteLine(SCommon.MakeFullPath("ttttt\nrrrrr\rrrrrrnnnnn\nxxxxx")); // 例外
 			Console.WriteLine(SCommon.MakeFullPath("　"));
 			// --> @"C:\Dev\wb2\OneTime\t20210721_Tests\Claes20200001\Claes20200001\bin\Debug\　"
 			Console.WriteLine(SCommon.MakeFullPath("."));

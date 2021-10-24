@@ -485,7 +485,7 @@ namespace Charlotte.Commons
 				throw new Exception("パスが定義されていません。(空白のみ)");
 
 			if (path.Any(chr => chr < '\u0020'))
-				throw new Exception("パスに問題があります。(制御コードあり)");
+				throw new Exception("パスに制御コードが含まれています。");
 
 			path = Path.GetFullPath(path);
 
