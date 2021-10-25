@@ -67,6 +67,7 @@
     <Compile Include="Commons\SCommon.cs" />
     <Compile Include="Commons\WorkingDir.cs" />
     <Compile Include="JsonNode.cs" />
+    <Compile Include="Tests\Test0005.cs" />
     <Compile Include="XMLNode.cs" />
     <Compile Include="Consts.cs" />
     <Compile Include="Extensions.cs" />
