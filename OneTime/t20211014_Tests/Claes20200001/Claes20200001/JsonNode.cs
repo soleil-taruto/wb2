@@ -38,12 +38,11 @@ namespace Charlotte
 		private class Reader
 		{
 			private string Text;
-			private int Index;
+			private int Index = 0;
 
 			public Reader(string text)
 			{
 				this.Text = text;
-				this.Index = text[0] == '\xfeff' ? 1 : 0; // BOM 読み飛ばし
 			}
 
 			private char Next()
@@ -266,7 +265,7 @@ namespace Charlotte
 		public string GetString()
 		{
 			StringBuilder buff = new StringBuilder();
-			new Writer() { Buff = buff }.Write(this);
+			new Writer(buff).WriteRoot(this);
 			return buff.ToString();
 		}
 
@@ -274,10 +273,19 @@ namespace Charlotte
 
 		private class Writer
 		{
-			public StringBuilder Buff;
-			public int Depth = 0;
+			private StringBuilder Buff;
+			private int Depth = 0;
 
-			// <---- prm
+			public Writer(StringBuilder buff)
+			{
+				this.Buff = buff;
+			}
+
+			public void WriteRoot(JsonNode node)
+			{
+				this.Write(node);
+				this.WriteNewLine();
+			}
 
 			public void Write(JsonNode node)
 			{
@@ -290,7 +298,7 @@ namespace Charlotte
 					for (int index = 0; index < node.Array.Count; index++)
 					{
 						this.WriteIndent();
-						this.Write(node.Array[index]);
+						this.WriteRoot(node.Array[index]);
 
 						if (index < node.Array.Count - 1)
 							this.Write(',');
@@ -313,7 +321,7 @@ namespace Charlotte
 						this.Write(node.Map[index].Name);
 						this.Write(':');
 						this.WriteSpace();
-						this.Write(node.Map[index].Value);
+						this.WriteRoot(node.Map[index].Value);
 
 						if (index < node.Map.Count - 1)
 							this.Write(',');
