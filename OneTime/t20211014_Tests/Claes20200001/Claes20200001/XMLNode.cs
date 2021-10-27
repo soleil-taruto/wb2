@@ -12,6 +12,7 @@ namespace Charlotte
 		public string Name;
 		public string Value;
 		public List<XMLNode> Children = new List<XMLNode>();
+		public bool AttributeFlag;
 
 		public static XMLNode LoadFromFile(string xmlFile)
 		{
@@ -35,7 +36,7 @@ namespace Charlotte
 								bool singleTag = reader.IsEmptyElement;
 
 								while (reader.MoveToNextAttribute())
-									node.Children.Add(new XMLNode() { Name = reader.Name, Value = reader.Value });
+									node.Children.Add(new XMLNode() { Name = reader.Name, Value = reader.Value, AttributeFlag = true });
 
 								if (singleTag)
 									node = parents.Pop();
@@ -75,10 +76,7 @@ namespace Charlotte
 					node.Name = node.Name ?? "";
 					node.Value = node.Value ?? "";
 
-					// XmlReader が &xxx; を変換(復元)してくれるので DecodeXML() は不要である。
-
-					//node.Name = DecodeXML(node.Name); // 不要
-					//node.Value = DecodeXML(node.Value); // 不要
+					// XmlReader が &xxx; を変換(復元)してくれる。
 
 					{
 						int colon = node.Name.IndexOf(':');
@@ -110,7 +108,7 @@ namespace Charlotte
 			string name = this.Name;
 			string value = this.Value;
 
-			// 正規化
+			// node 正規化
 			{
 				name = name ?? "";
 				value = value ?? "";
@@ -119,41 +117,53 @@ namespace Charlotte
 				value = EncodeXML(value);
 			}
 
-			if (this.Children.Count != 0)
-			{
-				writer.WriteLine(Indent(depth) + "<" + name + ">" + value);
+			writer.Write(Indent(depth) + "<" + name);
 
-				foreach (XMLNode child in this.Children)
-					child.WriteTo(writer, depth + 1);
+			foreach (XMLNode node in this.Children)
+				if (node.AttributeFlag)
+					node.WriteAttributeTo(writer);
+
+			if (this.Children.Any(node => !node.AttributeFlag))
+			{
+				writer.WriteLine(">" + this.Value);
+
+				foreach (XMLNode node in this.Children)
+					if (!node.AttributeFlag)
+						node.WriteTo(writer, depth + 1);
 
 				writer.WriteLine(Indent(depth) + "</" + name + ">");
 			}
 			else if (value != "")
 			{
-				writer.WriteLine(Indent(depth) + "<" + name + ">" + value + "</" + name + ">");
+				writer.WriteLine(">" + this.Value + "</" + name + ">");
 			}
 			else
 			{
-				writer.WriteLine(Indent(depth) + "<" + name + "/>");
+				writer.WriteLine("/>");
 			}
+		}
+
+		private void WriteAttributeTo(StreamWriter writer)
+		{
+			string name = this.Name;
+			string value = this.Value;
+
+			// attribute 正規化
+			{
+				name = name ?? "";
+				value = value ?? "";
+
+				name = EncodeXML(name);
+				value = EncodeXML(value);
+			}
+
+			writer.Write(" " + name + "=\"" + value + "\"");
 		}
 
 		private static string Indent(int depth)
 		{
 			return new string(Enumerable.Repeat('\t', depth).ToArray());
 		}
-
-#if false // 不要
-		private static string DecodeXML(string str)
-		{
-			return str
-				.Replace("&quot;", "\"")
-				.Replace("&apos;", "'")
-				.Replace("&lt;", "<")
-				.Replace("&gt;", ">")
-				.Replace("&amp;", "&");
-		}
-#endif
 
 		private static string EncodeXML(string str)
 		{
