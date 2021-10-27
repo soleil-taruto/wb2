@@ -70,7 +70,7 @@ namespace Charlotte
 			{
 				node = q.Dequeue();
 
-				// node 正規化
+				// 正規化
 				{
 					node.Name = node.Name ?? "";
 					node.Value = node.Value ?? "";

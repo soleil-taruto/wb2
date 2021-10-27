@@ -190,7 +190,7 @@ namespace Charlotte
 				{
 					StringBuilder buff = new StringBuilder();
 
-					buff.Append(chr);
+					this.Index--;
 
 					while (this.Index < this.Text.Length)
 					{
@@ -298,7 +298,7 @@ namespace Charlotte
 					for (int index = 0; index < node.Array.Count; index++)
 					{
 						this.WriteIndent();
-						this.WriteRoot(node.Array[index]);
+						this.Write(node.Array[index]);
 
 						if (index < node.Array.Count - 1)
 							this.Write(',');
@@ -321,7 +321,7 @@ namespace Charlotte
 						this.Write(node.Map[index].Name);
 						this.Write(':');
 						this.WriteSpace();
-						this.WriteRoot(node.Map[index].Value);
+						this.Write(node.Map[index].Value);
 
 						if (index < node.Map.Count - 1)
 							this.Write(',');
