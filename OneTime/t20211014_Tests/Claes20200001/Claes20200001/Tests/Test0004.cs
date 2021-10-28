@@ -27,10 +27,10 @@ namespace Charlotte.Tests
 
 		public void Test03()
 		{
-			Canvas canvas = new Canvas(400, 300);
+			Canvas canvas = new Canvas(600, 400);
 
 			canvas.Fill(new I4Color(255, 200, 100, 255));
-			canvas.DrawString("CANVAS", 100, "Impact", FontStyle.Bold, new I3Color(0, 128, 255), new I4Rect(100, 100, 200, 100), 5);
+			canvas.DrawString("CANVAS", 300, "Impact", FontStyle.Bold, new I3Color(0, 128, 255), new I4Rect(100, 100, 400, 200), 5);
 
 			canvas.Save(@"C:\temp\output.png");
 		}

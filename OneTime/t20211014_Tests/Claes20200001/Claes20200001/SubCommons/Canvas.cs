@@ -118,13 +118,15 @@ namespace Charlotte.SubCommons
 			{
 				SizeF size = g.MeasureString(text, new Font(fontName, fontSize, fontStyle));
 
-				w = (int)size.Width + blurLv * 2;
-				h = (int)size.Height + blurLv * 2;
+				w = (int)size.Width;
+				h = (int)size.Height;
 			}
 			Canvas canvas = new Canvas(w, h);
 
 			canvas.Fill(new I4Color(0, 0, 0, 255));
-			canvas = canvas.DrawString(text, fontSize, fontName, fontStyle, new I4Color(255, 255, 255, 255), blurLv, blurLv);
+			canvas = canvas.DrawString(text, fontSize, fontName, fontStyle, new I4Color(255, 255, 255, 255), 0, 0);
+			canvas = canvas.CutMargin(v => 1 <= v.R);
+			canvas = canvas.PutMargin(blurLv, new I4Color(0, 0, 0, 255));
 			canvas.BlurRedToA(blurLv, color);
 			canvas = canvas.Expand(rect.W, rect.H);
 
@@ -140,6 +142,62 @@ namespace Charlotte.SubCommons
 					this[x, y] = color;
 				}
 			}
+		}
+
+		private Canvas CutMargin(Predicate<I4Color> match)
+		{
+			int x1 = int.MaxValue;
+			int y1 = int.MaxValue;
+			int x2 = -1;
+			int y2 = -1;
+
+			for (int x = 0; x < this.W; x++)
+			{
+				for (int y = 0; y < this.H; y++)
+				{
+					if (match(this[x, y]))
+					{
+						x1 = Math.Min(x1, x);
+						y1 = Math.Min(y1, y);
+						x2 = Math.Max(x2, x);
+						y2 = Math.Max(y2, y);
+					}
+				}
+			}
+			if (x2 == -1)
+				throw null;
+
+			return this.Cut(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
+		}
+
+		private Canvas Cut(int l, int t, int w, int h)
+		{
+			Canvas dest = new Canvas(w, h);
+
+			for (int x = 0; x < w; x++)
+			{
+				for (int y = 0; y < h; y++)
+				{
+					dest[x, y] = this[l + x, t + y];
+				}
+			}
+			return dest;
+		}
+
+		private Canvas PutMargin(int margin, I4Color color)
+		{
+			// TODO: color
+
+			Canvas dest = new Canvas(this.W + margin * 2, this.H + margin * 2);
+
+			for (int x = 0; x < this.W; x++)
+			{
+				for (int y = 0; y < this.H; y++)
+				{
+					dest[margin + x, margin + y] = this[x, y];
+				}
+			}
+			return dest;
 		}
 
 		private void BlurRedToA(int blurLv, I3Color color)
