@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Drawing;
 using Charlotte.Commons;
 using Charlotte.SubCommons;
-using System.Drawing;
 
 namespace Charlotte.Tests
 {
@@ -30,9 +30,19 @@ namespace Charlotte.Tests
 			Canvas canvas = new Canvas(600, 400);
 
 			canvas.Fill(new I4Color(255, 200, 100, 255));
+			canvas.DrawString("CANVAS", 500, "Impact", FontStyle.Bold, new I3Color(0, 128, 255), new I4Rect(100, 100, 400, 200), 5);
+
+			canvas.Save(Common.NextOutputPath() + ".png");
+
+			// ----
+
+			/*
+			canvas = new Canvas(900, 270);
+
+			canvas.Fill(new I4Color(0, 0, 0, 0));
 			canvas.DrawString("CANVAS", 300, "Impact", FontStyle.Bold, new I3Color(0, 128, 255), new I4Rect(100, 100, 400, 200), 5);
 
-			canvas.Save(@"C:\temp\output.png");
+			canvas.Save(Common.NextOutputPath() + ".png"); */
 		}
 	}
 }

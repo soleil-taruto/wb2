@@ -125,26 +125,14 @@ namespace Charlotte.SubCommons
 
 			canvas.Fill(new I4Color(0, 0, 0, 255));
 			canvas = canvas.DrawString(text, fontSize, fontName, fontStyle, new I4Color(255, 255, 255, 255), 0, 0);
-			canvas = canvas.CutMargin(v => 1 <= v.R);
-			canvas = canvas.PutMargin(blurLv, new I4Color(0, 0, 0, 255));
-			canvas.BlurRedToA(blurLv, color);
+			canvas = canvas.DS_SetMargin(v => v.R == 0, blurLv, new I4Color(0, 0, 0, 255));
+			canvas.DS_Blur(blurLv, color);
 			canvas = canvas.Expand(rect.W, rect.H);
 
 			this.DrawImage(canvas, rect.L, rect.T, true);
 		}
 
-		public void Fill(I4Color color)
-		{
-			for (int x = 0; x < this.W; x++)
-			{
-				for (int y = 0; y < this.H; y++)
-				{
-					this[x, y] = color;
-				}
-			}
-		}
-
-		private Canvas CutMargin(Predicate<I4Color> match)
+		private Canvas DS_SetMargin(Predicate<I4Color> outerMatch, int margin, I4Color outerColor)
 		{
 			int x1 = int.MaxValue;
 			int y1 = int.MaxValue;
@@ -155,7 +143,7 @@ namespace Charlotte.SubCommons
 			{
 				for (int y = 0; y < this.H; y++)
 				{
-					if (match(this[x, y]))
+					if (!outerMatch(this[x, y]))
 					{
 						x1 = Math.Min(x1, x);
 						y1 = Math.Min(y1, y);
@@ -165,42 +153,28 @@ namespace Charlotte.SubCommons
 				}
 			}
 			if (x2 == -1)
-				throw null;
+				throw new Exception("中身無し");
 
-			return this.Cut(x1, y1, x2 - x1 + 1, y2 - y1 + 1);
-		}
+			int l = x1;
+			int t = y1;
+			int w = x2 - x1 + 1;
+			int h = y2 - y1 + 1;
 
-		private Canvas Cut(int l, int t, int w, int h)
-		{
-			Canvas dest = new Canvas(w, h);
+			Canvas dest = new Canvas(w + margin * 2, h + margin * 2);
+
+			dest.Fill(outerColor);
 
 			for (int x = 0; x < w; x++)
 			{
 				for (int y = 0; y < h; y++)
 				{
-					dest[x, y] = this[l + x, t + y];
+					dest[margin + x, margin + y] = this[l + x, t + y];
 				}
 			}
 			return dest;
 		}
 
-		private Canvas PutMargin(int margin, I4Color color)
-		{
-			// TODO: color
-
-			Canvas dest = new Canvas(this.W + margin * 2, this.H + margin * 2);
-
-			for (int x = 0; x < this.W; x++)
-			{
-				for (int y = 0; y < this.H; y++)
-				{
-					dest[margin + x, margin + y] = this[x, y];
-				}
-			}
-			return dest;
-		}
-
-		private void BlurRedToA(int blurLv, I3Color color)
+		private void DS_Blur(int blurLv, I3Color color)
 		{
 			double[, ,] map = new double[2, this.W, this.H];
 			int r = 0;
@@ -231,11 +205,11 @@ namespace Charlotte.SubCommons
 								int sy = y + yc;
 
 								if (
-									0 <= sx || sx < this.W ||
-									0 <= sy || sy < this.H
+									0 <= sx && sx < this.W &&
+									0 <= sy && sy < this.H
 									)
 								{
-									d += map[r, x, y];
+									d += map[r, sx, sy];
 									dc++;
 								}
 							}
@@ -252,77 +226,6 @@ namespace Charlotte.SubCommons
 					this[x, y] = new I4Color(color.R, color.G, color.B, SCommon.ToInt(map[r, x, y] * 255.0));
 				}
 			}
-		}
-
-		public Canvas Expand(int w, int h)
-		{
-			//const int SAMPLING = 4;
-			//const int SAMPLING = 8;
-			//const int SAMPLING = 16;
-			const int SAMPLING = 24;
-
-			return Expand(w, h, SAMPLING);
-		}
-
-		public Canvas Expand(int w, int h, int sampling)
-		{
-			return Expand(w, h, sampling, sampling);
-		}
-
-		/// <summary>
-		/// 目的のサイズに拡大・縮小する。
-		/// 新しいキャンパスを返し、このインスタンスは変更しない。
-		/// サンプリング回数：
-		/// -- 出力先の１ドットの１辺につき何回サンプリングするか
-		/// </summary>
-		/// <param name="w">目的の幅</param>
-		/// <param name="h">目的の高さ</param>
-		/// <param name="xSampling">サンプリング回数(横方向)</param>
-		/// <param name="ySampling">サンプリング回数(縦方向)</param>
-		/// <returns>新しいキャンパス</returns>
-		public Canvas Expand(int w, int h, int xSampling, int ySampling)
-		{
-			Canvas dest = new Canvas(w, h);
-
-			for (int x = 0; x < w; x++)
-			{
-				for (int y = 0; y < h; y++)
-				{
-					int r = 0;
-					int g = 0;
-					int b = 0;
-					int a = 0;
-
-					for (int xc = 0; xc < xSampling; xc++)
-					{
-						for (int yc = 0; yc < ySampling; yc++)
-						{
-							double xd = x + (xc + 0.5) / xSampling;
-							double yd = y + (yc + 0.5) / ySampling;
-							double xs = (xd * this.W) / w;
-							double ys = (yd * this.H) / h;
-							int ixs = (int)xs;
-							int iys = (int)ys;
-
-							I4Color sDot = this[ixs, iys];
-
-							r += sDot.A * sDot.R;
-							g += sDot.A * sDot.G;
-							b += sDot.A * sDot.B;
-							a += sDot.A;
-						}
-					}
-					if (1 <= a)
-					{
-						r = SCommon.ToInt(r / a);
-						g = SCommon.ToInt(g / a);
-						b = SCommon.ToInt(b / a);
-						a = SCommon.ToInt(a / (xSampling * ySampling));
-					}
-					dest[x, y] = new I4Color(r, g, b, a);
-				}
-			}
-			return dest;
 		}
 
 		/// <summary>
@@ -387,6 +290,109 @@ namespace Charlotte.SubCommons
 					{
 						this[l + x, t + y] = src[x, y];
 					}
+				}
+			}
+		}
+
+		/// <summary>
+		/// 目的のサイズに拡大・縮小する。
+		/// 新しいキャンパスを返し、このインスタンスは変更しない。
+		/// </summary>
+		/// <param name="w">目的の幅</param>
+		/// <param name="h">目的の高さ</param>
+		/// <returns></returns>
+		public Canvas Expand(int w, int h)
+		{
+			//const int SAMPLING = 4;
+			//const int SAMPLING = 8;
+			//const int SAMPLING = 16;
+			const int SAMPLING = 24;
+
+			return Expand(w, h, SAMPLING);
+		}
+
+		/// <summary>
+		/// 目的のサイズに拡大・縮小する。
+		/// 新しいキャンパスを返し、このインスタンスは変更しない。
+		/// サンプリング回数：
+		/// -- 出力先の１ドットの１辺につき何回サンプリングするか
+		/// </summary>
+		/// <param name="w">目的の幅</param>
+		/// <param name="h">目的の高さ</param>
+		/// <param name="sampling">サンプリング回数</param>
+		/// <returns></returns>
+		public Canvas Expand(int w, int h, int sampling)
+		{
+			return Expand(w, h, sampling, sampling);
+		}
+
+		/// <summary>
+		/// 目的のサイズに拡大・縮小する。
+		/// 新しいキャンパスを返し、このインスタンスは変更しない。
+		/// サンプリング回数：
+		/// -- 出力先の１ドットの１辺につき何回サンプリングするか
+		/// </summary>
+		/// <param name="w">目的の幅</param>
+		/// <param name="h">目的の高さ</param>
+		/// <param name="xSampling">サンプリング回数(横方向)</param>
+		/// <param name="ySampling">サンプリング回数(縦方向)</param>
+		/// <returns>新しいキャンパス</returns>
+		public Canvas Expand(int w, int h, int xSampling, int ySampling)
+		{
+			Canvas dest = new Canvas(w, h);
+
+			for (int x = 0; x < w; x++)
+			{
+				for (int y = 0; y < h; y++)
+				{
+					int r = 0;
+					int g = 0;
+					int b = 0;
+					int a = 0;
+
+					for (int xc = 0; xc < xSampling; xc++)
+					{
+						for (int yc = 0; yc < ySampling; yc++)
+						{
+							double xd = x + (xc + 0.5) / xSampling;
+							double yd = y + (yc + 0.5) / ySampling;
+							double xs = (xd * this.W) / w;
+							double ys = (yd * this.H) / h;
+							int ixs = (int)xs;
+							int iys = (int)ys;
+
+							I4Color sDot = this[ixs, iys];
+
+							r += sDot.A * sDot.R;
+							g += sDot.A * sDot.G;
+							b += sDot.A * sDot.B;
+							a += sDot.A;
+						}
+					}
+					if (1 <= a)
+					{
+						r = SCommon.ToInt(r / a);
+						g = SCommon.ToInt(g / a);
+						b = SCommon.ToInt(b / a);
+						a = SCommon.ToInt(a / (xSampling * ySampling));
+					}
+					dest[x, y] = new I4Color(r, g, b, a);
+				}
+			}
+			return dest;
+		}
+
+		/// <summary>
+		/// 指定された色でキャンバス全体を塗りつぶす。
+		/// </summary>
+		/// <param name="color">塗りつぶす色</param>
+		public void Fill(I4Color color)
+		{
+			for (int x = 0; x < this.W; x++)
+			{
+				for (int y = 0; y < this.H; y++)
+				{
+					this[x, y] = color;
 				}
 			}
 		}
