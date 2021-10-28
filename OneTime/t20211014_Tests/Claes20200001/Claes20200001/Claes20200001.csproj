@@ -66,8 +66,8 @@
     <Compile Include="Commons\RandomUnit.cs" />
     <Compile Include="Commons\SCommon.cs" />
     <Compile Include="Commons\WorkingDir.cs" />
-    <Compile Include="Utilities\JsonNode.cs" />
-    <Compile Include="Utilities\XMLNode.cs" />
+    <Compile Include="SubCommons\JsonNode.cs" />
+    <Compile Include="SubCommons\XMLNode.cs" />
     <Compile Include="Consts.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Program.cs" />

@@ -5,7 +5,7 @@ using System.Text;
 using System.IO;
 using System.Xml;
 
-namespace Charlotte.Utilities
+namespace Charlotte.SubCommons
 {
 	public class XMLNode
 	{
