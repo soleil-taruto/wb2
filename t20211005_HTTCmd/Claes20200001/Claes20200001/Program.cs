@@ -41,7 +41,7 @@ namespace Charlotte
 			//Main4(new ArgsReader(new string[] { }));
 			//Main4(new ArgsReader(new string[] { @"C:\temp" }));
 			//Main4(new ArgsReader(new string[] { @"C:\temp", "80" }));
-			Main4(new ArgsReader(new string[] { @"C:\temp", "80", "/K" }));
+			//Main4(new ArgsReader(new string[] { @"C:\temp", "80", "/K" }));
 			//Main4(new ArgsReader(new string[] { @"C:\temp", "80", "/T", @"C:\temp\1.tsv" }));
 			//Main4(new ArgsReader(new string[] { @"C:\temp", "80", "/T", @"C:\temp\1.tsv", "/K" }));
 			//Main4(new ArgsReader(new string[] { @"C:\temp", "80", "/K", "/T", @"C:\temp\1.tsv" }));
@@ -49,6 +49,7 @@ namespace Charlotte
 			//Main4(new ArgsReader(new string[] { @"C:\temp", "80", "/K", "/T", @"C:\temp\1.tsv", "/H", @"C:\temp\2.tsv" }));
 			//Main4(new ArgsReader(new string[] { @"C:\temp", "80", "/K", "/H", @"C:\temp\2.tsv" }));
 			//Main4(new ArgsReader(new string[] { @"C:\temp", "8080", "/K", "/T", @"C:\temp\1.tsv", "/H", @"C:\temp\2.tsv" }));
+			Main4(new ArgsReader(new string[] { @"C:\temp", "80", "/K", "/L", @"C:\temp\1.log" }));
 			//new Test0001().Test01();
 			//new Test0001().Test02();
 			//new Test0001().Test03();
@@ -60,6 +61,21 @@ namespace Charlotte
 
 		private void Main4(ArgsReader ar)
 		{
+			ProcMain.WriteLog = message =>
+			{
+				string line = "[" + DateTime.Now + "] " + message;
+
+				Console.WriteLine(line);
+
+				if (this.DebugLogFile != null)
+				{
+					using (StreamWriter writer = new StreamWriter(DebugLogFile, true, Encoding.UTF8))
+					{
+						writer.WriteLine(line);
+					}
+				}
+			};
+
 			try
 			{
 				Main5(ar);
@@ -123,8 +139,8 @@ namespace Charlotte
 						{
 							if (ar.ArgIs("/K"))
 							{
-								Func<bool> orig = hs.Interlude;
-								hs.Interlude = () => orig() && !Console.KeyAvailable;
+								Func<bool> baseEvent = hs.Interlude;
+								hs.Interlude = () => baseEvent() && !Console.KeyAvailable;
 								ProcMain.WriteLog("キー入力を検出するとサーバーは停止します。");
 								continue;
 							}
@@ -136,6 +152,12 @@ namespace Charlotte
 							if (ar.ArgIs("/H"))
 							{
 								LoadHost2DocRoot(ar.NextArg());
+								continue;
+							}
+							if (ar.ArgIs("/L"))
+							{
+								DebugLogFile = SCommon.ToFullPath(ar.NextArg());
+								ProcMain.WriteLog("DebugLogFile: " + DebugLogFile);
 								continue;
 							}
 							break;
@@ -183,6 +205,7 @@ namespace Charlotte
 
 		private string DocRoot;
 		private Dictionary<string, string> Host2DocRoot = null;
+		private string DebugLogFile = null;
 
 		private void P_Connected(HTTPServerChannel channel)
 		{

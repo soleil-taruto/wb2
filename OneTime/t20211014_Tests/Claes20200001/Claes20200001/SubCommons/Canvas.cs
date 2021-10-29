@@ -132,7 +132,7 @@ namespace Charlotte.SubCommons
 			this.DrawImage(canvas, rect.L, rect.T, true);
 		}
 
-		private Canvas DS_SetMargin(Predicate<I4Color> outerMatch, int margin, I4Color outerColor)
+		private Canvas DS_SetMargin(Predicate<I4Color> matchOuter, int margin, I4Color outerColor)
 		{
 			int x1 = int.MaxValue;
 			int y1 = int.MaxValue;
@@ -143,7 +143,7 @@ namespace Charlotte.SubCommons
 			{
 				for (int y = 0; y < this.H; y++)
 				{
-					if (!outerMatch(this[x, y]))
+					if (!matchOuter(this[x, y]))
 					{
 						x1 = Math.Min(x1, x);
 						y1 = Math.Min(y1, y);
@@ -294,13 +294,6 @@ namespace Charlotte.SubCommons
 			}
 		}
 
-		/// <summary>
-		/// 目的のサイズに拡大・縮小する。
-		/// 新しいキャンパスを返し、このインスタンスは変更しない。
-		/// </summary>
-		/// <param name="w">目的の幅</param>
-		/// <param name="h">目的の高さ</param>
-		/// <returns></returns>
 		public Canvas Expand(int w, int h)
 		{
 			//const int SAMPLING = 4;
@@ -311,16 +304,6 @@ namespace Charlotte.SubCommons
 			return Expand(w, h, SAMPLING);
 		}
 
-		/// <summary>
-		/// 目的のサイズに拡大・縮小する。
-		/// 新しいキャンパスを返し、このインスタンスは変更しない。
-		/// サンプリング回数：
-		/// -- 出力先の１ドットの１辺につき何回サンプリングするか
-		/// </summary>
-		/// <param name="w">目的の幅</param>
-		/// <param name="h">目的の高さ</param>
-		/// <param name="sampling">サンプリング回数</param>
-		/// <returns></returns>
 		public Canvas Expand(int w, int h, int sampling)
 		{
 			return Expand(w, h, sampling, sampling);
