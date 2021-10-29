@@ -49,6 +49,7 @@ namespace Charlotte
 			//Main4(new ArgsReader(new string[] { @"C:\temp", "80", "/K", "/T", @"C:\temp\1.tsv", "/H", @"C:\temp\2.tsv" }));
 			//Main4(new ArgsReader(new string[] { @"C:\temp", "80", "/K", "/H", @"C:\temp\2.tsv" }));
 			//Main4(new ArgsReader(new string[] { @"C:\temp", "8080", "/K", "/T", @"C:\temp\1.tsv", "/H", @"C:\temp\2.tsv" }));
+			//Main4(new ArgsReader(new string[] { @"C:\temp", "80", "/K", "/N", @"C:\temp\1.html" }));
 			//new Test0001().Test01();
 			//new Test0001().Test02();
 			//new Test0001().Test03();
@@ -138,6 +139,16 @@ namespace Charlotte
 								LoadHost2DocRoot(ar.NextArg());
 								continue;
 							}
+							if (ar.ArgIs("/N"))
+							{
+								this.Page404File = SCommon.ToFullPath(ar.NextArg());
+								ProcMain.WriteLog("Page404File: " + this.Page404File);
+
+								if (!File.Exists(this.Page404File))
+									throw new Exception("Page404File is not found");
+
+								continue;
+							}
 							break;
 						}
 					}
@@ -183,6 +194,7 @@ namespace Charlotte
 
 		private string DocRoot;
 		private Dictionary<string, string> Host2DocRoot = null;
+		private string Page404File = null;
 
 		private void P_Connected(HTTPServerChannel channel)
 		{
@@ -268,6 +280,12 @@ namespace Charlotte
 				channel.ResStatus = 404;
 				//channel.ResHeaderPairs.Add();
 				//channel.ResBody = null;
+
+				if (this.Page404File != null)
+				{
+					channel.ResHeaderPairs.Add(new string[] { "Content-Type", "text/html" });
+					channel.ResBody = E_ReadFile(this.Page404File);
+				}
 			}
 
 		endFunc:
