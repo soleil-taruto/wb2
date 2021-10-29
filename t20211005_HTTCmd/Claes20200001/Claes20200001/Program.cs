@@ -69,9 +69,16 @@ namespace Charlotte
 
 				if (this.DebugLogFile != null)
 				{
-					using (StreamWriter writer = new StreamWriter(DebugLogFile, true, Encoding.UTF8))
+					try
 					{
-						writer.WriteLine(line);
+						using (StreamWriter writer = new StreamWriter(this.DebugLogFile, true, Encoding.UTF8))
+						{
+							writer.WriteLine(line);
+						}
+					}
+					catch (Exception e)
+					{
+						SockCommon.WriteLog(SockCommon.ErrorLevel_e.FATAL, e);
 					}
 				}
 			};
@@ -156,8 +163,8 @@ namespace Charlotte
 							}
 							if (ar.ArgIs("/L"))
 							{
-								DebugLogFile = SCommon.ToFullPath(ar.NextArg());
-								ProcMain.WriteLog("DebugLogFile: " + DebugLogFile);
+								this.DebugLogFile = SCommon.ToFullPath(ar.NextArg());
+								ProcMain.WriteLog("DebugLogFile: " + this.DebugLogFile);
 								continue;
 							}
 							break;
