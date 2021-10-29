@@ -27,27 +27,40 @@ namespace Charlotte
 			}
 			else
 			{
-				Main4();
+				Main4(ar);
 			}
 			Common.OpenOutputDirIfCreated();
 		}
 
 		private void Main3()
 		{
-			Main4();
-			Common.Pause();
-		}
-
-		private void Main4()
-		{
 			// -- choose one --
 
+			Main4(new ArgsReader(new string[] { }));
 			//new Test0001().Test01();
-			//new Test0001().Test02();
-			//new Test0001().Test03();
-			new Test0001().Test04();
+			//new Test0002().Test01();
+			//new Test0003().Test01();
 
 			// --
+
+			//Common.Pause();
+		}
+
+		private void Main4(ArgsReader ar)
+		{
+			try
+			{
+				Main5(ar);
+			}
+			catch (Exception e)
+			{
+				ProcMain.WriteLog(e);
+			}
+		}
+
+		private void Main5(ArgsReader ar)
+		{
+			// TODO
 		}
 	}
 }
