@@ -83,7 +83,19 @@ namespace Charlotte
 
 		private void Main4(ArgsReader ar)
 		{
-			// main
+			try
+			{
+				Main5();
+			}
+			catch (Exception e)
+			{
+				ProcMain.WriteLog(e);
+			}
+		}
+
+		private void Main5()
+		{
+			// TODO
 		}
 #endif
 
