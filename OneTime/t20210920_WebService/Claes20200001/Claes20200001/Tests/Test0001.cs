@@ -29,8 +29,8 @@ namespace Charlotte.Tests
 					channel.ResBody = "Hello, Happy World!".ToCharArray().Select(chr => Encoding.ASCII.GetBytes("" + chr));
 				},
 				//PortNo = 80,
-				//Backlog = 100,
-				//ConnectMax = 30,
+				//Backlog = 300,
+				//ConnectMax = 100,
 				//Interlude = () => !Console.KeyAvailable,
 			}
 			.Perform();

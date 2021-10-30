@@ -68,7 +68,7 @@
 
 　　　⇒ 非シフト系キー入力でサーバーを停止できるようになります。
 
-　　/T [TSV-FILE]
+　　/T TSV-FILE
 
 　　　⇒ ファイル拡張子と Content-Type の組み合わせを追加(デフォルト設定を上書き)します。
 　　　　TSV-FILE には以下の内容のファイルを指定して下さい。
@@ -86,7 +86,7 @@
 　　　　　　.xlsx【水平タブ】application/vnd.openxmlformats-officedocument.spreadsheetml.sheet【改行】
 　　　　　　.pdf【水平タブ】application/pdf【改行】
 
-　　/H [TSV-FILE]
+　　/H TSV-FILE
 
 　　　⇒ リクエストヘッダの Host の値によってドキュメントルートを切り替えたい場合に使用します。
 　　　　TSV-FILE には以下の内容のファイルを指定して下さい。
@@ -108,10 +108,15 @@
 　　　　　　127.0.0.2【水平タブ】C:\test2【改行】
 　　　　　　127.0.0.3【水平タブ】C:\test3【改行】
 
-　　/N [HTML-FILE]
+　　/N HTML-FILE
 
 　　　⇒ リクエストされたパスが見つからなかった場合に表示される所謂オリジナル４０４ページを設定します。
 　　　　ステータスコード = 404, Content-Type: text/html と共に HTML-FILE の内容を応答します。
+
+
+　実行例
+
+　　HTTCmd.exe C:\www\DocRoot 80 /K /T C:\www\ContentTypes.tsv /H C:\www\DocRoots.tsv /N C:\www\404.html
 
 
 ■補足
