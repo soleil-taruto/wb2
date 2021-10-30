@@ -44,7 +44,7 @@ namespace Charlotte.Commons
 			{
 				WriteLog(e);
 
-				Console.WriteLine("Press ENTER key.");
+				Console.WriteLine("Press ENTER key. (Error termination)");
 				Console.ReadLine();
 			}
 		}
