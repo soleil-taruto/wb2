@@ -116,7 +116,25 @@
 
 　実行例
 
+　　HTTCmd.exe C:\www\DocRoot 80 /K
+
+　　　-- /K のみ
+
+　　HTTCmd.exe C:\www\DocRoot 80 /T C:\www\ContentTypes.tsv
+
+　　　-- /T のみ
+
+　　HTTCmd.exe C:\www\DocRoot 80 /H C:\www\DocRoots.tsv
+
+　　　-- /H のみ
+
+　　HTTCmd.exe C:\www\DocRoot 80 /N C:\www\404.html
+
+　　　-- /N のみ
+
 　　HTTCmd.exe C:\www\DocRoot 80 /K /T C:\www\ContentTypes.tsv /H C:\www\DocRoots.tsv /N C:\www\404.html
+
+　　　-- 全部
 
 
 ■補足
