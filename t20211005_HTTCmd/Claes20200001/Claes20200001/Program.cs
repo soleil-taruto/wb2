@@ -281,7 +281,7 @@ namespace Charlotte
 				//channel.ResHeaderPairs.Add();
 				//channel.ResBody = null;
 
-				if (this.Page404File != null)
+				if (!head && this.Page404File != null)
 				{
 					channel.ResHeaderPairs.Add(new string[] { "Content-Type", "text/html" });
 					channel.ResBody = E_ReadFile(this.Page404File);
