@@ -36,13 +36,28 @@ namespace Charlotte.Tests
 
 			// ----
 
-			/*
-			canvas = new Canvas(900, 270);
+			canvas = new Canvas(1000, 500);
 
 			canvas.Fill(new I4Color(0, 0, 0, 0));
-			canvas.DrawString("CANVAS", 300, "Impact", FontStyle.Bold, new I3Color(0, 128, 255), new I4Rect(100, 100, 400, 200), 5);
+			canvas.FillRect(new I4Color(127, 127, 127, 255), new I4Rect(0, 100, 1000, 300));
+			canvas.FillRect(new I4Color(127, 127, 127, 255), new I4Rect(100, 0, 800, 500));
+			canvas.FillCircle(new I4Color(127, 127, 127, 255), new I2Point(100, 100), 100);
+			canvas.FillCircle(new I4Color(127, 127, 127, 255), new I2Point(900, 100), 100);
+			canvas.FillCircle(new I4Color(127, 127, 127, 255), new I2Point(900, 399), 100);
+			canvas.FillCircle(new I4Color(127, 127, 127, 255), new I2Point(100, 399), 100);
 
-			canvas.Save(Common.NextOutputPath() + ".png"); */
+			canvas.FillRect(new I4Color(255, 255, 127, 255), new I4Rect(50, 100, 900, 300));
+			canvas.FillRect(new I4Color(255, 255, 127, 255), new I4Rect(100, 50, 800, 400));
+			canvas.FillCircle(new I4Color(255, 255, 127, 255), new I2Point(100, 100), 50);
+			canvas.FillCircle(new I4Color(255, 255, 127, 255), new I2Point(900, 100), 50);
+			canvas.FillCircle(new I4Color(255, 255, 127, 255), new I2Point(900, 399), 50);
+			canvas.FillCircle(new I4Color(255, 255, 127, 255), new I2Point(100, 399), 50);
+
+			canvas.DrawString("CANVAS", 300, "Impact", FontStyle.Bold, new I3Color(0, 128, 255), new I4Rect(100, 100, 800, 300), 5);
+
+			canvas = canvas.Expand(200, 100);
+
+			canvas.Save(Common.NextOutputPath() + ".png");
 		}
 	}
 }

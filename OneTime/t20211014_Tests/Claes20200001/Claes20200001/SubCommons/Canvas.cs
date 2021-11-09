@@ -379,5 +379,48 @@ namespace Charlotte.SubCommons
 				}
 			}
 		}
+
+		// ====
+		// ====
+		// ====
+
+		public void FillRect(I4Color color, I4Rect rect)
+		{
+			for (int x = rect.L; x < rect.R; x++)
+			{
+				for (int y = rect.T; y < rect.B; y++)
+				{
+					this[x, y] = color;
+				}
+			}
+		}
+
+		public void FillCircle(I4Color color, I2Point pt, int r)
+		{
+			int x1 = pt.X - r;
+			int x2 = pt.X + r;
+			int y1 = pt.Y - r;
+			int y2 = pt.Y + r;
+
+			x1 = Math.Max(x1, 0);
+			x2 = Math.Min(x2, this.W - 1);
+			y1 = Math.Max(y1, 0);
+			y2 = Math.Min(y2, this.H - 1);
+
+			const double R_MARGIN = 0.2;
+
+			for (int x = x1; x <= x2; x++)
+			{
+				for (int y = y1; y <= y2; y++)
+				{
+					double d = Common.GetDistance(new D2Point(x - pt.X, y - pt.Y));
+
+					if (d < r + R_MARGIN)
+					{
+						this[x, y] = color;
+					}
+				}
+			}
+		}
 	}
 }
