@@ -144,7 +144,7 @@ namespace Charlotte.Tests
 
 			foreach (byte[] bStr in bStrs)
 			{
-				string sSize = ((uint)bStr.Length).ToString("x8");
+				string sSize = ((uint)bStr.Length).ToString("x");
 
 				buff.Append("" + sSize.Length);
 				buff.Append(sSize);
