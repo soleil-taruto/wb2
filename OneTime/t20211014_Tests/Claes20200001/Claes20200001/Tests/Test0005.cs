@@ -27,6 +27,59 @@ namespace Charlotte.Tests
 			Test01_a(new string[] { "123", null, "456" });
 			Test01_a(new string[] { "123", "456", null });
 
+			for (int testcnt = 0; testcnt < 1000; testcnt++)
+			{
+				Console.WriteLine(testcnt);
+
+				int count = SCommon.CRandom.GetRange(1, 30);
+				string[] strs = new string[count];
+
+				for (int index = 0; index < count; index++)
+				{
+					Func<int, int, string> a_makeString = (minlen, maxlen) =>
+						new string(Enumerable.Range(1, SCommon.CRandom.GetRange(minlen, maxlen))
+							.Select(dummy => SCommon.CRandom.ChooseOne(SCommon.HALF.ToArray()))
+							.ToArray());
+
+					string str;
+
+					switch (SCommon.CRandom.GetRange(1, 5))
+					{
+						case 1:
+							str = null;
+							break;
+
+						case 2:
+							str = a_makeString(0, 100);
+							break;
+
+						case 3:
+							str = a_makeString(100, 300);
+							break;
+
+						case 4:
+							str = a_makeString(300, 1000);
+							break;
+
+						case 5:
+							str = a_makeString(1000, 3000);
+							break;
+
+						case 6:
+							str = a_makeString(3000, 10000);
+							break;
+
+						case 7:
+							str = a_makeString(10000, 33000);
+							break;
+
+						default:
+							throw null;
+					}
+					strs[index] = str;
+				}
+				Test01_a(strs);
+			}
 			Console.WriteLine("OK!");
 		}
 
@@ -91,7 +144,10 @@ namespace Charlotte.Tests
 
 			foreach (byte[] bStr in bStrs)
 			{
-				buff.Append(((uint)bStr.Length).ToString("x8"));
+				string sSize = ((uint)bStr.Length).ToString("x8");
+
+				buff.Append("" + sSize.Length);
+				buff.Append(sSize);
 
 				foreach (byte bChr in bStr)
 					buff.Append(bChr.ToString("x2"));
@@ -105,8 +161,11 @@ namespace Charlotte.Tests
 
 			for (int index = 0; index < seriStr.Length; )
 			{
-				int size = (int)Convert.ToUInt32(seriStr.Substring(index, 8), 16);
-				index += 8;
+				int szSize = int.Parse(seriStr.Substring(index, 1));
+				index++;
+
+				int size = (int)Convert.ToUInt32(seriStr.Substring(index, szSize), 16);
+				index += szSize;
 
 				byte[] bStr = new byte[size];
 
@@ -136,152 +195,3 @@ namespace Charlotte.Tests
 		}
 	}
 }
-
-#if false
-
-import java.util.*;
-import java.nio.charset.*;
-
-public class Main {
-    public static void main(String[] args) throws Exception {
-        
-		test01_a(null);
-		test01_a(new String[] { });
-		test01_a(new String[] { null });
-		test01_a(new String[] { null, null });
-		test01_a(new String[] { null, null, null });
-		test01_a(new String[] { "" });
-		test01_a(new String[] { "", "" });
-		test01_a(new String[] { "", "", "" });
-		test01_a(new String[] { "ABC", });
-		test01_a(new String[] { "ABC", "DEF" });
-		test01_a(new String[] { "ABC", "DEF", "GHI" });
-		test01_a(new String[] { null, "xxxxx" });
-		test01_a(new String[] { "xxxxx", null });
-		test01_a(new String[] { null, "123", "456" });
-		test01_a(new String[] { "123", null, "456" });
-		test01_a(new String[] { "123", "456", null });
-		
-		System.out.println("OK!");
-    }
-    
-    private static void test01_a(String[] strs) throws Exception {
-        
-		String seriStr = serializeStrings(strs == null ? null : Arrays.asList(strs));
-		List<String> strList2 = deserializeStrings(seriStr);
-		String[] strs2 = strList2 == null ? null : strList2.toArray(new String[0]);
-
-		if (seriStr == null || seriStr.length() == 0) {
-			throw null;
-		}
-
-		if (strs == null) {
-			if (strs2 != null) {
-				throw null;
-			}
-		} else {
-			if (strs2 == null) {
-				throw null;
-			}
-			
-			for (int index = 0; index < strs.length; index++) {
-			    String str = strs[index];
-			    String str2 = strs2[index];
-			    
-			    if (str == null) {
-                    if (str2 != null) {
-                        throw null;
-                    }
-			    } else {
-                    if (str2 == null) {
-                        throw null;
-                    }
-                    
-                    if (!str.equals(str2)) {
-                        throw null;
-                    }
-			    }
-			}
-		}
-    }
-    
-	private static String serializeStrings(List<String> strs) throws Exception {
-	    
-		List<String> strs2 = new ArrayList<String>();
-		List<byte[]> bStrs = new ArrayList<byte[]>();
-		StringBuffer buff = new StringBuffer();
-
-		if (strs == null) {
-		    strs2.add("");
-		} else {
-		    strs2.add("");
-		    strs2.add("");
-		    strs2.addAll(strs);
-		}
-		
-		for (String f_str : strs2) {
-		    String str = f_str;
-		    
-		    if (str == null) {
-		        str = "";
-		    } else {
-		        str = '?' + str;
-		    }
-		    
-		    byte[] bStr = str.getBytes("UTF-8");
-		    
-		    bStrs.add(bStr);
-		}
-
-		for (byte[] bStr : bStrs) {
-			buff.append(String.format("%08x", bStr.length));
-
-			for (byte bChr : bStr) {
-    			buff.append(String.format("%02x", bChr & 0xff));
-			}
-		}
-		return buff.toString();
-	}
-
-	private static List<String> deserializeStrings(String seriStr) {
-
-		List<byte[]> bStrs = new ArrayList<byte[]>();
-		List<String> strs = new ArrayList<String>();
-
-		for (int index = 0; index < seriStr.length(); ) {
-			int size = Integer.parseInt(seriStr.substring(index, index + 8), 16);
-			index += 8;
-
-			byte[] bStr = new byte[size];
-
-			for (int i = 0; i < size; i++) {
-				byte bChr = (byte)Integer.parseInt(seriStr.substring(index, index + 2), 16);
-				index += 2;
-
-				bStr[i] = bChr;
-			}
-			bStrs.add(bStr);
-		}
-		
-		for (byte[] bStr : bStrs) {
-		    String str = new String(bStr, Charset.forName("UTF-8"));
-		    
-		    if (str.length() == 0) {
-		        str = null;
-		    } else {
-		        str = str.substring(1);
-		    }
-		    
-		    strs.add(str);
-		}
-		
-		if (strs.size() < 2) {
-		    strs = null;
-		} else {
-		    strs = strs.subList(2, strs.size());
-		}
-		return strs;
-	}
-}
-
-#endif
