@@ -50,27 +50,19 @@ namespace Charlotte.Tests
 							break;
 
 						case 2:
-							str = a_makeString(0, 100);
+							str = a_makeString(0, 50);
 							break;
 
 						case 3:
-							str = a_makeString(100, 300);
+							str = a_makeString(50, 200);
 							break;
 
 						case 4:
-							str = a_makeString(300, 1000);
+							str = a_makeString(200, 1000);
 							break;
 
 						case 5:
-							str = a_makeString(1000, 3000);
-							break;
-
-						case 6:
-							str = a_makeString(3000, 10000);
-							break;
-
-						case 7:
-							str = a_makeString(10000, 33000);
+							str = a_makeString(1000, 5000);
 							break;
 
 						default:

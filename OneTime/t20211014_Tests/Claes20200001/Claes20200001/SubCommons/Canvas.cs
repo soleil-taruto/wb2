@@ -262,7 +262,7 @@ namespace Charlotte.SubCommons
 		/// <param name="l">描画する領域の左上座標_X-軸</param>
 		/// <param name="t">描画する領域の左上座標_Y-軸</param>
 		/// <param name="allowAlpha">透過率を考慮するか</param>
-		public void DrawImage(Canvas src, int l, int t, bool allowAlpha = false)
+		public void DrawImage(Canvas src, int l, int t, bool allowAlpha)
 		{
 			for (int x = 0; x < src.W; x++)
 			{
@@ -380,9 +380,9 @@ namespace Charlotte.SubCommons
 			}
 		}
 
-		// ====
-		// ====
-		// ====
+		// ======
+		// === ここまで_いつもの ===
+		// ======
 
 		public void FillRect(I4Color color, I4Rect rect)
 		{
@@ -421,6 +421,38 @@ namespace Charlotte.SubCommons
 					}
 				}
 			}
+		}
+
+		public void Gradation(I4Color srcColor, I4Color topColor, I4Color bottomColor)
+		{
+			for (int y = 0; y < this.H; y++)
+			{
+				double rate = (double)y / (this.H - 1);
+
+				I4Color destColor = new I4Color(
+					 SCommon.ToInt(topColor.R + rate * (bottomColor.R - topColor.R)),
+					 SCommon.ToInt(topColor.G + rate * (bottomColor.G - topColor.G)),
+					 SCommon.ToInt(topColor.B + rate * (bottomColor.B - topColor.B)),
+					 SCommon.ToInt(topColor.A + rate * (bottomColor.A - topColor.A))
+					 );
+
+				for (int x = 0; x < this.W; x++)
+				{
+					if (Equals(this[x, y], srcColor))
+					{
+						this[x, y] = destColor;
+					}
+				}
+			}
+		}
+
+		private static bool Equals(I4Color a, I4Color b)
+		{
+			return
+				a.R == b.R &&
+				a.G == b.G &&
+				a.B == b.B &&
+				a.A == b.A;
 		}
 	}
 }

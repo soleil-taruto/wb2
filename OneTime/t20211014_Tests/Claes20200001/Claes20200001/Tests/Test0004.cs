@@ -59,5 +59,33 @@ namespace Charlotte.Tests
 
 			canvas.Save(Common.NextOutputPath() + ".png");
 		}
+
+		public void Test04()
+		{
+			Canvas canvas = new Canvas(1000, 500);
+
+			canvas.Fill(new I4Color(0, 0, 0, 0));
+			canvas.FillRect(new I4Color(127, 127, 127, 255), new I4Rect(0, 100, 1000, 300));
+			canvas.FillRect(new I4Color(127, 127, 127, 255), new I4Rect(100, 0, 800, 500));
+			canvas.FillCircle(new I4Color(127, 127, 127, 255), new I2Point(100, 100), 100);
+			canvas.FillCircle(new I4Color(127, 127, 127, 255), new I2Point(900, 100), 100);
+			canvas.FillCircle(new I4Color(127, 127, 127, 255), new I2Point(900, 399), 100);
+			canvas.FillCircle(new I4Color(127, 127, 127, 255), new I2Point(100, 399), 100);
+
+			canvas.FillRect(new I4Color(255, 255, 255, 255), new I4Rect(50, 100, 900, 300));
+			canvas.FillRect(new I4Color(255, 255, 255, 255), new I4Rect(100, 50, 800, 400));
+			canvas.FillCircle(new I4Color(255, 255, 255, 255), new I2Point(100, 100), 50);
+			canvas.FillCircle(new I4Color(255, 255, 255, 255), new I2Point(900, 100), 50);
+			canvas.FillCircle(new I4Color(255, 255, 255, 255), new I2Point(900, 399), 50);
+			canvas.FillCircle(new I4Color(255, 255, 255, 255), new I2Point(100, 399), 50);
+
+			canvas.Gradation(new I4Color(255, 255, 255, 255), new I4Color(255, 0, 0, 255), new I4Color(200, 200, 0, 255));
+
+			canvas.DrawString("OK", 300, "Impact", FontStyle.Bold, new I3Color(255, 255, 255), new I4Rect(200, 100, 600, 300), 5);
+
+			canvas = canvas.Expand(200, 100);
+
+			canvas.Save(Common.NextOutputPath() + ".png");
+		}
 	}
 }
