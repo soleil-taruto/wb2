@@ -85,7 +85,7 @@ namespace Charlotte
 		{
 			try
 			{
-				Main5();
+				Main5(ar);
 			}
 			catch (Exception e)
 			{
@@ -93,7 +93,7 @@ namespace Charlotte
 			}
 		}
 
-		private void Main5()
+		private void Main5(ArgsReader ar)
 		{
 			// TODO
 		}
