@@ -10,6 +10,26 @@ namespace Charlotte.Camellias
 	{
 		private Camellia[] Transformers;
 
+		/// <summary>
+		/// 鍵の分割：
+		/// --  16 --> 16
+		/// --  24 --> 24
+		/// --  32 --> 32
+		/// --  40 --> 24, 16
+		/// --  48 --> 32, 16
+		/// --  56 --> 32, 24
+		/// --  64 --> 32, 32
+		/// --  72 --> 32, 24, 16
+		/// --  80 --> 32, 32, 16
+		/// --  88 --> 32, 32, 24
+		/// --  96 --> 32, 32, 32
+		/// -- 104 --> 32, 32, 24, 16
+		/// -- 112 --> 32, 32, 32, 16
+		/// -- 120 --> 32, 32, 32, 24
+		/// -- 128 --> 32, 32, 32, 32
+		/// -- ...
+		/// </summary>
+		/// <param name="rawKey">鍵</param>
 		public RingCipher(byte[] rawKey)
 		{
 			if (
@@ -73,7 +93,7 @@ namespace Charlotte.Camellias
 
 		/// <summary>
 		/// 復号を行う。
-		/// 鍵の不一致も含め復号に失敗すると例外を投げる。
+		/// データの破損や鍵の不一致も含め復号に失敗すると例外を投げる。
 		/// </summary>
 		/// <param name="data">入力データ</param>
 		/// <returns>出力データ</returns>
@@ -81,6 +101,7 @@ namespace Charlotte.Camellias
 		{
 			if (
 				data == null ||
+				data.Length < 32 ||
 				data.Length % 16 != 0
 				)
 				throw new ArgumentException();
@@ -97,42 +118,98 @@ namespace Charlotte.Camellias
 
 		private static byte[] AddPadding(byte[] data)
 		{
-			throw new NotImplementedException();
+			int size = 16 - data.Length % 16;
+			byte[] padding = SCommon.CRandom.GetBytes(size);
+			size--;
+			padding[size] &= 0xf0;
+			padding[size] |= (byte)size;
+			data = SCommon.Join(new byte[][] { data, padding });
+			return data;
 		}
 
 		private static byte[] RemovePadding(byte[] data)
 		{
-			throw new NotImplementedException();
+			CheckLength(data, 1);
+			int size = data[data.Length - 1] & 0x0f;
+			size++;
+			CheckLength(data, size);
+			data = SCommon.GetSubBytes(data, 0, data.Length - size);
+			return data;
 		}
 
 		private static byte[] AddCRandPart(byte[] data, int size)
 		{
-			throw new NotImplementedException();
+			byte[] padding = SCommon.CRandom.GetBytes(size);
+			data = SCommon.Join(new byte[][] { data, padding });
+			return data;
 		}
 
 		private static byte[] RemoveCRandPart(byte[] data, int size)
 		{
-			throw new NotImplementedException();
+			CheckLength(data, size);
+			data = SCommon.GetSubBytes(data, 0, data.Length - size);
+			return data;
 		}
+
+		private const int HASH_SIZE = 64;
 
 		private static byte[] AddHash(byte[] data)
 		{
-			throw new NotImplementedException();
+			byte[] hash = SCommon.GetSHA512(data);
+			if (hash.Length != HASH_SIZE) throw null; // 2bs
+			data = SCommon.Join(new byte[][] { data, hash });
+			return data;
 		}
 
 		private static byte[] RemoveHash(byte[] data)
 		{
-			throw new NotImplementedException();
+			CheckLength(data, HASH_SIZE);
+			data = SCommon.GetSubBytes(data, 0, data.Length - HASH_SIZE);
+			return data;
 		}
 
 		private static void EncryptRingCBC(byte[] data, Camellia transformer)
 		{
-			throw new NotImplementedException();
+			byte[] input = new byte[16];
+			byte[] output = new byte[16];
+
+			Array.Copy(data, data.Length - 16, output, 0, 16);
+
+			for (int offset = 0; offset < data.Length; offset += 16)
+			{
+				Array.Copy(data, offset, input, 0, 16);
+				XorBlock(input, output);
+				transformer.EncryptBlock(input, output);
+				Array.Copy(output, 0, data, offset, 16);
+			}
 		}
 
 		private static void DecryptRingCBC(byte[] data, Camellia transformer)
 		{
-			throw new NotImplementedException();
+			byte[] input = new byte[16];
+			byte[] output = new byte[16];
+
+			Array.Copy(data, data.Length - 16, input, 0, 16);
+
+			for (int offset = data.Length - 16; 0 <= offset; offset -= 16)
+			{
+				transformer.DecryptBlock(input, output);
+				Array.Copy(data, (offset + data.Length - 16) % data.Length, input, 0, 16);
+				XorBlock(output, input);
+				Array.Copy(output, 0, data, offset, 16);
+			}
+		}
+
+		private static void CheckLength(byte[] data, int minlen)
+		{
+			if (data.Length < minlen)
+				throw new Exception("データ長不足");
+		}
+
+		private static void XorBlock(byte[] data, byte[] maskData)
+		{
+			for (int index = 0; index < 16; index++)
+				data[index] ^= maskData[index];
 		}
 	}
 }
