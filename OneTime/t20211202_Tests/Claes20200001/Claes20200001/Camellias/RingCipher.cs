@@ -156,7 +156,10 @@ namespace Charlotte.Camellias
 		private static byte[] AddHash(byte[] data)
 		{
 			byte[] hash = SCommon.GetSHA512(data);
-			if (hash.Length != HASH_SIZE) throw null; // 2bs
+
+			if (hash.Length != HASH_SIZE)
+				throw null; // never
+
 			data = SCommon.Join(new byte[][] { data, hash });
 			return data;
 		}
@@ -164,7 +167,13 @@ namespace Charlotte.Camellias
 		private static byte[] RemoveHash(byte[] data)
 		{
 			CheckLength(data, HASH_SIZE);
+			byte[] hash = SCommon.GetSubBytes(data, data.Length - HASH_SIZE, HASH_SIZE);
 			data = SCommon.GetSubBytes(data, 0, data.Length - HASH_SIZE);
+			byte[] recalcHash = SCommon.GetSHA512(data);
+
+			if (SCommon.Comp(hash, recalcHash) != 0)
+				throw new Exception("入力データの破損または鍵の不一致を検知しました。");
+
 			return data;
 		}
 
@@ -203,7 +212,7 @@ namespace Charlotte.Camellias
 		private static void CheckLength(byte[] data, int minlen)
 		{
 			if (data.Length < minlen)
-				throw new Exception("データ長不足");
+				throw new Exception("入力データが欠損しています。(データ長不足)");
 		}
 
 		private static void XorBlock(byte[] data, byte[] maskData)
