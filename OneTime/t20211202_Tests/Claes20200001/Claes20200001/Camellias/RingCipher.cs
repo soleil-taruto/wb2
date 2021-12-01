@@ -50,6 +50,11 @@ namespace Charlotte.Camellias
 			}
 		}
 
+		/// <summary>
+		/// 暗号化を行う。
+		/// </summary>
+		/// <param name="data">入力データ</param>
+		/// <returns>出力データ</returns>
 		public byte[] Encrypt(byte[] data)
 		{
 			if (data == null)
@@ -59,10 +64,19 @@ namespace Charlotte.Camellias
 			data = AddCRandPart(data, 64);
 			data = AddHash(data);
 			data = AddCRandPart(data, 16);
-			EncryptRingCBC(data, this.Transformers);
+
+			foreach (Camellia transformer in this.Transformers)
+				EncryptRingCBC(data, transformer);
+
 			return data;
 		}
 
+		/// <summary>
+		/// 復号を行う。
+		/// 鍵の不一致も含め復号に失敗すると例外を投げる。
+		/// </summary>
+		/// <param name="data">入力データ</param>
+		/// <returns>出力データ</returns>
 		public byte[] Decrypt(byte[] data)
 		{
 			if (
@@ -71,7 +85,9 @@ namespace Charlotte.Camellias
 				)
 				throw new ArgumentException();
 
-			DecryptRingCBC(data, this.Transformers);
+			foreach (Camellia transformer in this.Transformers.Reverse())
+				DecryptRingCBC(data, transformer);
+
 			data = RemoveCRandPart(data, 16);
 			data = RemoveHash(data);
 			data = RemoveCRandPart(data, 64);
@@ -109,12 +125,12 @@ namespace Charlotte.Camellias
 			throw new NotImplementedException();
 		}
 
-		private static void EncryptRingCBC(byte[] data, Camellia[] transformers)
+		private static void EncryptRingCBC(byte[] data, Camellia transformer)
 		{
 			throw new NotImplementedException();
 		}
 
-		private static void DecryptRingCBC(byte[] data, Camellia[] transformers)
+		private static void DecryptRingCBC(byte[] data, Camellia transformer)
 		{
 			throw new NotImplementedException();
 		}
