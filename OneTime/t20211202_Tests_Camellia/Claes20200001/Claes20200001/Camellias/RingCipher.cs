@@ -50,10 +50,7 @@ namespace Charlotte.Camellias
 				else if (size == 40)
 					size = 24;
 
-				byte[] subRawKey = new byte[size];
-				Array.Copy(rawKey, offset, subRawKey, 0, size);
-				Camellia transformer = new Camellia(subRawKey);
-				dest.Add(transformer);
+				dest.Add(new Camellia(SCommon.GetSubBytes(rawKey, offset, size)));
 				offset += size;
 			}
 			this.Transformers = dest.ToArray();
@@ -177,6 +174,12 @@ namespace Charlotte.Camellias
 			return data;
 		}
 
+		private static void CheckLength(byte[] data, int minlen)
+		{
+			if (data.Length < minlen)
+				throw new Exception("入力データが欠損しています。(データ長不足)");
+		}
+
 		private static void EncryptRingCBC(byte[] data, Camellia transformer)
 		{
 			byte[] input = new byte[16];
@@ -207,12 +210,6 @@ namespace Charlotte.Camellias
 				XorBlock(output, input);
 				Array.Copy(output, 0, data, offset, 16);
 			}
-		}
-
-		private static void CheckLength(byte[] data, int minlen)
-		{
-			if (data.Length < minlen)
-				throw new Exception("入力データが欠損しています。(データ長不足)");
 		}
 
 		private static void XorBlock(byte[] data, byte[] maskData)
