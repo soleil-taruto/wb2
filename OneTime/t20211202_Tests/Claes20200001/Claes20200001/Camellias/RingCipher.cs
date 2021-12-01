@@ -39,6 +39,17 @@ namespace Charlotte.Camellias
 			this.Transformers = dest.ToArray();
 		}
 
+		public void Dispose()
+		{
+			if (this.Transformers != null)
+			{
+				foreach (Camellia transformer in this.Transformers)
+					transformer.Dispose();
+
+				this.Transformers = null;
+			}
+		}
+
 		public byte[] Encrypt(byte[] data)
 		{
 			if (data == null)
