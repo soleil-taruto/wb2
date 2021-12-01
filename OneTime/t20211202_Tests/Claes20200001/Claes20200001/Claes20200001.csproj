@@ -47,6 +47,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Camellias\Camellia.cs" />
+    <Compile Include="Camellias\OpenCrypto\CamelliaBase.cs" />
+    <Compile Include="Camellias\OpenCrypto\CamelliaManaged.cs" />
+    <Compile Include="Camellias\OpenCrypto\CamelliaTransform.cs" />
+    <Compile Include="Camellias\OpenCrypto\CamelliaTransformBE.cs" />
+    <Compile Include="Camellias\OpenCrypto\CamelliaTransformLE.cs" />
+    <Compile Include="Camellias\OpenCrypto\CipherImplementationType.cs" />
+    <Compile Include="Camellias\OpenCrypto\CipherModePlus.cs" />
+    <Compile Include="Camellias\OpenCrypto\CMAC.cs" />
+    <Compile Include="Camellias\OpenCrypto\ConfluentWaitHandle.cs" />
+    <Compile Include="Camellias\OpenCrypto\RNG.cs" />
+    <Compile Include="Camellias\OpenCrypto\ShortKeyedHashAlgorithm.cs" />
+    <Compile Include="Camellias\OpenCrypto\SymmetricAlgorithmPlus.cs" />
+    <Compile Include="Camellias\OpenCrypto\SymmetricTransform.cs" />
+    <Compile Include="Camellias\RingCipher.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="Commons\ArgsReader.cs" />
     <Compile Include="Commons\CsvFileReader.cs" />
