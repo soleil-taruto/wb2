@@ -5,13 +5,13 @@ using System.Text;
 using System.Drawing;
 using System.IO;
 using Charlotte.Commons;
-using Charlotte.Camellias;
+using Charlotte.SubCommons;
 
 namespace Charlotte.Tests
 {
 	public class Test0001
 	{
-		private const string TEST_VECTOR_FILE = @"..\..\..\..\dat\testvector\t_camellia.txt";
+		private const string TEST_VECTOR_FILE = @"..\..\..\..\dat\testvector\t_aes128.txt";
 
 		private class TestCase
 		{
@@ -66,7 +66,7 @@ namespace Charlotte.Tests
 				ProcMain.WriteLog("P " + SCommon.Hex.ToString(testCase.Plain));
 				ProcMain.WriteLog("C " + SCommon.Hex.ToString(testCase.Cipher));
 
-				using (Camellia transformer = new Camellia(testCase.Key))
+				using (RingCipher.AES transformer = new RingCipher.AES(testCase.Key))
 				{
 					transformer.EncryptBlock(testCase.Plain, block);
 

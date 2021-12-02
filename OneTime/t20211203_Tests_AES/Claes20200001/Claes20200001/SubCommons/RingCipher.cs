@@ -2,13 +2,82 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Security.Cryptography;
 using Charlotte.Commons;
 
-namespace Charlotte.Camellias
+namespace Charlotte.SubCommons
 {
 	public class RingCipher : IDisposable
 	{
-		private Camellia[] Transformers;
+		public class AES : IDisposable
+		{
+			private AesManaged Aes;
+			private ICryptoTransform Encryptor = null;
+			private ICryptoTransform Decryptor = null;
+
+			public AES(byte[] rawKey)
+			{
+				if (
+					rawKey.Length != 16 &&
+					rawKey.Length != 24 &&
+					rawKey.Length != 32
+					)
+					throw new ArgumentException();
+
+				this.Aes = new AesManaged();
+				this.Aes.KeySize = rawKey.Length * 8;
+				this.Aes.BlockSize = 128;
+				this.Aes.Mode = CipherMode.ECB;
+				this.Aes.IV = new byte[16]; // dummy
+				this.Aes.Key = rawKey;
+				this.Aes.Padding = PaddingMode.None;
+			}
+
+			public void EncryptBlock(byte[] input, byte[] output)
+			{
+				if (
+					input.Length != 16 ||
+					output.Length != 16
+					)
+					throw new ArgumentException();
+
+				if (this.Encryptor == null)
+					this.Encryptor = this.Aes.CreateEncryptor();
+
+				this.Encryptor.TransformBlock(input, 0, 16, output, 0);
+			}
+
+			public void DecryptBlock(byte[] input, byte[] output)
+			{
+				if (
+					input.Length != 16 ||
+					output.Length != 16
+					)
+					throw new ArgumentException();
+
+				if (this.Decryptor == null)
+					this.Decryptor = this.Aes.CreateDecryptor();
+
+				this.Decryptor.TransformBlock(input, 0, 16, output, 0);
+			}
+
+			public void Dispose()
+			{
+				if (this.Aes != null)
+				{
+					if (this.Encryptor != null)
+						this.Encryptor.Dispose();
+
+					if (this.Decryptor != null)
+						this.Decryptor.Dispose();
+
+					this.Aes.Dispose();
+					this.Aes = null;
+				}
+			}
+		}
+
+		private AES[] Transformers;
 
 		/// <summary>
 		/// 鍵の分割：
@@ -39,7 +108,7 @@ namespace Charlotte.Camellias
 				)
 				throw new ArgumentException();
 
-			List<Camellia> dest = new List<Camellia>();
+			List<AES> dest = new List<AES>();
 
 			for (int offset = 0; offset < rawKey.Length; )
 			{
@@ -50,7 +119,7 @@ namespace Charlotte.Camellias
 				else if (size == 40)
 					size = 24;
 
-				dest.Add(new Camellia(SCommon.GetSubBytes(rawKey, offset, size)));
+				dest.Add(new AES(SCommon.GetSubBytes(rawKey, offset, size)));
 				offset += size;
 			}
 			this.Transformers = dest.ToArray();
@@ -60,7 +129,7 @@ namespace Charlotte.Camellias
 		{
 			if (this.Transformers != null)
 			{
-				foreach (Camellia transformer in this.Transformers)
+				foreach (AES transformer in this.Transformers)
 					transformer.Dispose();
 
 				this.Transformers = null;
@@ -82,7 +151,7 @@ namespace Charlotte.Camellias
 			data = AddHash(data);
 			data = AddCRandPart(data, 16);
 
-			foreach (Camellia transformer in this.Transformers)
+			foreach (AES transformer in this.Transformers)
 				EncryptRingCBC(data, transformer);
 
 			return data;
@@ -105,7 +174,7 @@ namespace Charlotte.Camellias
 
 			data = SCommon.GetSubBytes(data, 0, data.Length); // 複製
 
-			foreach (Camellia transformer in this.Transformers.Reverse())
+			foreach (AES transformer in this.Transformers.Reverse())
 				DecryptRingCBC(data, transformer);
 
 			data = RemoveCRandPart(data, 16);
@@ -172,7 +241,7 @@ namespace Charlotte.Camellias
 			return data;
 		}
 
-		private static void EncryptRingCBC(byte[] data, Camellia transformer)
+		private static void EncryptRingCBC(byte[] data, AES transformer)
 		{
 			byte[] input = new byte[16];
 			byte[] output = new byte[16];
@@ -188,7 +257,7 @@ namespace Charlotte.Camellias
 			}
 		}
 
-		private static void DecryptRingCBC(byte[] data, Camellia transformer)
+		private static void DecryptRingCBC(byte[] data, AES transformer)
 		{
 			byte[] input = new byte[16];
 			byte[] output = new byte[16];
