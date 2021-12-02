@@ -98,10 +98,12 @@ namespace Charlotte.Camellias
 		{
 			if (
 				data == null ||
-				data.Length < 32 ||
+				data.Length < 16 + 64 + 64 + 16 || // ? AddPadding-したデータ_(最短)16 + cRandPart_64 + hash_64 + cRandPart_16 より短い
 				data.Length % 16 != 0
 				)
-				throw new ArgumentException();
+				throw new Exception("入力データの破損を検出しました。");
+
+			data = SCommon.GetSubBytes(data, 0, data.Length); // 複製
 
 			foreach (Camellia transformer in this.Transformers.Reverse())
 				DecryptRingCBC(data, transformer);
@@ -126,10 +128,8 @@ namespace Charlotte.Camellias
 
 		private static byte[] RemovePadding(byte[] data)
 		{
-			CheckLength(data, 1);
 			int size = data[data.Length - 1] & 0x0f;
 			size++;
-			CheckLength(data, size);
 			data = SCommon.GetSubBytes(data, 0, data.Length - size);
 			return data;
 		}
@@ -143,7 +143,6 @@ namespace Charlotte.Camellias
 
 		private static byte[] RemoveCRandPart(byte[] data, int size)
 		{
-			CheckLength(data, size);
 			data = SCommon.GetSubBytes(data, 0, data.Length - size);
 			return data;
 		}
@@ -163,21 +162,14 @@ namespace Charlotte.Camellias
 
 		private static byte[] RemoveHash(byte[] data)
 		{
-			CheckLength(data, HASH_SIZE);
 			byte[] hash = SCommon.GetSubBytes(data, data.Length - HASH_SIZE, HASH_SIZE);
 			data = SCommon.GetSubBytes(data, 0, data.Length - HASH_SIZE);
 			byte[] recalcHash = SCommon.GetSHA512(data);
 
 			if (SCommon.Comp(hash, recalcHash) != 0)
-				throw new Exception("入力データの破損または鍵の不一致を検知しました。");
+				throw new Exception("入力データの破損または鍵の不一致を検出しました。");
 
 			return data;
-		}
-
-		private static void CheckLength(byte[] data, int minlen)
-		{
-			if (data.Length < minlen)
-				throw new Exception("入力データが欠損しています。(データ長不足)");
 		}
 
 		private static void EncryptRingCBC(byte[] data, Camellia transformer)
