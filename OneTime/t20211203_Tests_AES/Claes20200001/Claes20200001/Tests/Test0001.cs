@@ -10,7 +10,7 @@ using Charlotte.SubCommons;
 namespace Charlotte.Tests
 {
 	/// <summary>
-	/// 主として Camellia.cs のテストを行う。
+	/// 主として AESCipher.cs のテストを行う。
 	/// </summary>
 	public class Test0001
 	{
