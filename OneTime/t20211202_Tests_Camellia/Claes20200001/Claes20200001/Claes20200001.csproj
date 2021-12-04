@@ -64,6 +64,7 @@
     <Compile Include="Camellias\OpenCrypto\SymmetricAlgorithmPlus.cs" />
     <Compile Include="Camellias\OpenCrypto\SymmetricTransform.cs" />
     <Compile Include="Camellias\RingCipher.cs" />
+    <Compile Include="Camellias\FileCipher.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="Commons\ArgsReader.cs" />
     <Compile Include="Commons\CsvFileReader.cs" />
