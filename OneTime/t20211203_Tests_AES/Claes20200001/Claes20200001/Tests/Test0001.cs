@@ -66,7 +66,7 @@ namespace Charlotte.Tests
 				ProcMain.WriteLog("P " + SCommon.Hex.ToString(testCase.Plain));
 				ProcMain.WriteLog("C " + SCommon.Hex.ToString(testCase.Cipher));
 
-				using (RingCipher.AES transformer = new RingCipher.AES(testCase.Key))
+				using (AESCipher transformer = new AESCipher(testCase.Key))
 				{
 					transformer.EncryptBlock(testCase.Plain, block);
 

@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SubCommons\AESCipher.cs" />
     <Compile Include="SubCommons\FileCipher.cs" />
     <Compile Include="SubCommons\RingCipher.cs" />
     <Compile Include="Common.cs" />
