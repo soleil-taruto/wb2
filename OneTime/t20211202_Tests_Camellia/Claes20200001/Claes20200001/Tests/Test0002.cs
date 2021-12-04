@@ -104,6 +104,10 @@ namespace Charlotte.Tests
 				encData = transformer.Encrypt(testData);
 			}
 
+			PrintHead(rawKey);
+			PrintHead(testData);
+			PrintHead(encData);
+
 			// 自力で復号
 			{
 				byte[] data = SCommon.GetSubBytes(encData, 0, encData.Length);
@@ -188,8 +192,12 @@ namespace Charlotte.Tests
 				decData = SCommon.GetSubBytes(data_01, 0, 10);
 			}
 
+			PrintHead(decData);
+
 			if (SCommon.Comp(testData, decData) != 0) // ? 平文と復号した平文の不一致
 				throw null;
+
+			ProcMain.WriteLog("OK");
 		}
 	}
 }
