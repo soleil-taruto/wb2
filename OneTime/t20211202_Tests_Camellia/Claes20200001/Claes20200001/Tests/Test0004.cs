@@ -33,7 +33,6 @@ namespace Charlotte.Tests
 
 		private void Test01_a(int keySize)
 		{
-#if !true
 			Test01_b(keySize, 0);
 			Test01_b(keySize, 10);
 			Test01_b(keySize, 30);
@@ -51,9 +50,6 @@ namespace Charlotte.Tests
 			//Test01_b(keySize, 30000000);
 			//Test01_b(keySize, 100000000);
 			//Test01_b(keySize, 300000000);
-#else
-			Test01_b(keySize, 100000000);
-#endif
 		}
 
 		private void Test01_b(int keySize, int dataSize)
