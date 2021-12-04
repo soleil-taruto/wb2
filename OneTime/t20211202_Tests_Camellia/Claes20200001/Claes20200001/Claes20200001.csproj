@@ -91,6 +91,7 @@
     <Compile Include="Tests\Test0001.cs" />
     <Compile Include="Tests\Test0002.cs" />
     <Compile Include="Tests\Test0003.cs" />
+    <Compile Include="Tests\Test0004.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
