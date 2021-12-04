@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SubCommons\FileCipher.cs" />
     <Compile Include="SubCommons\RingCipher.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="Commons\ArgsReader.cs" />
@@ -75,6 +76,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tests\Test0001.cs" />
     <Compile Include="Tests\Test0002.cs" />
+    <Compile Include="Tests\Test0003.cs" />
+    <Compile Include="Tests\Test0004.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
