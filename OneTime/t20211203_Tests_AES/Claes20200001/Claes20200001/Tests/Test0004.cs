@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Charlotte.Commons;
-using Charlotte.Camellias;
 using System.IO;
+using Charlotte.Commons;
+using Charlotte.SubCommons;
 
 namespace Charlotte.Tests
 {
