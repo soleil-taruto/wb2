@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
+using System.Security.Cryptography;
 using Charlotte.Commons;
 
 namespace Charlotte.Camellias
 {
-	public class RingCipher : IDisposable
+	public class FileCipher : IDisposable
 	{
 		private Camellia[] Transformers;
 
@@ -30,7 +32,7 @@ namespace Charlotte.Camellias
 		/// -- ...
 		/// </summary>
 		/// <param name="rawKey">鍵</param>
-		public RingCipher(byte[] rawKey)
+		public FileCipher(byte[] rawKey)
 		{
 			if (
 				rawKey == null ||
@@ -70,137 +72,193 @@ namespace Charlotte.Camellias
 		/// <summary>
 		/// 暗号化を行う。
 		/// </summary>
-		/// <param name="data">入力データ</param>
-		/// <returns>出力データ</returns>
-		public byte[] Encrypt(byte[] data)
+		/// <param name="data">入出力ファイル</param>
+		public void Encrypt(string file)
 		{
-			if (data == null)
+			if (
+				file == null ||
+				!File.Exists(file)
+				)
 				throw new ArgumentException();
 
-			data = AddPadding(data);
-			data = AddCRandPart(data, 64);
-			data = AddHash(data);
-			data = AddCRandPart(data, 16);
+			AddPadding(file);
+			AddCRandPart(file, 64);
+			AddHash(file);
+			AddCRandPart(file, 16);
 
 			foreach (Camellia transformer in this.Transformers)
-				EncryptRingCBC(data, transformer);
-
-			return data;
+				EncryptRingCBC(file, transformer);
 		}
 
 		/// <summary>
 		/// 復号を行う。
 		/// データの破損や鍵の不一致も含め復号に失敗すると例外を投げる。
+		/// -- このとき入出力ファイルの内容は中途半端な状態であることに注意すること。
 		/// </summary>
-		/// <param name="data">入力データ</param>
-		/// <returns>出力データ</returns>
-		public byte[] Decrypt(byte[] data)
+		/// <param name="data">入出力ファイル</param>
+		public void Decrypt(string file)
 		{
 			if (
-				data == null ||
-				data.Length < 16 + 64 + 64 + 16 || // ? AddPadding-したデータ_(最短)16 + cRandPart_64 + hash_64 + cRandPart_16 より短い
-				data.Length % 16 != 0
+				file == null ||
+				!File.Exists(file)
+				)
+				throw new ArgumentException();
+
+			long fileSize = new FileInfo(file).Length;
+
+			if (
+				fileSize < 16 + 64 + 64 + 16 || // ? AddPadding-したデータ_(最短)16 + cRandPart_64 + hash_64 + cRandPart_16 より短い
+				fileSize % 16 != 0
 				)
 				throw new Exception("入力データの破損を検出しました。");
 
-			data = SCommon.GetSubBytes(data, 0, data.Length); // 複製
-
 			foreach (Camellia transformer in this.Transformers.Reverse())
-				DecryptRingCBC(data, transformer);
+				DecryptRingCBC(file, transformer);
 
-			data = RemoveCRandPart(data, 16);
-			data = RemoveHash(data);
-			data = RemoveCRandPart(data, 64);
-			data = RemovePadding(data);
-			return data;
+			RemoveCRandPart(file, 16);
+			RemoveHash(file);
+			RemoveCRandPart(file, 64);
+			RemovePadding(file);
 		}
 
-		private static byte[] AddPadding(byte[] data)
+		private static void AddPadding(string file)
 		{
-			int size = 16 - data.Length % 16;
+			long fileSize = new FileInfo(file).Length;
+			int size = 16 - (int)(fileSize % 16);
 			byte[] padding = SCommon.CRandom.GetBytes(size);
 			size--;
 			padding[size] &= 0xf0;
 			padding[size] |= (byte)size;
-			data = SCommon.Join(new byte[][] { data, padding });
-			return data;
+			AppendBytes(file, padding);
 		}
 
-		private static byte[] RemovePadding(byte[] data)
+		private static void RemovePadding(string file)
 		{
-			int size = data[data.Length - 1] & 0x0f;
-			size++;
-			data = SCommon.GetSubBytes(data, 0, data.Length - size);
-			return data;
+			using (FileStream stream = new FileStream(file, FileMode.Append, FileAccess.ReadWrite))
+			{
+				long fileSize = stream.Length;
+
+				if (fileSize < 1)
+					throw new Exception("Bad fileSize: " + fileSize);
+
+				stream.Seek(fileSize - 1, SeekOrigin.Begin);
+				int size = stream.ReadByte() & 0x0f;
+				size++;
+
+				if (fileSize < size)
+					throw new Exception("Bad fileSize: " + fileSize);
+
+				stream.SetLength(fileSize - size);
+			}
 		}
 
-		private static byte[] AddCRandPart(byte[] data, int size)
+		private static void AddCRandPart(string file, int size)
 		{
 			byte[] padding = SCommon.CRandom.GetBytes(size);
-			data = SCommon.Join(new byte[][] { data, padding });
-			return data;
+			AppendBytes(file, padding);
 		}
 
-		private static byte[] RemoveCRandPart(byte[] data, int size)
+		private static void RemoveCRandPart(string file, int size)
 		{
-			data = SCommon.GetSubBytes(data, 0, data.Length - size);
-			return data;
+			using (FileStream stream = new FileStream(file, FileMode.Append, FileAccess.ReadWrite))
+			{
+				long fileSize = stream.Length;
+
+				if (fileSize < size)
+					throw new Exception("Bad fileSize: " + fileSize);
+
+				stream.SetLength(fileSize - size);
+			}
 		}
 
 		private const int HASH_SIZE = 64;
 
-		private static byte[] AddHash(byte[] data)
+		private static void AddHash(string file)
 		{
-			byte[] hash = SCommon.GetSHA512(data);
+			byte[] hash = GetSHA512ByFile(file);
 
 			if (hash.Length != HASH_SIZE)
 				throw null; // never
 
-			data = SCommon.Join(new byte[][] { data, hash });
-			return data;
+			AppendBytes(file, hash);
 		}
 
-		private static byte[] RemoveHash(byte[] data)
+		private static void RemoveHash(string file)
 		{
-			byte[] hash = SCommon.GetSubBytes(data, data.Length - HASH_SIZE, HASH_SIZE);
-			data = SCommon.GetSubBytes(data, 0, data.Length - HASH_SIZE);
-			byte[] recalcHash = SCommon.GetSHA512(data);
-
-			if (SCommon.Comp(hash, recalcHash) != 0)
-				throw new Exception("入力データの破損または鍵の不一致を検出しました。");
-
-			return data;
-		}
-
-		private static void EncryptRingCBC(byte[] data, Camellia transformer)
-		{
-			byte[] input = new byte[16];
-			byte[] output = new byte[16];
-
-			Array.Copy(data, data.Length - 16, output, 0, 16);
-
-			for (int offset = 0; offset < data.Length; offset += 16)
+			using (SHA512 sha512 = SHA512.Create())
+			using (FileStream stream = new FileStream(file, FileMode.Append, FileAccess.ReadWrite))
 			{
-				Array.Copy(data, offset, input, 0, 16);
-				XorBlock(input, output);
-				transformer.EncryptBlock(input, output);
-				Array.Copy(output, 0, data, offset, 16);
+				long fileSize = stream.Length;
+
+				if (fileSize < HASH_SIZE)
+					throw new Exception("Bad fileSize: " + fileSize);
+
+				stream.Seek(fileSize - HASH_SIZE, SeekOrigin.Begin);
+				byte[] hash = SCommon.Read(stream, HASH_SIZE);
+				stream.SetLength(fileSize - HASH_SIZE);
+				byte[] recalcHash = sha512.ComputeHash(stream);
+
+				if (SCommon.Comp(hash, recalcHash) != 0)
+					throw new Exception("入力データの破損または鍵の不一致を検出しました。");
 			}
 		}
 
-		private static void DecryptRingCBC(byte[] data, Camellia transformer)
+		private static void EncryptRingCBC(string file, Camellia transformer)
 		{
 			byte[] input = new byte[16];
 			byte[] output = new byte[16];
 
-			Array.Copy(data, data.Length - 16, input, 0, 16);
-
-			for (int offset = data.Length - 16; 0 <= offset; offset -= 16)
+			using (FileStream stream = new FileStream(file, FileMode.Append, FileAccess.ReadWrite))
 			{
-				transformer.DecryptBlock(input, output);
-				Array.Copy(data, (offset + data.Length - 16) % data.Length, input, 0, 16);
-				XorBlock(output, input);
-				Array.Copy(output, 0, data, offset, 16);
+				long fileSize = stream.Length;
+
+				if (
+					fileSize < 32 ||
+					fileSize % 16 != 0
+					)
+					throw new Exception("Bad fileSize: " + fileSize);
+
+				stream.Seek(fileSize - 16, SeekOrigin.Begin);
+				SCommon.Read(stream, output);
+				stream.Seek(0L, SeekOrigin.Begin);
+
+				for (long offset = 0; offset < fileSize; offset += 16)
+				{
+					SCommon.Read(stream, input);
+					XorBlock(input, output);
+					transformer.EncryptBlock(input, output);
+					stream.Seek(offset, SeekOrigin.Begin);
+					SCommon.Write(stream, output);
+				}
+			}
+		}
+
+		private static void DecryptRingCBC(string file, Camellia transformer)
+		{
+			byte[] input = new byte[16];
+			byte[] output = new byte[16];
+
+			using (FileStream stream = new FileStream(file, FileMode.Append, FileAccess.ReadWrite))
+			{
+				long fileSize = stream.Length;
+
+				if (
+					fileSize < 32 ||
+					fileSize % 16 != 0
+					)
+					throw new Exception("Bad fileSize: " + fileSize);
+
+				stream.Seek(fileSize - 16, SeekOrigin.Begin);
+				SCommon.Read(stream, input);
+
+				for (long offset = fileSize - 16; 0L <= offset; offset -= 16)
+				{
+					transformer.DecryptBlock(input, output);
+					stream.Seek((offset + fileSize - 16) % fileSize, SeekOrigin.Begin);
+					SCommon.Read(stream, input);
+					XorBlock(output, input);
+					SCommon.Write(stream, output);
+				}
 			}
 		}
 
@@ -208,6 +266,23 @@ namespace Charlotte.Camellias
 		{
 			for (int index = 0; index < 16; index++)
 				data[index] ^= maskData[index];
+		}
+
+		private static void AppendBytes(string file, byte[] data)
+		{
+			using (FileStream writer = new FileStream(file, FileMode.Append, FileAccess.Write))
+			{
+				SCommon.Write(writer, data);
+			}
+		}
+
+		private static byte[] GetSHA512ByFile(string file)
+		{
+			using (SHA512 sha512 = SHA512.Create())
+			using (FileStream reader = new FileStream(file, FileMode.Open, FileAccess.Read))
+			{
+				return sha512.ComputeHash(reader);
+			}
 		}
 	}
 }
