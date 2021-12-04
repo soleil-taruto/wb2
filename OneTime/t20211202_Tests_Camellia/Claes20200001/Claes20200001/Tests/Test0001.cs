@@ -9,6 +9,9 @@ using Charlotte.Camellias;
 
 namespace Charlotte.Tests
 {
+	/// <summary>
+	/// 主として Camellia.cs のテストを行う。
+	/// </summary>
 	public class Test0001
 	{
 		private const string TEST_VECTOR_FILE = @"..\..\..\..\dat\testvector\t_camellia.txt";

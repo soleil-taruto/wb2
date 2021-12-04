@@ -8,6 +8,9 @@ using Charlotte.Camellias;
 
 namespace Charlotte.Tests
 {
+	/// <summary>
+	/// 主として FileCipher.cs のテストを行う。
+	/// </summary>
 	public class Test0003
 	{
 		public void Test01()

@@ -8,6 +8,9 @@ using Charlotte.SubCommons;
 
 namespace Charlotte.Tests
 {
+	/// <summary>
+	/// 時間計測を行う。
+	/// </summary>
 	public class Test0004
 	{
 		private CsvFileWriter Writer;

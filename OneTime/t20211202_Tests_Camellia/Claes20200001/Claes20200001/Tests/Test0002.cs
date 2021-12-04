@@ -7,6 +7,9 @@ using Charlotte.Camellias;
 
 namespace Charlotte.Tests
 {
+	/// <summary>
+	/// 主として RingCipher.cs のテストを行う。
+	/// </summary>
 	public class Test0002
 	{
 		public void Test01()
