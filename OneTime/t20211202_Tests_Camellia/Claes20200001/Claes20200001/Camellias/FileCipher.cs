@@ -236,7 +236,12 @@ namespace Charlotte.Camellias
 				for (long offset = 0; offset < fileSize; offset += 16)
 				{
 					if (offset % REPORT_PERIOD == 0L)
-						ProcMain.WriteLog("ファイルを暗号化しています。" + ((double)offset / fileSize).ToString("F3"));
+						ProcMain.WriteLog(
+							"ファイルを暗号化しています。" +
+							((double)offset / fileSize).ToString("F3") +
+							" " +
+							transformer.GetHashCode().ToString("x8")
+							);
 
 					SCommon.Read(stream, input);
 					XorBlock(input, output);
@@ -268,7 +273,12 @@ namespace Charlotte.Camellias
 				for (long offset = fileSize - 16; 0L <= offset; offset -= 16)
 				{
 					if (offset % REPORT_PERIOD == 0L)
-						ProcMain.WriteLog("ファイルを復号しています。" + ((double)offset / fileSize).ToString("F3"));
+						ProcMain.WriteLog(
+							"ファイルを復号しています。" +
+							((double)offset / fileSize).ToString("F3") +
+							" " +
+							transformer.GetHashCode().ToString("x8")
+							);
 
 					transformer.DecryptBlock(input, output);
 					stream.Seek((offset + fileSize - 16) % fileSize, SeekOrigin.Begin);

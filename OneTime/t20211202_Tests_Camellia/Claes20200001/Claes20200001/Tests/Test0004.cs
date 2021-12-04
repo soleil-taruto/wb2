@@ -45,7 +45,7 @@ namespace Charlotte.Tests
 			Test01_b(keySize, 100000);
 			Test01_b(keySize, 300000);
 			Test01_b(keySize, 1000000);
-			Test01_b(keySize, 3000000);
+			//Test01_b(keySize, 3000000);
 			//Test01_b(keySize, 10000000);
 			//Test01_b(keySize, 30000000);
 			//Test01_b(keySize, 100000000);
