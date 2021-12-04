@@ -3,28 +3,29 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Charlotte.Commons;
-using Charlotte.SubCommons;
+using Charlotte.Camellias;
+using System.IO;
 
 namespace Charlotte.Tests
 {
-	public class Test0002
+	public class Test0003
 	{
 		public void Test01()
 		{
 			for (int size = 0; size < 100; size++)
-				for (int testcnt = 0; testcnt < 100; testcnt++)
-					Test01_a(size);
+				Test01_a(size);
 
 			for (int testcnt = 0; testcnt < 300; testcnt++)
-				Test01_a(SCommon.CRandom.GetRange(100, 3000));
+				Test01_a(SCommon.CRandom.GetRange(100, 1000));
 
 			for (int testcnt = 0; testcnt < 100; testcnt++)
-				Test01_a(SCommon.CRandom.GetRange(3000, 100000));
+				Test01_a(SCommon.CRandom.GetRange(1000, 10000));
 
 			for (int testcnt = 0; testcnt < 30; testcnt++)
-				Test01_a(SCommon.CRandom.GetRange(100000, 3000000));
+				Test01_a(SCommon.CRandom.GetRange(10000, 100000));
 
-			ProcMain.WriteLog("OK!");
+			for (int testcnt = 0; testcnt < 10; testcnt++)
+				Test01_a(SCommon.CRandom.GetRange(100000, 1000000));
 		}
 
 		private void Test01_a(int size)
@@ -50,10 +51,40 @@ namespace Charlotte.Tests
 			PrintHead(encData);
 			PrintHead(decData);
 
+			byte[] encData2;
+			byte[] decData2;
+
+			using (WorkingDir wd = new WorkingDir())
+			using (FileCipher transformer = new FileCipher(rawKey))
+			{
+				string file = wd.MakePath();
+				File.WriteAllBytes(file, testData);
+				transformer.Encrypt(file);
+				encData2 = File.ReadAllBytes(file);
+				transformer.Decrypt(file);
+				decData2 = File.ReadAllBytes(file);
+			}
+
+			ProcMain.WriteLog("e " + encData2.Length);
+			ProcMain.WriteLog("d " + decData2.Length);
+
+			PrintHead(encData2);
+			PrintHead(decData2);
+
+			// 2bs
 			if (testData.Length == encData.Length) // 平文と暗号文は少なくとも長さは違うはず
 				throw null;
 
+			// 2bs
 			if (SCommon.Comp(testData, decData) != 0) // ? 平文と復号した平文の不一致
+				throw null;
+
+			// 暗号文はcRandPartが異なるため(ほぼ確実に)一致しない。
+
+			if (encData.Length != encData2.Length) // ? 暗号文の長さの不一致
+				throw null;
+
+			if (SCommon.Comp(decData, decData2) != 0) // ? 平文の不一致
 				throw null;
 		}
 

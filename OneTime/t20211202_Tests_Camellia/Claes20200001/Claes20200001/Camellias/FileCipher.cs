@@ -134,7 +134,7 @@ namespace Charlotte.Camellias
 
 		private static void RemovePadding(string file)
 		{
-			using (FileStream stream = new FileStream(file, FileMode.Append, FileAccess.ReadWrite))
+			using (FileStream stream = new FileStream(file, FileMode.Open, FileAccess.ReadWrite))
 			{
 				long fileSize = stream.Length;
 
@@ -160,7 +160,7 @@ namespace Charlotte.Camellias
 
 		private static void RemoveCRandPart(string file, int size)
 		{
-			using (FileStream stream = new FileStream(file, FileMode.Append, FileAccess.ReadWrite))
+			using (FileStream stream = new FileStream(file, FileMode.Open, FileAccess.ReadWrite))
 			{
 				long fileSize = stream.Length;
 
@@ -186,7 +186,7 @@ namespace Charlotte.Camellias
 		private static void RemoveHash(string file)
 		{
 			using (SHA512 sha512 = SHA512.Create())
-			using (FileStream stream = new FileStream(file, FileMode.Append, FileAccess.ReadWrite))
+			using (FileStream stream = new FileStream(file, FileMode.Open, FileAccess.ReadWrite))
 			{
 				long fileSize = stream.Length;
 
@@ -195,6 +195,7 @@ namespace Charlotte.Camellias
 
 				stream.Seek(fileSize - HASH_SIZE, SeekOrigin.Begin);
 				byte[] hash = SCommon.Read(stream, HASH_SIZE);
+				stream.Seek(0L, SeekOrigin.Begin);
 				stream.SetLength(fileSize - HASH_SIZE);
 				byte[] recalcHash = sha512.ComputeHash(stream);
 
@@ -208,7 +209,7 @@ namespace Charlotte.Camellias
 			byte[] input = new byte[16];
 			byte[] output = new byte[16];
 
-			using (FileStream stream = new FileStream(file, FileMode.Append, FileAccess.ReadWrite))
+			using (FileStream stream = new FileStream(file, FileMode.Open, FileAccess.ReadWrite))
 			{
 				long fileSize = stream.Length;
 
@@ -238,7 +239,7 @@ namespace Charlotte.Camellias
 			byte[] input = new byte[16];
 			byte[] output = new byte[16];
 
-			using (FileStream stream = new FileStream(file, FileMode.Append, FileAccess.ReadWrite))
+			using (FileStream stream = new FileStream(file, FileMode.Open, FileAccess.ReadWrite))
 			{
 				long fileSize = stream.Length;
 
@@ -257,6 +258,10 @@ namespace Charlotte.Camellias
 					stream.Seek((offset + fileSize - 16) % fileSize, SeekOrigin.Begin);
 					SCommon.Read(stream, input);
 					XorBlock(output, input);
+
+					if (offset == 0L)
+						stream.Seek(0L, SeekOrigin.Begin);
+
 					SCommon.Write(stream, output);
 				}
 			}

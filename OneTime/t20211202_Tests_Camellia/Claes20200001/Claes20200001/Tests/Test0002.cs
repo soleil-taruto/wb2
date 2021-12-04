@@ -50,7 +50,7 @@ namespace Charlotte.Tests
 			PrintHead(encData);
 			PrintHead(decData);
 
-			if (testData.Length == encData.Length) // 平文と暗号は少なくとも長さは違うはず
+			if (testData.Length == encData.Length) // 平文と暗号文は少なくとも長さは違うはず
 				throw null;
 
 			if (SCommon.Comp(testData, decData) != 0) // ? 平文と復号した平文の不一致
