@@ -46,15 +46,15 @@ namespace Charlotte.Tests
 			Test01_b(keySize, 300000);
 			Test01_b(keySize, 1000000);
 			Test01_b(keySize, 3000000);
-			Test01_b(keySize, 10000000);
-			Test01_b(keySize, 30000000);
-			Test01_b(keySize, 100000000);
-			Test01_b(keySize, 300000000);
+			//Test01_b(keySize, 10000000);
+			//Test01_b(keySize, 30000000);
+			//Test01_b(keySize, 100000000);
+			//Test01_b(keySize, 300000000);
 		}
 
 		private void Test01_b(int keySize, int dataSize)
 		{
-			for (int testcnt = 0; testcnt < 5; testcnt++)
+			for (int testcnt = 0; testcnt < 3; testcnt++)
 			{
 				MeasureProcessTime(keySize, dataSize);
 			}
