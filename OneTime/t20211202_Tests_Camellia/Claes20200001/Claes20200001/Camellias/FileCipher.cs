@@ -75,6 +75,8 @@ namespace Charlotte.Camellias
 		/// <param name="data">入出力ファイル</param>
 		public void Encrypt(string file)
 		{
+			ProcMain.WriteLog("ファイルの暗号化を開始しました。");
+
 			if (
 				file == null ||
 				!File.Exists(file)
@@ -88,6 +90,8 @@ namespace Charlotte.Camellias
 
 			foreach (Camellia transformer in this.Transformers)
 				EncryptRingCBC(file, transformer);
+
+			ProcMain.WriteLog("ファイルの暗号化を終了しました。");
 		}
 
 		/// <summary>
@@ -98,6 +102,8 @@ namespace Charlotte.Camellias
 		/// <param name="data">入出力ファイル</param>
 		public void Decrypt(string file)
 		{
+			ProcMain.WriteLog("ファイルの復号を開始しました。");
+
 			if (
 				file == null ||
 				!File.Exists(file)
@@ -119,6 +125,8 @@ namespace Charlotte.Camellias
 			RemoveHash(file);
 			RemoveCRandPart(file, 64);
 			RemovePadding(file);
+
+			ProcMain.WriteLog("ファイルの復号を終了しました。");
 		}
 
 		private static void AddPadding(string file)
@@ -204,6 +212,8 @@ namespace Charlotte.Camellias
 			}
 		}
 
+		private const long REPORT_PERIOD = 16 * 500000;
+
 		private static void EncryptRingCBC(string file, Camellia transformer)
 		{
 			byte[] input = new byte[16];
@@ -225,6 +235,9 @@ namespace Charlotte.Camellias
 
 				for (long offset = 0; offset < fileSize; offset += 16)
 				{
+					if (offset % REPORT_PERIOD == 0L)
+						ProcMain.WriteLog("ファイルを暗号化しています。" + ((double)offset / fileSize).ToString("F3"));
+
 					SCommon.Read(stream, input);
 					XorBlock(input, output);
 					transformer.EncryptBlock(input, output);
@@ -254,6 +267,9 @@ namespace Charlotte.Camellias
 
 				for (long offset = fileSize - 16; 0L <= offset; offset -= 16)
 				{
+					if (offset % REPORT_PERIOD == 0L)
+						ProcMain.WriteLog("ファイルを復号しています。" + ((double)offset / fileSize).ToString("F3"));
+
 					transformer.DecryptBlock(input, output);
 					stream.Seek((offset + fileSize - 16) % fileSize, SeekOrigin.Begin);
 					SCommon.Read(stream, input);
