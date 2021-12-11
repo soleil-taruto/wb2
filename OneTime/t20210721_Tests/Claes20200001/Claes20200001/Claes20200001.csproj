@@ -76,6 +76,7 @@
     <Compile Include="Tests\Test0004.cs" />
     <Compile Include="Tests\Test0005.cs" />
     <Compile Include="Tests\Test0006.cs" />
+    <Compile Include="Tests\Test0007.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
