@@ -108,7 +108,7 @@ namespace Charlotte.SubCommons
 			string name = this.Name;
 			string value = this.Value;
 
-			// node 正規化
+			// ノード(タグ名・値)の正規化
 			{
 				name = name ?? "";
 				value = value ?? "";
@@ -148,7 +148,7 @@ namespace Charlotte.SubCommons
 			string name = this.Name;
 			string value = this.Value;
 
-			// attribute 正規化
+			// 属性(属性名・属性値)の正規化
 			{
 				name = name ?? "";
 				value = value ?? "";
