@@ -24,10 +24,7 @@ namespace Charlotte.Tests
 		private void Test01_a(byte[] testData)
 		{
 			string base64 = SCommon.Base64.I.Encode(testData);
-			string base64url = SCommon.Base64.I.Encode(testData)
-				.Replace("=", "")
-				.Replace('+', '-')
-				.Replace('/', '_'); // Base64 Encode -> Base64 URL Encode
+			string base64url = SCommon.Base64.I.EncodeURL(testData);
 
 			Console.WriteLine(base64); // cout
 			Console.WriteLine(base64url); // cout
