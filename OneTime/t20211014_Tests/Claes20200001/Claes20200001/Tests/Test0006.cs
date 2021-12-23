@@ -53,7 +53,7 @@ namespace Charlotte.Tests
 				Console.WriteLine("> " + dec.Length);
 			}
 
-			if (!Regex.IsMatch(enc, "^[-_A-Za-z0-9]{2,}$")) // ? 書式エラー
+			if (!Regex.IsMatch(enc, "^[A-Za-z0-9+/]{2,}$")) // ? 書式エラー
 				throw null;
 
 			if (SCommon.Comp(testStrings, dec, SCommon.Comp) != 0) // ? 不一致
